@@ -15,7 +15,7 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
 
     private readonly string _dataDir = Path.Combine(Path.GetTempPath(), "guardou-tests", Guid.NewGuid().ToString("N"));
 
-    internal string FilesDirectory => Path.Combine(_dataDir, "files");
+    internal string FilesDirectory => Path.Combine(_dataDir, "data");
 
     internal TestTimeProvider Time { get; } = new();
 
@@ -26,7 +26,7 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
         builder.UseWebRoot(webRoot);
         builder.ConfigureServices(services =>
         {
-            services.Replace(ServiceDescriptor.Singleton(new DataDirectory(_dataDir)));
+            services.Replace(ServiceDescriptor.Singleton(new StoragePaths(FilesDirectory, Path.Combine(_dataDir, "db"))));
             services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Time));
         });
     }

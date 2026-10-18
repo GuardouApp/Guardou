@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Guardou.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261018032730_Initial")]
+    [Migration("20261018041249_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -70,6 +70,23 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .HasFilter("\"Trashed\" IS NULL");
 
                     b.ToTable("Items", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

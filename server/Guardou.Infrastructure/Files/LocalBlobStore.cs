@@ -3,7 +3,7 @@ using Guardou.Infrastructure.Storage;
 
 namespace Guardou.Infrastructure.Files;
 
-internal sealed class LocalBlobStore(DataDirectory dataDirectory) : IBlobStore
+internal sealed class LocalBlobStore(StoragePaths paths) : IBlobStore
 {
     private const string PartialSuffix = ".part";
     private const int BufferSize = 81920;
@@ -12,7 +12,7 @@ internal sealed class LocalBlobStore(DataDirectory dataDirectory) : IBlobStore
     {
         string path = PathOf(key);
         string partial = path + PartialSuffix;
-        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? dataDirectory.FilesDirectory);
+        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? paths.FilesDirectory);
         try
         {
             await using (FileStream target = CreateFile(partial))
@@ -50,8 +50,8 @@ internal sealed class LocalBlobStore(DataDirectory dataDirectory) : IBlobStore
 
     public long TotalBytes()
     {
-        Directory.CreateDirectory(dataDirectory.FilesDirectory);
-        return new DriveInfo(Path.GetFullPath(dataDirectory.FilesDirectory)).TotalSize;
+        Directory.CreateDirectory(paths.FilesDirectory);
+        return new DriveInfo(Path.GetFullPath(paths.FilesDirectory)).TotalSize;
     }
 
     private static FileStream CreateFile(string path)
@@ -66,7 +66,7 @@ internal sealed class LocalBlobStore(DataDirectory dataDirectory) : IBlobStore
 
     private string PathOf(string key)
     {
-        return SafePathResolver.Resolve(Path.GetFullPath(dataDirectory.FilesDirectory), key)
+        return SafePathResolver.Resolve(Path.GetFullPath(paths.FilesDirectory), key)
             ?? throw new InvalidOperationException($"The storage key '{key}' leaves the files directory.");
     }
 }

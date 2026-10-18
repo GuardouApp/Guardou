@@ -38,8 +38,8 @@ RUN dotnet publish Guardou.Cli/Guardou.Cli.csproj -c Release -o /app --no-restor
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 RUN addgroup -g 1000 guardou \
     && adduser -D -u 1000 -G guardou -h /home/guardou guardou \
-    && mkdir -p /data \
-    && chown guardou:guardou /data \
+    && mkdir -p /data /db \
+    && chown guardou:guardou /data /db \
     && printf '#!/bin/sh\nexec dotnet /app/guardou.dll "$@"\n' > /usr/local/bin/guardou \
     && chmod 755 /usr/local/bin/guardou
 WORKDIR /app
@@ -47,7 +47,7 @@ COPY --from=server /app ./
 COPY --from=frontend /src/frontend/build/web ./wwwroot/
 ENV ASPNETCORE_HTTP_PORTS=8080
 USER 1000:1000
-VOLUME /data
+VOLUME ["/data", "/db"]
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1

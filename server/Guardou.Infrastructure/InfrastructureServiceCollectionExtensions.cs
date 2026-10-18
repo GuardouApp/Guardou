@@ -9,13 +9,10 @@ using Guardou.Infrastructure.Identity;
 using Guardou.Infrastructure.Persistence;
 using Guardou.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Guardou.Infrastructure;
 
@@ -23,9 +20,9 @@ public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton(new DataDirectory(DataDirectory.DefaultRoot));
+        services.AddSingleton(new StoragePaths(StoragePaths.DefaultFilesRoot, StoragePaths.DefaultDatabaseRoot));
         services.AddDbContext<AppDbContext>((provider, options) =>
-            options.UseSqlite(ConnectionString(provider.GetRequiredService<DataDirectory>())));
+            options.UseSqlite(ConnectionString(provider.GetRequiredService<StoragePaths>())));
 
         services.AddIdentityCore<IdentityUser>()
             .AddRoles<IdentityRole>()
@@ -52,19 +49,16 @@ public static class InfrastructureServiceCollectionExtensions
         services.ConfigureApplicationCookie(SessionCookie.Configure);
         services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
 
-        services.AddDataProtection().SetApplicationName(Product.Name);
-        services.AddOptions<KeyManagementOptions>()
-            .Configure<DataDirectory, ILoggerFactory>((options, dataDirectory, loggerFactory) =>
-                options.XmlRepository = new FileSystemXmlRepository(new DirectoryInfo(dataDirectory.KeysDirectory), loggerFactory));
+        services.AddDataProtection().SetApplicationName(Product.Name).PersistKeysToDbContext<AppDbContext>();
 
         services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
         services.AddScoped<ISessionService, IdentitySessionService>();
         return services;
     }
 
-    private static string ConnectionString(DataDirectory dataDirectory)
+    private static string ConnectionString(StoragePaths paths)
     {
-        return new SqliteConnectionStringBuilder { DataSource = dataDirectory.DatabaseFile }.ToString();
+        return new SqliteConnectionStringBuilder { DataSource = paths.DatabaseFile }.ToString();
     }
 
     private static void ApplyPasswordPolicy(PasswordOptions password, PasswordPolicy policy)
