@@ -1,0 +1,85 @@
+name: Docker publish
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: guardouapp/guardou
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Require the tag on main
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::The tag ${GITHUB_REF_NAME} does not point to a commit on main."
+            exit 1
+          fi
+
+      - name: Require the tag to match the project version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          server=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' server/Directory.Build.props)
+          frontend=$(sed -n 's/^version: //p' frontend/pubspec.yaml)
+          if [ "$tag" != "$server" ] || [ "$tag" != "$frontend" ]; then
+            echo "::error::Tag ${tag}, server ${server} and frontend ${frontend} must be equal."
+            exit 1
+          fi
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log into ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Sign the published Docker image
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: echo "${TAGS}" | xargs -I {} cosign sign --yes "{}@${DIGEST}"
