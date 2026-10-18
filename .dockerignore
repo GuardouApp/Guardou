@@ -25,6 +25,8 @@ frontend/lib/l10n/generated
 frontend/**/*.g.dart
 frontend/**/*.freezed.dart
 docker/
+!docker/entrypoint.sh
+!docker/guardou.sh
 Dockerfile
 README.md
 ROADMAP.md
