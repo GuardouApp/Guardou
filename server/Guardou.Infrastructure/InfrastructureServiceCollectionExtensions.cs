@@ -1,12 +1,15 @@
 using Guardou.Application.Authentication;
 using Guardou.Application.Files;
 using Guardou.Application.Persistence;
+using Guardou.Application.Previews;
+using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Guardou.Domain;
 using Guardou.Domain.Users;
 using Guardou.Infrastructure.Files;
 using Guardou.Infrastructure.Identity;
 using Guardou.Infrastructure.Persistence;
+using Guardou.Infrastructure.Previews;
 using Guardou.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -20,7 +23,7 @@ public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton(new StoragePaths(StoragePaths.DefaultFilesRoot, StoragePaths.DefaultDatabaseRoot));
+        services.AddSingleton(new StoragePaths(StoragePaths.DefaultFilesRoot, StoragePaths.DefaultDatabaseRoot, StoragePaths.DefaultCacheRoot));
         services.AddDbContext<AppDbContext>((provider, options) =>
             options.UseSqlite(ConnectionString(provider.GetRequiredService<StoragePaths>())));
 
@@ -37,8 +40,18 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IItemStore, EfItemStore>();
-        services.AddSingleton<IBlobStore, LocalBlobStore>();
+        services.AddSingleton<LocalBlobStore>();
+        services.AddSingleton<IBlobStore>(provider => provider.GetRequiredService<LocalBlobStore>());
         services.AddSingleton<IMimeTypeMap, MimeTypeMap>();
+        services.AddScoped<ITaskStore, EfTaskStore>();
+        services.AddScoped<ITaskQueueSettingsStore, EfTaskQueueSettingsStore>();
+        services.AddSingleton<IImageSource, VipsImageSource>();
+        services.AddSingleton<IImageSource, RawImageSource>();
+        services.AddSingleton<IImageSource, HeicImageSource>();
+        services.AddSingleton<IImageSource, PdfImageSource>();
+        services.AddSingleton<IImageSource, VideoImageSource>();
+        services.AddSingleton<IPreviewRenderer, VipsPreviewRenderer>();
+        services.AddSingleton<IPreviewCache, FilePreviewCache>();
         return services;
     }
 

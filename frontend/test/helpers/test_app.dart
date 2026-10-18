@@ -22,6 +22,8 @@ import 'package:guardou/core/browser/browser_files.dart';
 import 'package:guardou/features/auth/auth_service.dart';
 import 'package:guardou/features/configuration/configuration_service.dart';
 import 'package:guardou/features/files/files_service.dart';
+import 'package:guardou/features/settings/settings_service.dart';
+import 'package:guardou/features/tasks/tasks_service.dart';
 import 'package:guardou/features/trash/trash_service.dart';
 import 'package:guardou/features/users/users_service.dart';
 import 'package:guardou/l10n/generated/app_localizations.dart';
@@ -38,6 +40,10 @@ class MockTrashService extends Mock implements TrashService {}
 class MockBrowserFiles extends Mock implements BrowserFiles {}
 
 class MockUsersService extends Mock implements UsersService {}
+
+class MockTasksService extends Mock implements TasksService {}
+
+class MockSettingsService extends Mock implements SettingsService {}
 
 const testConfiguration = RuntimeConfiguration(
   applicationName: 'Guardou',
@@ -66,6 +72,8 @@ ItemEntry testEntry(
   int size = 0,
   DateTime? modified,
   bool canModify = true,
+  bool hasPreview = false,
+  String? previewId,
 }) {
   final date = modified ?? DateTime.utc(2026, 1, 1);
   return ItemEntry(
@@ -77,6 +85,8 @@ ItemEntry testEntry(
     mimeType: kind == ItemKind.folder ? null : 'text/plain',
     modified: date,
     created: date,
+    hasPreview: hasPreview,
+    previewId: previewId,
     permissions: ItemPermissions(canModify: canModify, canAddChildren: kind == ItemKind.folder),
   );
 }
@@ -127,6 +137,8 @@ List<Override> serviceOverrides({
   FilesService? files,
   TrashService? trash,
   UsersService? users,
+  TasksService? tasks,
+  SettingsService? settings,
   BrowserFiles? browser,
 }) {
   final configurationService = MockConfigurationService();
@@ -138,6 +150,8 @@ List<Override> serviceOverrides({
     filesServiceProvider.overrideWithValue(files ?? stubFiles()),
     trashServiceProvider.overrideWithValue(trash ?? MockTrashService()),
     usersServiceProvider.overrideWithValue(users ?? MockUsersService()),
+    tasksServiceProvider.overrideWithValue(tasks ?? MockTasksService()),
+    settingsServiceProvider.overrideWithValue(settings ?? MockSettingsService()),
     browserFilesProvider.overrideWithValue(browser ?? stubBrowser()),
   ];
 }

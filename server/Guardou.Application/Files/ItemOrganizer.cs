@@ -1,4 +1,6 @@
+using Guardou.Application.Previews;
 using Guardou.Domain.Files;
+using Guardou.Domain.Tasks;
 
 namespace Guardou.Application.Files;
 
@@ -10,6 +12,7 @@ public sealed class ItemOrganizer
     private readonly ItemPlacement _placement;
     private readonly ItemTree _tree;
     private readonly ItemEntryFactory _entries;
+    private readonly PreviewTasks _previews;
     private readonly TimeProvider _time;
 
     internal ItemOrganizer(
@@ -19,6 +22,7 @@ public sealed class ItemOrganizer
         ItemPlacement placement,
         ItemTree tree,
         ItemEntryFactory entries,
+        PreviewTasks previews,
         TimeProvider time)
     {
         _store = store;
@@ -27,6 +31,7 @@ public sealed class ItemOrganizer
         _placement = placement;
         _tree = tree;
         _entries = entries;
+        _previews = previews;
         _time = time;
     }
 
@@ -114,15 +119,18 @@ public sealed class ItemOrganizer
     {
         DateTimeOffset now = _time.GetUtcNow();
         List<string> written = [];
+        List<Item> copies = [];
         try
         {
             Item copy = await CopyItemAsync(source, destination, name, now, written, cancellationToken);
+            copies.Add(copy);
             Queue<(Item Source, Item Copy)> folders = new([(source, copy)]);
             while (folders.TryDequeue(out (Item Source, Item Copy) folder))
             {
                 foreach (Item child in await _store.ChildrenAsync(folder.Source.Id, cancellationToken))
                 {
                     Item childCopy = await CopyItemAsync(child, folder.Copy, child.Name, now, written, cancellationToken);
+                    copies.Add(childCopy);
                     if (child.IsFolder)
                     {
                         folders.Enqueue((child, childCopy));
@@ -131,13 +139,15 @@ public sealed class ItemOrganizer
             }
 
             await _store.SaveAsync(cancellationToken);
-            return copy;
         }
         catch
         {
             written.ForEach(_blobs.Delete);
             throw;
         }
+
+        await _previews.EnqueueAsync(copies, TaskPriority.Normal, cancellationToken);
+        return copies[0];
     }
 
     private async Task<Item> CopyItemAsync(

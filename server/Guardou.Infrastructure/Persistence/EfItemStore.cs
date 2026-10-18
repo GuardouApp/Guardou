@@ -13,6 +13,11 @@ internal sealed class EfItemStore(AppDbContext context) : IItemStore
         return Items.SingleOrDefaultAsync(item => item.Id == id && item.OwnerId == ownerId, cancellationToken);
     }
 
+    public Task<Item?> FindAnyAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return Items.SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+    }
+
     public Task<Item?> FindRootAsync(string ownerId, CancellationToken cancellationToken)
     {
         return Items.SingleOrDefaultAsync(item => item.OwnerId == ownerId && item.ParentId == null, cancellationToken);
@@ -43,6 +48,16 @@ internal sealed class EfItemStore(AppDbContext context) : IItemStore
     public async Task<IReadOnlyList<Item>> TrashedBeforeAsync(DateTimeOffset cutoff, CancellationToken cancellationToken)
     {
         return await Items.Where(item => item.Trashed != null && item.Trashed < cutoff).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Item>> ActiveFilesAsync(Guid? after, int limit, CancellationToken cancellationToken)
+    {
+        return await Items
+            .AsNoTracking()
+            .Where(item => item.Kind == ItemKind.File && item.Trashed == null && (after == null || item.Id.CompareTo(after.Value) > 0))
+            .OrderBy(item => item.Id)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
     }
 
     public Task<long> UsedBytesAsync(string ownerId, CancellationToken cancellationToken)

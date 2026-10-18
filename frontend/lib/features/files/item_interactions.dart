@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'item_thumbnail.dart';
 import 'selection.dart';
 
 @immutable
@@ -41,12 +42,14 @@ class SelectableItem extends StatefulWidget {
     required this.interactions,
     required this.child,
     this.shape,
+    this.color = Colors.transparent,
   });
 
   final ItemEntry entry;
   final ItemInteractions interactions;
   final Widget child;
   final ShapeBorder? shape;
+  final Color color;
 
   @override
   State<SelectableItem> createState() => _SelectableItemState();
@@ -87,7 +90,7 @@ class _SelectableItemState extends State<SelectableItem> {
         GestureDetector(
           onSecondaryTapUp: (details) => _interactions.onContextMenu(widget.entry, details.globalPosition),
           child: Material(
-            color: selected ? colorScheme.secondaryContainer : Colors.transparent,
+            color: selected ? colorScheme.secondaryContainer : widget.color,
             shape: widget.shape,
             clipBehavior: widget.shape == null ? Clip.none : Clip.antiAlias,
             child: InkWell(
@@ -103,19 +106,47 @@ class _SelectableItemState extends State<SelectableItem> {
 }
 
 class ItemLeading extends StatelessWidget {
-  const ItemLeading({super.key, required this.entry, required this.interactions, required this.icon, this.size = 20});
+  const ItemLeading({
+    super.key,
+    required this.entry,
+    required this.interactions,
+    required this.icon,
+    this.size = 20,
+    this.showPreview = true,
+  });
+
+  static const _thumbnailScale = 1.4;
+  static const _radius = 4.0;
 
   final ItemEntry entry;
   final ItemInteractions interactions;
   final IconData icon;
   final double size;
+  final bool showPreview;
 
   @override
   Widget build(BuildContext context) {
-    if (!interactions.selection.checkboxMode) {
-      return Icon(icon, size: size);
+    if (interactions.selection.checkboxMode) {
+      return IgnorePointer(
+        child: Checkbox(value: interactions.isSelected(entry), onChanged: (_) {}),
+      );
     }
-    return IgnorePointer(child: Checkbox(value: interactions.isSelected(entry), onChanged: (_) {}));
+    final placeholder = Icon(icon, size: size);
+    if (!showPreview || !entry.hasPreview) {
+      return placeholder;
+    }
+    final extent = size * _thumbnailScale;
+    return SizedBox.square(
+      dimension: extent,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(_radius),
+        child: ItemThumbnail(
+          key: ValueKey(entry.id),
+          entry: entry,
+          placeholder: Center(child: placeholder),
+        ),
+      ),
+    );
   }
 }
 

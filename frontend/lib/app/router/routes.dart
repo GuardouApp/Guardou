@@ -12,6 +12,8 @@ abstract final class Routes {
   static const trash = '/trash';
   static const admin = '/admin';
   static const adminUsers = '/admin/users';
+  static const adminTasks = '/admin/tasks';
+  static const adminSettings = '/admin/settings';
   static const forbidden = '/403';
   static const serverError = '/500';
 

@@ -1,4 +1,6 @@
+using Guardou.Application.Previews;
 using Guardou.Domain.Files;
+using Guardou.Domain.Tasks;
 
 namespace Guardou.Application.Files;
 
@@ -11,6 +13,7 @@ public sealed class FileUploader
     private readonly OwnedItems _items;
     private readonly ItemPlacement _placement;
     private readonly ItemEntryFactory _entries;
+    private readonly PreviewTasks _previews;
     private readonly TimeProvider _time;
 
     internal FileUploader(
@@ -19,6 +22,7 @@ public sealed class FileUploader
         OwnedItems items,
         ItemPlacement placement,
         ItemEntryFactory entries,
+        PreviewTasks previews,
         TimeProvider time)
     {
         _store = store;
@@ -26,6 +30,7 @@ public sealed class FileUploader
         _items = items;
         _placement = placement;
         _entries = entries;
+        _previews = previews;
         _time = time;
     }
 
@@ -54,6 +59,7 @@ public sealed class FileUploader
             throw;
         }
 
+        await _previews.EnqueueAsync([item], TaskPriority.Normal, cancellationToken);
         return _entries.Create(item);
     }
 

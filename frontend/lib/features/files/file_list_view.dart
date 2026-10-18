@@ -10,6 +10,7 @@ import '../../l10n/generated/app_localizations.dart';
 import 'file_presentation.dart';
 import 'file_view_settings.dart';
 import 'item_interactions.dart';
+import 'remembered_scroll.dart';
 import 'sort_menu.dart';
 
 const _rowHeight = 48.0;
@@ -29,10 +30,11 @@ List<SortField> _columnsFor(WindowSizeClass sizeClass) => switch (sizeClass) {
 };
 
 class FileListView extends StatelessWidget {
-  const FileListView({super.key, required this.entries, required this.interactions});
+  const FileListView({super.key, required this.entries, required this.interactions, required this.scrollKey});
 
   final List<ItemEntry> entries;
   final ItemInteractions interactions;
+  final String scrollKey;
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +46,13 @@ class FileListView extends StatelessWidget {
         children: [
           const SortMenu(),
           Expanded(
-            child: ListView.builder(
-              itemCount: entries.length,
-              itemBuilder: (context, index) => _CompactRow(entry: entries[index], interactions: interactions),
+            child: RememberedScroll(
+              storageKey: scrollKey,
+              builder: (context, controller) => ListView.builder(
+                controller: controller,
+                itemCount: entries.length,
+                itemBuilder: (context, index) => _CompactRow(entry: entries[index], interactions: interactions),
+              ),
             ),
           ),
         ],
@@ -60,11 +66,15 @@ class FileListView extends StatelessWidget {
         _HeaderRow(columns: columns),
         const Divider(height: 1),
         Expanded(
-          child: ListView.separated(
-            itemCount: entries.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, index) =>
-                _WideRow(entry: entries[index], columns: columns, interactions: interactions),
+          child: RememberedScroll(
+            storageKey: scrollKey,
+            builder: (context, controller) => ListView.separated(
+              controller: controller,
+              itemCount: entries.length,
+              separatorBuilder: (_, _) => const Divider(height: 1),
+              itemBuilder: (context, index) =>
+                  _WideRow(entry: entries[index], columns: columns, interactions: interactions),
+            ),
           ),
         ),
       ],

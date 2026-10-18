@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guardou/api/generated/models/breadcrumb.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
+import 'package:guardou/api/generated/models/preview_size.dart';
 import 'package:guardou/app/router/app_router.dart';
 import 'package:guardou/features/files/details_panel.dart';
 import 'package:guardou/features/files/item_action.dart';
@@ -23,6 +27,19 @@ void main() {
   final readme = testEntry('readme.md', size: 2048);
   final small = testEntry('small.txt', parentId: 'docs', size: 10);
   final big = testEntry('big.txt', parentId: 'docs', size: 5000);
+  final photos = testEntry('photos', kind: ItemKind.folder);
+  final photo = testEntry(
+    'photo.jpg',
+    parentId: 'photos',
+    hasPreview: true,
+    previewId: 'v1',
+    modified: DateTime(DateTime.now().year, 3, 5),
+  );
+  final many = testEntry('many', kind: ItemKind.folder);
+  final manyFiles = [for (var index = 0; index < 60; index++) testEntry('file-$index.txt', parentId: 'many')];
+  final pixel = base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+  );
 
   final folders = {
     'root': testFolder(testRoot, [docs, readme]),
@@ -30,11 +47,18 @@ void main() {
     'docs': testFolder(docs, [reports, small, big], ancestors: [testRootCrumb]),
     'reports': testFolder(reports, [year], ancestors: [testRootCrumb, docsCrumb]),
     '2026': testFolder(year, const [], ancestors: [testRootCrumb, docsCrumb, reportsCrumb]),
+    'photos': testFolder(photos, [photo], ancestors: [testRootCrumb]),
+    'many': testFolder(many, manyFiles, ancestors: [testRootCrumb]),
   };
 
   final dialogField = find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField));
 
   late MockFilesService files;
+
+  setUpAll(() {
+    registerFallbackValue(PreviewSize.thumbnail);
+    registerFallbackValue(CancelToken());
+  });
 
   setUp(() => files = stubFiles(folders: folders));
 
@@ -248,6 +272,94 @@ void main() {
     expect(find.byType(SliverGrid), findsNWidgets(2));
     expect(find.byTooltip('Show as list'), findsOneWidget);
     expect(tester.getSize(find.byType(SelectableItem).first).height, 48);
+  });
+
+  testWidgets('keeps the layout of each folder', (tester) async {
+    final container = await pumpRoutedApp(
+      tester,
+      location: '/folders/docs',
+      overrides: serviceOverrides(auth: MockAuthService(), files: files),
+    );
+    final router = container.read(appRouterProvider);
+
+    await tester.tap(find.byTooltip('Show as grid'));
+    await tester.pumpAndSettle();
+    router.go('/folders/reports');
+    await tester.pumpAndSettle();
+    final inherited = find.byType(SliverGrid).evaluate().length;
+    await tester.tap(find.byTooltip('Show as list'));
+    await tester.pumpAndSettle();
+    router.go('/folders/docs');
+    await tester.pumpAndSettle();
+
+    expect(inherited, 2);
+    expect(find.byType(SliverGrid), findsNWidgets(2));
+    router.go('/folders/reports');
+    await tester.pumpAndSettle();
+    expect(find.byType(SliverGrid), findsNothing);
+  });
+
+  testWidgets('shows thumbnails for files with previews', (tester) async {
+    when(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).thenAnswer((_) async => pixel);
+
+    await pumpFolder(tester, '/folders/photos');
+    await tester.tap(find.byTooltip('Show as grid'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.text('You uploaded · Mar 5'), findsOneWidget);
+    final card = tester.getSize(find.byType(SelectableItem).first);
+    final preview = tester.getSize(find.byType(AspectRatio).first);
+    expect(card.width, greaterThanOrEqualTo(250));
+    expect(preview.width / preview.height, closeTo(4 / 3, 0.01));
+    verify(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).called(greaterThanOrEqualTo(1));
+  });
+
+  testWidgets('retries a pending thumbnail and cancels it on navigation', (tester) async {
+    CancelToken? token;
+    when(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).thenAnswer((invocation) async {
+      token = invocation.positionalArguments[3] as CancelToken;
+      return null;
+    });
+    final container = await pumpRoutedApp(
+      tester,
+      location: '/folders/photos',
+      overrides: serviceOverrides(auth: MockAuthService(), files: files),
+    );
+
+    await tester.pump(const Duration(seconds: 3));
+    container.read(appRouterProvider).go('/folders/docs');
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 3));
+
+    expect(find.byType(Image), findsNothing);
+    expect(token?.isCancelled, isTrue);
+    verify(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).called(2);
+  });
+
+  testWidgets('keeps the scroll position of a folder', (tester) async {
+    final container = await pumpRoutedApp(
+      tester,
+      location: '/folders/many',
+      overrides: serviceOverrides(auth: MockAuthService(), files: files),
+    );
+    final router = container.read(appRouterProvider);
+    ScrollPosition position() => tester
+        .state<ScrollableState>(
+          find.ancestor(of: find.byType(SelectableItem).first, matching: find.byType(Scrollable)).first,
+        )
+        .position;
+
+    await tester.drag(find.text('file-0.txt'), const Offset(0, -600));
+    await tester.pumpAndSettle();
+    final offset = position().pixels;
+    router.go('/folders/docs');
+    await tester.pumpAndSettle();
+    router.go('/folders/many');
+    await tester.pumpAndSettle();
+
+    expect(offset, greaterThan(0));
+    expect(position().pixels, offset);
   });
 
   testWidgets('opens the New menu with a right click on an empty area', (tester) async {

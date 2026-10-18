@@ -1,8 +1,9 @@
 using Guardou.Application.Files;
+using Guardou.Application.Previews;
 
 namespace Guardou.Application.Users;
 
-public sealed class UserAccounts(IUserAccountStore store, IItemStore items, IBlobStore blobs)
+public sealed class UserAccounts(IUserAccountStore store, IItemStore items, IBlobStore blobs, IPreviewCache previews)
 {
     public async Task<IReadOnlyList<UserAccount>> ListAsync()
     {
@@ -53,6 +54,8 @@ public sealed class UserAccounts(IUserAccountStore store, IItemStore items, IBlo
         {
             blobs.Delete(key);
         }
+
+        previews.DeleteOwner(account.Id);
     }
 
     private async Task<bool> IsLastAdministratorAsync()

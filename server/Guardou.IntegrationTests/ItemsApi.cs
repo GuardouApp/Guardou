@@ -38,8 +38,20 @@ internal static class ItemsApi
         string? relativePath = null,
         DateTimeOffset? modified = null)
     {
+        return client.UploadBytesAsync(folderId, fileName, Encoding.UTF8.GetBytes(content), conflict, relativePath, modified);
+    }
+
+    public static Task<HttpResponseMessage> UploadBytesAsync(
+        this HttpClient client,
+        string folderId,
+        string fileName,
+        byte[] content,
+        ConflictPolicy conflict = ConflictPolicy.Fail,
+        string? relativePath = null,
+        DateTimeOffset? modified = null)
+    {
         MultipartFormDataContent form = new();
-        ByteArrayContent file = new(Encoding.UTF8.GetBytes(content));
+        ByteArrayContent file = new(content);
         file.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
         form.Add(file, "file", fileName);
         form.Add(new StringContent(conflict.ToString()), "conflict");

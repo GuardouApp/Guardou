@@ -11,9 +11,11 @@ import '../../features/errors/error_page.dart';
 import '../../features/errors/loading_page.dart';
 import '../../features/files/file_route_page.dart';
 import '../../features/files/folder_page.dart';
+import '../../features/settings/settings_page.dart';
 import '../../features/shell/adaptive_shell.dart';
 import '../../features/shell/section_page.dart';
 import '../../features/shell/shell_destination.dart';
+import '../../features/tasks/tasks_page.dart';
 import '../../features/trash/trash_page.dart';
 import '../../features/users/users_page.dart';
 import 'redirect_guard.dart';
@@ -84,6 +86,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: Routes.adminUsers,
             redirect: adminOnly,
             pageBuilder: (_, _) => const NoTransitionPage(child: UsersPage()),
+          ),
+          GoRoute(
+            path: Routes.adminTasks,
+            redirect: adminOnly,
+            pageBuilder: (_, _) => const NoTransitionPage(child: TasksPage()),
+          ),
+          GoRoute(
+            path: Routes.adminSettings,
+            redirect: adminOnly,
+            pageBuilder: (_, _) => const NoTransitionPage(child: SettingsPage()),
           ),
         ],
       ),

@@ -7,8 +7,8 @@ import '../../core/layout/window_size_class.dart';
 import '../../core/widgets/page_header.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'details_panel_controller.dart';
-import 'file_view_settings.dart';
 import 'folder_breadcrumbs.dart';
+import 'folder_layouts.dart';
 
 class FolderHeader extends ConsumerWidget {
   const FolderHeader({super.key, required this.folder});
@@ -31,7 +31,7 @@ class FolderHeader extends ConsumerWidget {
               message: l10n.readOnlyFolder,
               child: Icon(LucideIcons.lock, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
-          const _LayoutToggle(),
+          if (current != null) _LayoutToggle(folderId: current.entry.id),
           if (!compact)
             IconButton(
               tooltip: l10n.actionDetails,
@@ -46,15 +46,17 @@ class FolderHeader extends ConsumerWidget {
 }
 
 class _LayoutToggle extends ConsumerWidget {
-  const _LayoutToggle();
+  const _LayoutToggle({required this.folderId});
+
+  final String folderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final layout = ref.watch(fileViewSettingsProvider.select((settings) => settings.layout));
+    final layout = ref.watch(folderLayoutsProvider.select((layouts) => layouts.of(folderId)));
     return IconButton(
       tooltip: layout == FileLayout.list ? l10n.viewAsGrid : l10n.viewAsList,
-      onPressed: ref.read(fileViewSettingsProvider.notifier).toggleLayout,
+      onPressed: () => ref.read(folderLayoutsProvider.notifier).toggle(folderId),
       icon: Icon(layout == FileLayout.list ? LucideIcons.layoutGrid : LucideIcons.layoutList),
     );
   }

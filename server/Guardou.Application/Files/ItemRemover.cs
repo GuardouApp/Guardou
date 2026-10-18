@@ -1,28 +1,37 @@
+using Guardou.Application.Previews;
 using Guardou.Domain.Files;
 
 namespace Guardou.Application.Files;
 
-internal sealed class ItemRemover(IItemStore store, IBlobStore blobs, ItemTree tree)
+internal sealed class ItemRemover(IItemStore store, IBlobStore blobs, IPreviewCache previews, ItemTree tree)
 {
     public async Task RemoveAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
     {
-        List<string> keys = [];
+        List<Item> files = [];
         foreach (Item item in items)
         {
             foreach (Item removed in (await tree.SubtreeAsync(item, cancellationToken)).Reverse())
             {
                 store.Remove(removed);
-                if (removed.StorageKey is { } key)
+                if (!removed.IsFolder)
                 {
-                    keys.Add(key);
+                    files.Add(removed);
                 }
             }
         }
 
         await store.SaveAsync(cancellationToken);
-        foreach (string key in keys.Distinct())
+        foreach (Item file in files.DistinctBy(file => file.Id))
         {
-            blobs.Delete(key);
+            if (file.StorageKey is { } key)
+            {
+                blobs.Delete(key);
+            }
+
+            if (file.PreviewId is { } previewId)
+            {
+                previews.Delete(file.OwnerId, previewId);
+            }
         }
     }
 }

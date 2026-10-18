@@ -15,6 +15,8 @@
         <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.13" />
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+        <PackageVersion Include="NetVips" Version="3.2.0" />
+        <PackageVersion Include="NetVips.Native" Version="8.18.7" />
         <PackageVersion Include="System.CommandLine" Version="2.0.13" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
         <PackageVersion Include="xunit.v3" Version="3.2.2" />

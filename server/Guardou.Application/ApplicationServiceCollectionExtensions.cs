@@ -1,6 +1,8 @@
 using System.Reflection;
 using Guardou.Application.Configuration;
 using Guardou.Application.Files;
+using Guardou.Application.Previews;
+using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,6 +14,8 @@ public static class ApplicationServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<TaskSignal>();
+        services.AddScoped<ITaskHandler, PreviewTaskHandler>();
         services.AddScoped<RuntimeConfigurationQuery>();
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
@@ -26,6 +30,12 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<FileUploader>(services);
         AddScopedWithInternalConstructor<TrashService>(services);
         AddScopedWithInternalConstructor<ItemDownloads>(services);
+        AddScopedWithInternalConstructor<PreviewTasks>(services);
+        services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<PreviewTasks>());
+        AddScopedWithInternalConstructor<ItemPreviews>(services);
+        AddScopedWithInternalConstructor<TaskRunner>(services);
+        AddScopedWithInternalConstructor<QueueSettings>(services);
+        AddScopedWithInternalConstructor<TaskAdministration>(services);
         return services;
     }
 

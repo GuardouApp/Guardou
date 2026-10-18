@@ -1,4 +1,5 @@
 using Guardou.Application.Files;
+using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,9 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             ItemConflictException => StatusCodes.Status409Conflict,
             UserAccountRejectedException => StatusCodes.Status400BadRequest,
             UserNotFoundException => StatusCodes.Status404NotFound,
+            TaskNotFoundException => StatusCodes.Status404NotFound,
+            TaskConflictException => StatusCodes.Status409Conflict,
+            InvalidTaskSettingsException => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError,
         };
     }

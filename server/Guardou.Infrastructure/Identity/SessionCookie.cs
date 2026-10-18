@@ -18,6 +18,16 @@ internal static class SessionCookie
         options.SlidingExpiration = true;
         options.Events.OnRedirectToLogin = context => WriteStatusCode(context, StatusCodes.Status401Unauthorized);
         options.Events.OnRedirectToAccessDenied = context => WriteStatusCode(context, StatusCodes.Status403Forbidden);
+        Func<CookieValidatePrincipalContext, Task> validate = options.Events.OnValidatePrincipal;
+        options.Events.OnValidatePrincipal = context => ValidateWithoutRenewalAsync(validate, context);
+    }
+
+    private static async Task ValidateWithoutRenewalAsync(
+        Func<CookieValidatePrincipalContext, Task> validate,
+        CookieValidatePrincipalContext context)
+    {
+        await validate(context);
+        context.ShouldRenew = false;
     }
 
     private static Task WriteStatusCode(RedirectContext<CookieAuthenticationOptions> context, int statusCode)

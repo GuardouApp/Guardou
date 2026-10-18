@@ -324,5 +324,72 @@
   "userManagement": "User management",
   "createUser": "Create user",
   "editUser": "Edit user",
-  "userEdit": "Edit"
+  "userEdit": "Edit",
+  "tasks": "Tasks",
+  "taskQueue": "Task queue",
+  "tasksLoadErrorTitle": "Cannot load the tasks",
+  "taskStatePending": "Queued",
+  "taskStateRunning": "Running",
+  "taskStateFailed": "Failed",
+  "taskPriorityLow": "Low",
+  "taskPriorityNormal": "Normal",
+  "taskPriorityHigh": "High",
+  "taskRunNow": "Run now",
+  "taskReset": "Reset",
+  "tasksResetFailed": "Retry failed tasks",
+  "taskCompleted": "The task is complete.",
+  "taskFailed": "The task failed.",
+  "taskResetDone": "The task is pending again.",
+  "tasksResetDone": "The failed tasks are pending again.",
+  "taskBusy": "The task is running. Try again later.",
+  "queuePreviewTitle": "Generate previews",
+  "queuePreviewDescription": "Make thumbnails and large previews for images, RAW photos, HEIC, PDF and video files.",
+  "queueAll": "All",
+  "queueAllTitle": "Process all files again?",
+  "queueAllMessage": "Guardou deletes the results of this queue and makes them again for all files. This can take a long time.",
+  "queueAllDone": "All files are in the queue.",
+  "taskListTitle": "{queue}: {state}",
+  "@taskListTitle": {
+    "placeholders": {
+      "queue": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "taskListEmpty": "No tasks",
+  "fileUploadedByYou": "You uploaded · {date}",
+  "@fileUploadedByYou": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "systemSettings": "System settings",
+  "settingsLoadErrorTitle": "Cannot load the settings",
+  "taskSettings": "Task settings",
+  "taskSettingsDescription": "Manage how many tasks of each queue run at the same time",
+  "queueConcurrency": "{queue}: tasks at the same time",
+  "concurrencyInvalid": "Enter a number from {minimum} to {maximum}.",
+  "settingsSaved": "The settings are saved.",
+  "@queueConcurrency": {
+    "placeholders": {
+      "queue": {
+        "type": "String"
+      }
+    }
+  },
+  "@concurrencyInvalid": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  }
 }

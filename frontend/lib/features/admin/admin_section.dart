@@ -6,7 +6,9 @@ import '../../app/router/routes.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 enum AdminSection {
-  users(Routes.adminUsers, LucideIcons.users, LucideIcons600.users);
+  users(Routes.adminUsers, LucideIcons.users, LucideIcons600.users),
+  tasks(Routes.adminTasks, LucideIcons.listTodo, LucideIcons600.listTodo),
+  settings(Routes.adminSettings, LucideIcons.settings, LucideIcons600.settings);
 
   const AdminSection(this.path, this.icon, this.selectedIcon);
 
@@ -16,6 +18,8 @@ enum AdminSection {
 
   String label(AppLocalizations l10n) => switch (this) {
     users => l10n.users,
+    tasks => l10n.tasks,
+    settings => l10n.settings,
   };
 
   static AdminSection? fromPath(String path) {

@@ -46,6 +46,8 @@ public sealed class Item
 
     public DateTimeOffset? Trashed { get; private set; }
 
+    public Guid? PreviewId { get; private set; }
+
     public bool IsRoot => ParentId is null;
 
     public bool IsFolder => Kind == ItemKind.Folder;
@@ -75,6 +77,11 @@ public sealed class Item
     {
         ParentId = parent.Id;
         Name = name;
+    }
+
+    public void SetPreview(Guid previewId)
+    {
+        PreviewId = previewId;
     }
 
     public void Trash(DateTimeOffset now)

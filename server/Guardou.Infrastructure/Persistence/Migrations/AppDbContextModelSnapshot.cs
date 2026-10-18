@@ -45,6 +45,9 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("PreviewId")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("Size")
                         .HasColumnType("INTEGER");
 
@@ -67,6 +70,61 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .HasFilter("\"Trashed\" IS NULL");
 
                     b.ToTable("Items", (string)null);
+                });
+
+            modelBuilder.Entity("Guardou.Domain.Tasks.QueuedTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Created")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Updated")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("Kind", "ItemId")
+                        .IsUnique();
+
+                    b.HasIndex("State", "Priority", "Created");
+
+                    b.ToTable("Tasks", (string)null);
+                });
+
+            modelBuilder.Entity("Guardou.Domain.Tasks.TaskQueueSettings", b =>
+                {
+                    b.Property<string>("Kind")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Concurrency")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Kind");
+
+                    b.ToTable("TaskQueueSettings", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
@@ -293,6 +351,15 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Guardou.Domain.Tasks.QueuedTask", b =>
+                {
+                    b.HasOne("Guardou.Domain.Files.Item", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

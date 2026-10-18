@@ -13,7 +13,7 @@ public sealed class LocalBlobStoreTests : IDisposable
 
     public LocalBlobStoreTests()
     {
-        _store = new LocalBlobStore(new StoragePaths(_data.Combine("data"), _data.Combine("db")));
+        _store = new LocalBlobStore(new StoragePaths(_data.Combine("data"), _data.Combine("db"), _data.Combine("cache")));
     }
 
     private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;

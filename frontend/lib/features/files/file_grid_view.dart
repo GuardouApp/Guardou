@@ -1,23 +1,31 @@
+import 'dart:math';
+
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/item_kind.dart';
 import '../../app/theme/app_tokens.dart';
+import '../../core/widgets/user_avatar.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../auth/session_controller.dart';
 import 'file_presentation.dart';
 import 'item_interactions.dart';
+import 'item_thumbnail.dart';
+import 'remembered_scroll.dart';
 import 'sort_menu.dart';
 
 class FileGridView extends StatelessWidget {
-  const FileGridView({super.key, required this.entries, required this.interactions});
+  const FileGridView({super.key, required this.entries, required this.interactions, required this.scrollKey});
 
-  static const _tileExtent = 180.0;
-  static const _folderExtent = 240.0;
+  static const _minimumTileWidth = 250.0;
   static const _folderHeight = 48.0;
-  static const _iconSize = 48.0;
   static const _radius = 12.0;
 
   final List<ItemEntry> entries;
   final ItemInteractions interactions;
+  final String scrollKey;
 
   @override
   Widget build(BuildContext context) {
@@ -30,44 +38,60 @@ class FileGridView extends StatelessWidget {
       children: [
         const SortMenu(),
         Expanded(
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: EdgeInsets.all(spacing),
-                sliver: SliverGrid.builder(
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: _folderExtent,
-                    mainAxisExtent: _folderHeight,
-                    mainAxisSpacing: spacing,
-                    crossAxisSpacing: spacing,
+          child: RememberedScroll(
+            storageKey: scrollKey,
+            builder: (context, controller) => CustomScrollView(
+              controller: controller,
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.all(spacing),
+                  sliver: SliverLayoutBuilder(
+                    builder: (context, constraints) => SliverGrid.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: _columnsFor(constraints.crossAxisExtent, spacing),
+                        mainAxisExtent: _folderHeight,
+                        mainAxisSpacing: spacing,
+                        crossAxisSpacing: spacing,
+                      ),
+                      itemCount: folders.length,
+                      itemBuilder: (context, index) => _FolderTile(entry: folders[index], interactions: interactions),
+                    ),
                   ),
-                  itemCount: folders.length,
-                  itemBuilder: (context, index) => _FolderTile(entry: folders[index], interactions: interactions),
                 ),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(spacing, 0, spacing, spacing),
-                sliver: SliverGrid.builder(
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: _tileExtent,
-                    mainAxisSpacing: spacing,
-                    crossAxisSpacing: spacing,
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(spacing, 0, spacing, spacing),
+                  sliver: SliverLayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = constraints.crossAxisExtent;
+                      final columns = _columnsFor(width, spacing);
+                      final tileWidth = (width - spacing * (columns - 1)) / columns;
+                      return SliverGrid.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          mainAxisExtent: _FileCard.heightFor(tileWidth, spacing),
+                          mainAxisSpacing: spacing,
+                          crossAxisSpacing: spacing,
+                        ),
+                        itemCount: files.length,
+                        itemBuilder: (context, index) => _FileCard(entry: files[index], interactions: interactions),
+                      );
+                    },
                   ),
-                  itemCount: files.length,
-                  itemBuilder: (context, index) => _FileTile(entry: files[index], interactions: interactions),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  static ShapeBorder _shape(BuildContext context) => RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(_radius),
-    side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-  );
+  static int _columnsFor(double width, double spacing) =>
+      max(1, ((width + spacing) / (_minimumTileWidth + spacing)).floor());
+
+  static ShapeBorder _shape() => RoundedRectangleBorder(borderRadius: BorderRadius.circular(_radius));
+
+  static Color _cardColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerLow;
 }
 
 class _FolderTile extends StatelessWidget {
@@ -82,7 +106,8 @@ class _FolderTile extends StatelessWidget {
     return SelectableItem(
       entry: entry,
       interactions: interactions,
-      shape: FileGridView._shape(context),
+      shape: FileGridView._shape(),
+      color: FileGridView._cardColor(context),
       child: Padding(
         padding: EdgeInsetsDirectional.only(start: spacing),
         child: Row(
@@ -98,36 +123,104 @@ class _FolderTile extends StatelessWidget {
   }
 }
 
-class _FileTile extends StatelessWidget {
-  const _FileTile({required this.entry, required this.interactions});
+class _FileCard extends ConsumerWidget {
+  const _FileCard({required this.entry, required this.interactions});
+
+  static const _headerHeight = 52.0;
+  static const _footerHeight = 28.0;
+  static const _previewAspectRatio = 4 / 3;
+  static const _iconSize = 20.0;
+  static const _placeholderIconSize = 56.0;
+  static const _previewRadius = 8.0;
+  static const _avatarRadius = 12.0;
 
   final ItemEntry entry;
   final ItemInteractions interactions;
 
+  static double heightFor(double width, double spacing) {
+    final insets = _insets(spacing);
+    final previewHeight = (width - insets.horizontal) / _previewAspectRatio;
+    return _headerHeight + previewHeight + _gap(spacing) + _footerHeight + insets.bottom;
+  }
+
+  static EdgeInsets _insets(double spacing) => EdgeInsets.fromLTRB(spacing * 0.75, 0, spacing * 0.75, spacing * 0.75);
+
+  static double _gap(double spacing) => spacing / 2;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final spacing = AppTokens.of(context).spacing;
+    final username = ref.watch(sessionControllerProvider).value?.username ?? '';
+    final placeholder = Center(
+      child: Icon(iconFor(entry), size: _placeholderIconSize, color: theme.colorScheme.onSurfaceVariant),
+    );
+
     return SelectableItem(
       entry: entry,
       interactions: interactions,
-      shape: FileGridView._shape(context),
+      shape: FileGridView._shape(),
+      color: FileGridView._cardColor(context),
       child: Padding(
-        padding: EdgeInsets.all(spacing / 2),
+        padding: _insets(spacing),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Align(
-              alignment: AlignmentDirectional.topEnd,
-              child: ItemMoreButton(entry: entry, interactions: interactions),
-            ),
-            Expanded(
-              child: ItemLeading(
-                entry: entry,
-                interactions: interactions,
-                icon: iconFor(entry),
-                size: FileGridView._iconSize,
+            SizedBox(
+              height: _headerHeight,
+              child: Row(
+                children: [
+                  ItemLeading(
+                    entry: entry,
+                    interactions: interactions,
+                    icon: iconFor(entry),
+                    size: _iconSize,
+                    showPreview: false,
+                  ),
+                  SizedBox(width: spacing * 0.75),
+                  Expanded(
+                    child: Text(
+                      entry.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  ItemMoreButton(entry: entry, interactions: interactions),
+                ],
               ),
             ),
-            Text(entry.name, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+            AspectRatio(
+              aspectRatio: _previewAspectRatio,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(_previewRadius),
+                child: ColoredBox(
+                  color: theme.colorScheme.surface,
+                  child: entry.hasPreview
+                      ? ItemThumbnail(key: ValueKey(entry.id), entry: entry, placeholder: placeholder)
+                      : placeholder,
+                ),
+              ),
+            ),
+            SizedBox(height: _gap(spacing)),
+            SizedBox(
+              height: _footerHeight,
+              child: Row(
+                children: [
+                  UserAvatar(username: username, radius: _avatarRadius),
+                  SizedBox(width: spacing / 2),
+                  Expanded(
+                    child: Text(
+                      l10n.fileUploadedByYou(formatCardDate(entry.created, clock.now(), l10n.localeName)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

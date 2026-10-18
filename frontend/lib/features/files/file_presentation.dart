@@ -60,6 +60,11 @@ String formatSize(int bytes, String locale) {
 
 String formatDate(DateTime date, String locale) => DateFormat.yMMMd(locale).format(date.toLocal());
 
+String formatCardDate(DateTime date, DateTime now, String locale) {
+  final local = date.toLocal();
+  return local.year == now.year ? DateFormat.MMMd(locale).format(local) : DateFormat.y(locale).format(local);
+}
+
 String kindLabel(ItemEntry entry, AppLocalizations l10n) {
   if (entry.kind == ItemKind.folder) {
     return l10n.kindFolder;

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Guardou.Api.Authorization;
+using Guardou.Api.Configuration;
 using Guardou.Api.Errors;
 using Guardou.Api.Filters;
 using Guardou.Api.Hosting;
@@ -22,6 +23,7 @@ public static class WebServer
     public static WebApplication Build(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        builder.Configuration.AddFlatEnvironmentVariables();
         AddServices(builder.Services);
         if (DocumentGeneration.IsActive)
         {
@@ -63,6 +65,7 @@ public static class WebServer
         services.Configure<HostOptions>(options => options.ShutdownTimeout = ShutdownTimeout);
         services.AddHostedService<StartupInitializer>();
         services.AddHostedService<TrashPurgeWorker>();
+        services.AddHostedService<TaskWorkerPool>();
     }
 
     private static void RevalidateStaticFile(StaticFileResponseContext context)

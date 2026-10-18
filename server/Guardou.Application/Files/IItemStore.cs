@@ -6,6 +6,8 @@ public interface IItemStore
 {
     Task<Item?> FindAsync(string ownerId, Guid id, CancellationToken cancellationToken);
 
+    Task<Item?> FindAnyAsync(Guid id, CancellationToken cancellationToken);
+
     Task<Item?> FindRootAsync(string ownerId, CancellationToken cancellationToken);
 
     Task<Item?> FindChildAsync(Guid parentId, string name, CancellationToken cancellationToken);
@@ -17,6 +19,8 @@ public interface IItemStore
     Task<IReadOnlyList<Item>> TrashedAsync(string ownerId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Item>> TrashedBeforeAsync(DateTimeOffset cutoff, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Item>> ActiveFilesAsync(Guid? after, int limit, CancellationToken cancellationToken);
 
     Task<long> UsedBytesAsync(string ownerId, CancellationToken cancellationToken);
 

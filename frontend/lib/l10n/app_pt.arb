@@ -154,5 +154,72 @@
   "userManagement": "Gerenciamento de usuários",
   "createUser": "Criar usuário",
   "editUser": "Editar usuário",
-  "userEdit": "Editar"
+  "userEdit": "Editar",
+  "tasks": "Tarefas",
+  "taskQueue": "Fila de tarefas",
+  "tasksLoadErrorTitle": "Não foi possível carregar as tarefas",
+  "taskStatePending": "Na fila",
+  "taskStateRunning": "Em execução",
+  "taskStateFailed": "Com falha",
+  "taskPriorityLow": "Baixa",
+  "taskPriorityNormal": "Normal",
+  "taskPriorityHigh": "Alta",
+  "taskRunNow": "Executar agora",
+  "taskReset": "Redefinir",
+  "tasksResetFailed": "Tentar novamente as tarefas com falha",
+  "taskCompleted": "A tarefa foi concluída.",
+  "taskFailed": "A tarefa falhou.",
+  "taskResetDone": "A tarefa está pendente novamente.",
+  "tasksResetDone": "As tarefas com falha estão pendentes novamente.",
+  "taskBusy": "A tarefa está em execução. Tente novamente mais tarde.",
+  "queuePreviewTitle": "Gerar pré-visualizações",
+  "queuePreviewDescription": "Gera miniaturas e pré-visualizações grandes de imagens, fotos RAW, HEIC, PDF e vídeos.",
+  "queueAll": "Todos",
+  "queueAllTitle": "Processar todos os arquivos novamente?",
+  "queueAllMessage": "O Guardou exclui os resultados desta fila e os gera novamente para todos os arquivos. Isso pode demorar muito.",
+  "queueAllDone": "Todos os arquivos estão na fila.",
+  "taskListTitle": "{queue}: {state}",
+  "@taskListTitle": {
+    "placeholders": {
+      "queue": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "taskListEmpty": "Nenhuma tarefa",
+  "fileUploadedByYou": "Você fez o upload · {date}",
+  "@fileUploadedByYou": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "systemSettings": "Configurações do sistema",
+  "settingsLoadErrorTitle": "Não foi possível carregar as configurações",
+  "taskSettings": "Configurações de tarefas",
+  "taskSettingsDescription": "Gerencie quantas tarefas de cada fila são executadas ao mesmo tempo",
+  "queueConcurrency": "{queue}: tarefas ao mesmo tempo",
+  "concurrencyInvalid": "Digite um número de {minimum} a {maximum}.",
+  "settingsSaved": "As configurações foram salvas.",
+  "@queueConcurrency": {
+    "placeholders": {
+      "queue": {
+        "type": "String"
+      }
+    }
+  },
+  "@concurrencyInvalid": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  }
 }

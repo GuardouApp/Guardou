@@ -12,8 +12,10 @@ services:
     volumes:
       - data:/data
       - db:/db
+      - cache:/cache
     restart: unless-stopped
 
 volumes:
   data:
   db:
+  cache:

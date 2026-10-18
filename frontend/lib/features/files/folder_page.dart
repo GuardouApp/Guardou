@@ -21,6 +21,7 @@ import 'file_list_view.dart';
 import 'file_view_settings.dart';
 import 'folder_controller.dart';
 import 'folder_header.dart';
+import 'folder_layouts.dart';
 import 'folder_states.dart';
 import 'item_action.dart';
 import 'item_actions_menu.dart';
@@ -147,7 +148,8 @@ class _FolderPageState extends ConsumerState<FolderPage> {
   }
 
   Widget _contents(ItemDetails folder, List<ItemEntry> entries, Selection selection) {
-    final settings = ref.watch(fileViewSettingsProvider);
+    final layout = ref.watch(folderLayoutsProvider.select((layouts) => layouts.of(folder.entry.id)));
+    final scrollKey = '${folder.entry.id}:${layout.name}';
     final interactions = _interactions(entries, selection);
     final selected = entries.where((entry) => selection.contains(entry.id)).toList();
     void selectAll() => _selection.selectAll([for (final entry in entries) entry.id]);
@@ -176,10 +178,18 @@ class _FolderPageState extends ConsumerState<FolderPage> {
                 : null,
             onSelect: (ids, {required additive}) =>
                 _selection.replace(Selection(ids: additive ? {...selection.ids, ...ids} : ids)),
-            child: switch ((entries.isEmpty, settings.layout)) {
+            child: switch ((entries.isEmpty, layout)) {
               (true, _) => const EmptyFolderView(),
-              (false, FileLayout.list) => FileListView(entries: entries, interactions: interactions),
-              (false, FileLayout.grid) => FileGridView(entries: entries, interactions: interactions),
+              (false, FileLayout.list) => FileListView(
+                entries: entries,
+                interactions: interactions,
+                scrollKey: scrollKey,
+              ),
+              (false, FileLayout.grid) => FileGridView(
+                entries: entries,
+                interactions: interactions,
+                scrollKey: scrollKey,
+              ),
             },
           ),
         ),
