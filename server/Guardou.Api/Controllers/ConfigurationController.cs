@@ -1,0 +1,16 @@
+using Guardou.Application.Configuration;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Guardou.Api.Controllers;
+
+[ApiController]
+[Route("api/config")]
+public sealed class ConfigurationController(RuntimeConfigurationQuery query) : ControllerBase
+{
+    [HttpGet(Name = "GetConfiguration")]
+    [ProducesResponseType<RuntimeConfiguration>(StatusCodes.Status200OK)]
+    public Task<RuntimeConfiguration> Get()
+    {
+        return query.GetAsync();
+    }
+}

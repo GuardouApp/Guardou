@@ -1,0 +1,52 @@
+using Guardou.Domain.Files;
+
+namespace Guardou.Application.Files;
+
+internal sealed class ItemPlacement(IItemStore store, TimeProvider time)
+{
+    public async Task<string?> ResolveNameAsync(
+        Item folder,
+        string name,
+        ConflictPolicy policy,
+        ItemPath? source,
+        CancellationToken cancellationToken)
+    {
+        Item? existing = await store.FindChildAsync(folder.Id, name, cancellationToken);
+        if (existing is null)
+        {
+            return name;
+        }
+
+        return policy switch
+        {
+            ConflictPolicy.Skip => null,
+            ConflictPolicy.Rename => await FreeNameAsync(folder, name, cancellationToken),
+            ConflictPolicy.Replace when source is null || !source.Contains(existing.Id) => await ReplaceAsync(existing, cancellationToken),
+            _ => throw new ItemConflictException(name),
+        };
+    }
+
+    public static string ValidName(string name)
+    {
+        return ItemName.IsValid(name) ? name : throw new InvalidItemRequestException($"The name '{name}' is not valid.");
+    }
+
+    private async Task<string> FreeNameAsync(Item folder, string name, CancellationToken cancellationToken)
+    {
+        for (int number = 1; ; number++)
+        {
+            string candidate = ItemName.Numbered(name, number);
+            if (await store.FindChildAsync(folder.Id, candidate, cancellationToken) is null)
+            {
+                return candidate;
+            }
+        }
+    }
+
+    private async Task<string> ReplaceAsync(Item existing, CancellationToken cancellationToken)
+    {
+        existing.Trash(time.GetUtcNow());
+        await store.SaveAsync(cancellationToken);
+        return existing.Name;
+    }
+}

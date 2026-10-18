@@ -1,0 +1,10 @@
+swagger_parser:
+  schema_path: ../api/openapi.json
+  output_directory: lib/api/generated
+  language: dart
+  json_serializer: freezed
+  root_client: true
+  root_client_name: ApiClient
+  put_clients_in_folder: true
+  mark_files_as_generated: true
+  use_freezed3: true

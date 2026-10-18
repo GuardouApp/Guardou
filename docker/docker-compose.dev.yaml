@@ -1,0 +1,17 @@
+name: guardou
+
+services:
+  guardou:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: guardou:latest
+    container_name: guardou
+    ports:
+      - "8080:8080"
+    volumes:
+      - data:/data
+    restart: unless-stopped
+
+volumes:
+  data:

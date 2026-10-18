@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>guardou</AssemblyName>
+        <RootNamespace>Guardou.Cli</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.CommandLine" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Guardou.Api\Guardou.Api.csproj" />
+        <ProjectReference Include="..\Guardou.Application\Guardou.Application.csproj" />
+        <ProjectReference Include="..\Guardou.Infrastructure\Guardou.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

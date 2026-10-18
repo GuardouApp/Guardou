@@ -1,0 +1,139 @@
+import 'package:clock/clock.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import '../../api/generated/models/item_entry.dart';
+import '../../l10n/generated/app_localizations.dart';
+import 'selection.dart';
+
+@immutable
+class ItemInteractions {
+  const ItemInteractions({
+    required this.selection,
+    required this.openOnTap,
+    required this.onTap,
+    required this.onOpen,
+    required this.onLongPress,
+    required this.onContextMenu,
+    required this.onMore,
+    required this.keyFor,
+    required this.decorate,
+  });
+
+  final Selection selection;
+  final bool openOnTap;
+  final ValueChanged<ItemEntry> onTap;
+  final ValueChanged<ItemEntry> onOpen;
+  final ValueChanged<ItemEntry> onLongPress;
+  final void Function(ItemEntry entry, Offset position) onContextMenu;
+  final void Function(ItemEntry entry, BuildContext anchor) onMore;
+  final GlobalKey Function(String id) keyFor;
+  final Widget Function(ItemEntry entry, Widget child) decorate;
+
+  bool isSelected(ItemEntry entry) => selection.contains(entry.id);
+}
+
+class SelectableItem extends StatefulWidget {
+  const SelectableItem({
+    super.key,
+    required this.entry,
+    required this.interactions,
+    required this.child,
+    this.shape,
+  });
+
+  final ItemEntry entry;
+  final ItemInteractions interactions;
+  final Widget child;
+  final ShapeBorder? shape;
+
+  @override
+  State<SelectableItem> createState() => _SelectableItemState();
+}
+
+class _SelectableItemState extends State<SelectableItem> {
+  DateTime? _lastTap;
+
+  ItemInteractions get _interactions => widget.interactions;
+
+  bool get _opensOnTap => _interactions.openOnTap && !_interactions.selection.checkboxMode;
+
+  void _tap() {
+    if (_opensOnTap) {
+      _interactions.onOpen(widget.entry);
+      return;
+    }
+    final now = clock.now();
+    final last = _lastTap;
+    if (last != null && now.difference(last) <= kDoubleTapTimeout) {
+      _lastTap = null;
+      _interactions.onOpen(widget.entry);
+    } else {
+      _lastTap = now;
+      _interactions.onTap(widget.entry);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = _interactions.isSelected(widget.entry);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return KeyedSubtree(
+      key: _interactions.keyFor(widget.entry.id),
+      child: _interactions.decorate(
+        widget.entry,
+        GestureDetector(
+          onSecondaryTapUp: (details) => _interactions.onContextMenu(widget.entry, details.globalPosition),
+          child: Material(
+            color: selected ? colorScheme.secondaryContainer : Colors.transparent,
+            shape: widget.shape,
+            clipBehavior: widget.shape == null ? Clip.none : Clip.antiAlias,
+            child: InkWell(
+              onTap: _tap,
+              onLongPress: () => _interactions.onLongPress(widget.entry),
+              child: widget.child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ItemLeading extends StatelessWidget {
+  const ItemLeading({super.key, required this.entry, required this.interactions, required this.icon, this.size = 20});
+
+  final ItemEntry entry;
+  final ItemInteractions interactions;
+  final IconData icon;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!interactions.selection.checkboxMode) {
+      return Icon(icon, size: size);
+    }
+    return IgnorePointer(child: Checkbox(value: interactions.isSelected(entry), onChanged: (_) {}));
+  }
+}
+
+class ItemMoreButton extends StatelessWidget {
+  const ItemMoreButton({super.key, required this.entry, required this.interactions});
+
+  final ItemEntry entry;
+  final ItemInteractions interactions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (anchor) => IconButton(
+        tooltip: AppLocalizations.of(context).moreActions,
+        visualDensity: VisualDensity.compact,
+        onPressed: () => interactions.onMore(entry, anchor),
+        icon: const Icon(LucideIcons.ellipsisVertical, size: 18),
+      ),
+    );
+  }
+}

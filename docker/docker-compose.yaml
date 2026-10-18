@@ -1,0 +1,15 @@
+name: guardou
+
+services:
+  guardou:
+    image: ghcr.io/guardouapp/guardou:latest
+    container_name: guardou
+    ports:
+      - "8080:8080"
+    volumes:
+      - data:/data
+    # environment:
+    restart: unless-stopped
+
+volumes:
+  data:

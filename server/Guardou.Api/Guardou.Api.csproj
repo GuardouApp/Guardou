@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../api</OpenApiDocumentsDirectory>
+        <OpenApiGenerateDocumentsOptions>--file-name openapi --openapi-version OpenApi3_0</OpenApiGenerateDocumentsOptions>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Guardou.Application\Guardou.Application.csproj" />
+        <ProjectReference Include="..\Guardou.Infrastructure\Guardou.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>

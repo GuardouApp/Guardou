@@ -1,0 +1,328 @@
+{
+  "@@locale": "en",
+  "loading": "Loading",
+  "loginTitle": "Sign in to {applicationName}",
+  "@loginTitle": {
+    "placeholders": {
+      "applicationName": {
+        "type": "String"
+      }
+    }
+  },
+  "loginUsername": "Username",
+  "loginPassword": "Password",
+  "loginRememberMe": "Keep me signed in",
+  "loginSubmit": "Sign in",
+  "loginValueRequired": "Enter a value.",
+  "loginInvalidCredentials": "The username or the password is wrong.",
+  "registerTitle": "Create the administrator account",
+  "registerSubtitle": "No account exists yet. The first account becomes the administrator.",
+  "registerEmail": "Email",
+  "registerEmailInvalid": "Enter a valid email address.",
+  "registerConfirmPassword": "Confirm the password",
+  "registerSubmit": "Create account",
+  "registerUsernameInvalid": "Use only letters and digits.",
+  "registerPasswordMinimumLength": "Use at least {count} characters.",
+  "@registerPasswordMinimumLength": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "registerPasswordDigit": "Use at least one digit.",
+  "registerPasswordLowercase": "Use at least one lowercase letter.",
+  "registerPasswordUppercase": "Use at least one uppercase letter.",
+  "registerPasswordNonAlphanumeric": "Use at least one symbol.",
+  "registerPasswordsDiffer": "The passwords are different.",
+  "registerRejected": "The server refused the username or the password.",
+  "registerClosed": "An account already exists. Sign in instead.",
+  "genericError": "Something went wrong. Try again.",
+  "navigationHome": "Home",
+  "navigationFiles": "Files",
+  "navigationStarred": "Starred",
+  "navigationShared": "Shared",
+  "navigationSharedWithMe": "Shared with me",
+  "navigationTrash": "Trash",
+  "navigationOpen": "Open the navigation",
+  "newItem": "New",
+  "accountMenu": "Account",
+  "accountAdministrator": "Administrator",
+  "accountSettings": "Account settings",
+  "signOut": "Sign out",
+  "emptySectionTitle": "Nothing here yet",
+  "emptySectionMessage": "Your files will show here.",
+  "search": "Search",
+  "searchHint": "Search files",
+  "viewAsGrid": "Show as grid",
+  "viewAsList": "Show as list",
+  "settings": "Settings",
+  "myFiles": "My files",
+  "storageUsage": "{used} of {total} used",
+  "@storageUsage": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "expandFolder": "Expand",
+  "collapseFolder": "Collapse",
+  "moreFolders": "More folders",
+  "columnName": "Name",
+  "columnModified": "Modified",
+  "columnCreated": "Created",
+  "columnSize": "Size",
+  "columnKind": "Kind",
+  "kindFolder": "Folder",
+  "kindFile": "{extension} file",
+  "@kindFile": {
+    "placeholders": {
+      "extension": {
+        "type": "String"
+      }
+    }
+  },
+  "kindFileUnknown": "File",
+  "valueMissing": "—",
+  "fileSummary": "{modified} · {size}",
+  "@fileSummary": {
+    "placeholders": {
+      "modified": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyFolderTitle": "This folder is empty",
+  "emptyFolderMessage": "Items in this folder show here.",
+  "folderNotFoundTitle": "Folder not found",
+  "folderNotFoundMessage": "This folder does not exist, or you cannot open it.",
+  "openRoot": "Go to My files",
+  "folderLoadErrorTitle": "The folder did not load",
+  "errorForbiddenTitle": "Access denied",
+  "errorForbiddenMessage": "You do not have permission to open this page.",
+  "errorNotFoundTitle": "Page not found",
+  "errorNotFoundMessage": "This page does not exist.",
+  "errorServerTitle": "Server error",
+  "errorServerMessage": "The server did not respond correctly. Try again later.",
+  "errorGoHome": "Go to Home",
+  "errorRetry": "Try again",
+  "cancel": "Cancel",
+  "create": "Create",
+  "close": "Close",
+  "undo": "Undo",
+  "newFolder": "New folder",
+  "uploadFiles": "File upload",
+  "uploadFolder": "Folder upload",
+  "untitledFolder": "Untitled folder",
+  "itemName": "Name",
+  "itemNameInvalid": "Use a name without slashes, control characters, or spaces at the start or the end.",
+  "nameTaken": "An item with this name already exists.",
+  "folderCreated": "Folder \"{name}\" created",
+  "@folderCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itemRenamed": "Renamed to \"{name}\"",
+  "@itemRenamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "actionOpen": "Open",
+  "actionDownload": "Download",
+  "actionRename": "Rename",
+  "actionMove": "Move",
+  "actionCopy": "Make a copy",
+  "actionDetails": "Details",
+  "actionTrash": "Move to trash",
+  "moreActions": "More actions",
+  "clearSelection": "Clear the selection",
+  "selectedCount": "{count, plural, =1{1 selected} other{{count} selected}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentFolder": "Parent folder",
+  "moveItems": "{count, plural, =1{Move 1 item} other{Move {count} items}}",
+  "@moveItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyItems": "{count, plural, =1{Copy 1 item} other{Copy {count} items}}",
+  "@copyItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moveHere": "Move here",
+  "copyHere": "Copy here",
+  "movingItems": "{count, plural, =1{Moving 1 item} other{Moving {count} items}}",
+  "@movingItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyingItems": "{count, plural, =1{Copying 1 item} other{Copying {count} items}}",
+  "@copyingItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadingFiles": "{count, plural, =1{Uploading 1 file} other{Uploading {count} files}}",
+  "@uploadingFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filesUploaded": "{count, plural, =0{No files uploaded} =1{1 file uploaded} other{{count} files uploaded}}",
+  "@filesUploaded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsMoved": "{count, plural, =0{No items moved} =1{1 item moved} other{{count} items moved}}",
+  "@itemsMoved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsCopied": "{count, plural, =0{No items copied} =1{1 item copied} other{{count} items copied}}",
+  "@itemsCopied": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsTrashed": "{count, plural, =1{1 item moved to the trash} other{{count} items moved to the trash}}",
+  "@itemsTrashed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsRestored": "{count, plural, =1{1 item restored} other{{count} items restored}}",
+  "@itemsRestored": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsDeleted": "{count, plural, =1{1 item deleted forever} other{{count} items deleted forever}}",
+  "@itemsDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "conflictTitle": "The item already exists",
+  "conflictMessage": "\"{name}\" already exists in the destination.",
+  "@conflictMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conflictReplace": "Replace the existing item",
+  "conflictRename": "Keep both items",
+  "conflictSkip": "Skip this item",
+  "conflictApplyToAll": "Do this for all conflicts",
+  "conflictContinue": "Continue",
+  "restore": "Restore",
+  "deleteForever": "Delete forever",
+  "deleteForeverTitle": "{count, plural, =1{Delete 1 item forever?} other{Delete {count} items forever?}}",
+  "@deleteForeverTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteForeverMessage": "You cannot undo this action.",
+  "emptyTrash": "Empty trash",
+  "emptyTrashTitle": "Delete all items in the trash forever?",
+  "trashEmptied": "The trash is empty",
+  "trashEmptyTitle": "The trash is empty",
+  "trashEmptyMessage": "Items that you move to the trash show here.",
+  "trashRetention": "Items in the trash are deleted forever after 30 days.",
+  "trashedSummary": "Deleted {trashed} · Removed on {expires}",
+  "@trashedSummary": {
+    "placeholders": {
+      "trashed": {
+        "type": "String"
+      },
+      "expires": {
+        "type": "String"
+      }
+    }
+  },
+  "access": "Access",
+  "readOnly": "Read-only",
+  "readOnlyFolder": "You cannot add items to this folder.",
+  "administration": "Administration",
+  "save": "Save",
+  "users": "Users",
+  "userType": "Type",
+  "userTypeUser": "User",
+  "userCurrent": "You",
+  "userPasswordKeep": "Leave empty to keep the current password.",
+  "userDelete": "Delete user",
+  "userDeleteTitle": "Delete {username}?",
+  "@userDeleteTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "userDeleteMessage": "This deletes the user and all files of the user forever. You cannot undo this action.",
+  "userCreated": "User created",
+  "userSaved": "User saved",
+  "userDeleted": "User deleted",
+  "userNotFoundMessage": "The user does not exist or was deleted.",
+  "usersLoadErrorTitle": "Cannot load the users",
+  "userUsernameTaken": "This username is in use.",
+  "userEmailTaken": "This email is in use.",
+  "userPasswordRejected": "The password does not obey the password policy.",
+  "userLastAdministrator": "The last administrator cannot become a user.",
+  "userSelfDeletion": "You cannot delete your own user.",
+  "backToFiles": "Back to files",
+  "userManagement": "User management",
+  "createUser": "Create user",
+  "editUser": "Edit user",
+  "userEdit": "Edit"
+}

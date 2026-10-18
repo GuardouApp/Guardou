@@ -1,0 +1,30 @@
+using Guardou.Domain.Files;
+
+namespace Guardou.Application.Files;
+
+public interface IItemStore
+{
+    Task<Item?> FindAsync(string ownerId, Guid id, CancellationToken cancellationToken);
+
+    Task<Item?> FindRootAsync(string ownerId, CancellationToken cancellationToken);
+
+    Task<Item?> FindChildAsync(Guid parentId, string name, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Item>> ChildrenAsync(Guid parentId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Item>> ChildrenWithTrashAsync(Guid parentId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Item>> TrashedAsync(string ownerId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Item>> TrashedBeforeAsync(DateTimeOffset cutoff, CancellationToken cancellationToken);
+
+    Task<long> UsedBytesAsync(string ownerId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> StorageKeysAsync(string ownerId, CancellationToken cancellationToken);
+
+    void Add(Item item);
+
+    void Remove(Item item);
+
+    Task SaveAsync(CancellationToken cancellationToken);
+}
