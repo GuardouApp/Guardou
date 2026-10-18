@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Guardou.Infrastructure.Persistence;
 
-internal sealed class DatabaseMigrator(AppDbContext context, DataDirectory dataDirectory, TimeProvider time) : IDatabaseMigrator
+internal sealed class DatabaseMigrator(AppDbContext context, StoragePaths paths, TimeProvider time) : IDatabaseMigrator
 {
     public async Task MigrateAsync(CancellationToken cancellationToken)
     {
-        Directory.CreateDirectory(dataDirectory.DatabaseDirectory);
+        Directory.CreateDirectory(paths.DatabaseDirectory);
         await context.Database.MigrateAsync(cancellationToken);
         await context.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL;", cancellationToken);
         await AddMissingRootFoldersAsync(cancellationToken);
