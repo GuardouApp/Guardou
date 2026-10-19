@@ -32,6 +32,7 @@ const _codeExtensions = {
 };
 const _archiveExtensions = {'zip', 'tar', 'gz', 'tgz', '7z', 'rar', 'bz2', 'xz'};
 const _spreadsheetExtensions = {'csv', 'xls', 'xlsx', 'ods'};
+const _torrentExtension = 'torrent';
 
 IconData iconFor(ItemEntry entry) {
   if (entry.kind == ItemKind.folder) {
@@ -43,6 +44,7 @@ IconData iconFor(ItemEntry entry) {
     'image' => LucideIcons.fileImage,
     'video' => LucideIcons.fileVideo,
     'audio' => LucideIcons.fileAudio,
+    _ when extension == _torrentExtension => LucideIcons.magnet,
     _ when _codeExtensions.contains(extension) => LucideIcons.fileCode,
     _ when _archiveExtensions.contains(extension) => LucideIcons.fileArchive,
     _ when _spreadsheetExtensions.contains(extension) => LucideIcons.fileSpreadsheet,

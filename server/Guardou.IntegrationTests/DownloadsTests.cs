@@ -48,6 +48,19 @@ public sealed class DownloadsTests : SignedInTests
     }
 
     [Fact]
+    public async Task ViewsAPdfWithoutTheSandbox()
+    {
+        ItemEntry file = await Client.UploadEntryAsync(ItemsApi.Root, "manual.pdf", "%PDF-1.4");
+
+        HttpResponseMessage response = await Client.GetAsync($"/api/items/{file.Id}/view", CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/pdf", response.Content.Headers.ContentType?.MediaType);
+        Assert.False(response.Headers.Contains("Content-Security-Policy"));
+        Assert.Equal("nosniff", Assert.Single(response.Headers.GetValues("X-Content-Type-Options")));
+    }
+
+    [Fact]
     public async Task DownloadsAFolderAsAZip()
     {
         ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");

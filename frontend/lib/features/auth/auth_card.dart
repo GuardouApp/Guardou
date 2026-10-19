@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_tokens.dart';
+import '../../core/layout/window_size_class.dart';
 import '../../core/widgets/brand_mark.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'auth_form_controller.dart';
@@ -30,6 +31,9 @@ class AuthCard extends StatelessWidget {
     AuthFailure.unknown => l10n.genericError,
   };
 
+  Alignment _alignment(BuildContext context) =>
+      WindowSizeClass.of(context) == WindowSizeClass.compact ? Alignment.topCenter : Alignment.center;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -38,7 +42,8 @@ class AuthCard extends StatelessWidget {
     final currentFailure = failure;
 
     return Scaffold(
-      body: Center(
+      body: Align(
+        alignment: _alignment(context),
         child: SingleChildScrollView(
           padding: EdgeInsets.all(tokens.spacing),
           child: ConstrainedBox(

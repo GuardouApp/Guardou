@@ -18,6 +18,7 @@ import '../../features/shell/shell_destination.dart';
 import '../../features/tasks/tasks_page.dart';
 import '../../features/trash/trash_page.dart';
 import '../../features/users/users_page.dart';
+import '../../features/viewer/viewer_page.dart';
 import 'redirect_guard.dart';
 import 'routes.dart';
 
@@ -52,6 +53,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.serverError,
         builder: (_, _) => const ErrorPage(kind: ErrorKind.serverError),
+      ),
+      GoRoute(
+        path: '${Routes.view}/:${Routes.idParameter}',
+        builder: (_, state) {
+          final id = state.pathParameters[Routes.idParameter] ?? '';
+          return ViewerPage(key: ValueKey(id), fileId: id);
+        },
       ),
       ShellRoute(
         builder: (context, state, child) => AdaptiveShell(location: state.uri.path, child: child),

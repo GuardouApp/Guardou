@@ -10,6 +10,11 @@ final folderControllerProvider = AsyncNotifierProvider.autoDispose.family<Folder
   retry: noRetry,
 );
 
+final fileDetailsProvider = FutureProvider.autoDispose.family<ItemDetails, String>(
+  (ref, id) => ref.read(filesServiceProvider).item(id),
+  retry: noRetry,
+);
+
 final childrenControllerProvider = AsyncNotifierProvider.autoDispose
     .family<ChildrenController, List<ItemEntry>, String>(ChildrenController.new, retry: noRetry);
 

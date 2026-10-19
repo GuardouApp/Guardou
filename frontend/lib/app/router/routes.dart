@@ -7,6 +7,7 @@ abstract final class Routes {
   static const files = '/files';
   static const folders = '/folders';
   static const file = '/file';
+  static const view = '/view';
   static const starred = '/starred';
   static const shared = '/shared';
   static const trash = '/trash';
@@ -27,6 +28,8 @@ abstract final class Routes {
   static String folder(String id) => id == rootFolderId ? files : '$folders/${Uri.encodeComponent(id)}';
 
   static String fileItem(String id) => '$file/${Uri.encodeComponent(id)}';
+
+  static String viewer(String id) => '$view/${Uri.encodeComponent(id)}';
 
   static String? folderIdOf(String location) {
     final segments = Uri.parse(location).pathSegments.where((segment) => segment.isNotEmpty).toList();

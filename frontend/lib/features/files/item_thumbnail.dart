@@ -8,12 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/preview_size.dart';
 import 'files_service.dart';
+import 'preview_loader.dart';
 
 class ItemThumbnail extends ConsumerStatefulWidget {
   const ItemThumbnail({super.key, required this.entry, required this.placeholder, this.fit = BoxFit.cover});
-
-  static const maximumAttempts = 15;
-  static const retryDelay = Duration(seconds: 2);
 
   final ItemEntry entry;
   final Widget placeholder;
@@ -38,9 +36,7 @@ class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
     super.didUpdateWidget(oldWidget);
     final entry = widget.entry;
     final previous = oldWidget.entry;
-    if (previous.id != entry.id ||
-        previous.hasPreview != entry.hasPreview ||
-        previous.previewId != entry.previewId) {
+    if (previous.id != entry.id || previous.hasPreview != entry.hasPreview || previous.previewId != entry.previewId) {
       _cancel.cancel();
       _cancel = CancelToken();
       _bytes = null;
@@ -61,20 +57,15 @@ class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
   }
 
   Future<void> _load(String id, String? previewId, CancelToken cancel) async {
-    final files = ref.read(filesServiceProvider);
-    try {
-      for (var attempt = 0; attempt < ItemThumbnail.maximumAttempts && !cancel.isCancelled; attempt++) {
-        final bytes = await files.preview(id, PreviewSize.thumbnail, previewId, cancel);
-        if (bytes != null) {
-          if (mounted && !cancel.isCancelled) {
-            setState(() => _bytes = bytes);
-          }
-          return;
-        }
-        await Future<void>.delayed(ItemThumbnail.retryDelay);
-      }
-    } on DioException {
-      return;
+    final bytes = await PreviewLoader.load(
+      ref.read(filesServiceProvider),
+      id,
+      PreviewSize.thumbnail,
+      previewId,
+      cancel,
+    );
+    if (bytes != null && mounted && !cancel.isCancelled) {
+      setState(() => _bytes = bytes);
     }
   }
 

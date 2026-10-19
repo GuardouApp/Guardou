@@ -88,6 +88,15 @@ class FilesService {
     return response.statusCode == _previewPending || data == null ? null : Uint8List.fromList(data);
   }
 
+  Future<Uint8List> original(String id, CancelToken cancelToken) async {
+    final response = await _dio.get<List<int>>(
+      viewUri(id).path,
+      options: Options(responseType: ResponseType.bytes),
+      cancelToken: cancelToken,
+    );
+    return Uint8List.fromList(response.data ?? const []);
+  }
+
   Uri downloadUri(String id) => _itemUri(id, 'download');
 
   Uri viewUri(String id) => _itemUri(id, 'view');
