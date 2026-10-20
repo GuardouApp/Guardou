@@ -1,6 +1,10 @@
-# Guardou!
-
-_Guardou!_ is a self-hosted file storage solution.
+<h1 align="center">Guardou!</h1>
+<h3 align="center">Guardou is a self-hosted file storage solution.</h3>
+<br/>
+<p align="center">
+  <img src="design/screenshot.webp" width="720" title="Main Screenshot" alt="Main Screenshot">
+</p>
+<br/>
 
 ## Features
 
