@@ -1,10 +1,19 @@
 <h1 align="center">Guardou!</h1>
-<h3 align="center">Guardou is a self-hosted file storage solution.</h3>
 <br/>
 <p align="center">
   <img src="design/screenshot.webp" width="720" title="Main Screenshot" alt="Main Screenshot">
 </p>
 <br/>
+
+## About
+
+Guardou is a self-hosted file storage solution. Designed to be a simple alternative for users who want to store and organize some files through a simple web ui.
+
+**Core Features:**
+- Multiple users
+- SSO Support
+
+No telemetry. No tracking. No ads. 100% Free.
 
 ## Features
 
@@ -12,7 +21,17 @@
 |----------------------------|--------|
 | Multiple users             | Yes    | 
 | File/Folder Sharing        | WIP    |
-| OIDC-based SSO             | WIP    |
+| OIDC-based SSO             | Yes    |
+
+## Getting Started
+
+Use the [docker-compose](docker/docker-compose.yaml) file provided in the repository. No changes are required but you may customize it for your needs.
+
+Run the container:
+
+```
+docker-compose up -d
+```
 
 
 ## Tech Stack
