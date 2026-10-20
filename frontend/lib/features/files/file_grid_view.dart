@@ -17,15 +17,23 @@ import 'remembered_scroll.dart';
 import 'sort_menu.dart';
 
 class FileGridView extends StatelessWidget {
-  const FileGridView({super.key, required this.entries, required this.interactions, required this.scrollKey});
+  const FileGridView({
+    super.key,
+    required this.entries,
+    required this.interactions,
+    required this.scrollKey,
+    this.reservedWidth = 0,
+  });
 
   static const _minimumTileWidth = 250.0;
+  static const _minimumScaledTileWidth = 160.0;
   static const _folderHeight = 48.0;
   static const _radius = 12.0;
 
   final List<ItemEntry> entries;
   final ItemInteractions interactions;
   final String scrollKey;
+  final double reservedWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +94,11 @@ class FileGridView extends StatelessWidget {
     );
   }
 
-  static int _columnsFor(double width, double spacing) =>
-      max(1, ((width + spacing) / (_minimumTileWidth + spacing)).floor());
+  int _columnsFor(double width, double spacing) =>
+      min(_fit(width + reservedWidth, _minimumTileWidth, spacing), _fit(width, _minimumScaledTileWidth, spacing));
+
+  static int _fit(double width, double tileWidth, double spacing) =>
+      max(1, ((width + spacing) / (tileWidth + spacing)).floor());
 
   static ShapeBorder _shape() => RoundedRectangleBorder(borderRadius: BorderRadius.circular(_radius));
 

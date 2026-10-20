@@ -17,10 +17,15 @@ class UserEditorController extends Notifier<AsyncValue<void>> {
 
   UsersService get _users => ref.read(usersServiceProvider);
 
-  Future<UserAccount?> save(String? id, UserRequest request) async {
+  Future<UserAccount?> save(String? id, UserRequest request) =>
+      _run(() => id == null ? _users.create(request) : _users.update(id, request));
+
+  Future<UserAccount?> removeOidcLogin(String id) => _run(() => _users.removeOidcLogin(id));
+
+  Future<UserAccount?> _run(Future<UserAccount> Function() action) async {
     state = const AsyncLoading();
     try {
-      final result = await (id == null ? _users.create(request) : _users.update(id, request));
+      final result = await action();
       state = const AsyncData(null);
       return result;
     } on DioException catch (error, stackTrace) {

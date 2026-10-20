@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:guardou/api/generated/models/authentication_method.dart';
 import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/features/auth/login_page.dart';
 import 'package:mocktail/mocktail.dart';
@@ -12,11 +13,23 @@ void main() {
 
   setUp(() => auth = MockAuthService());
 
-  Future<void> pumpLogin(WidgetTester tester, {Size size = const Size(1280, 800)}) => pumpTestApp(
+  Future<void> pumpLogin(
+    WidgetTester tester, {
+    Size size = const Size(1280, 800),
+    List<AuthenticationMethod> methods = const [AuthenticationMethod.password],
+    MockBrowserLocation? location,
+    String? redirect,
+    String? oidcError,
+  }) => pumpTestApp(
     tester,
     size: size,
-    overrides: serviceOverrides(auth: auth, user: null),
-    child: const LoginPage(),
+    overrides: serviceOverrides(
+      auth: auth,
+      user: null,
+      configuration: testConfiguration.copyWith(authenticationMethods: methods),
+      location: location,
+    ),
+    child: LoginPage(redirect: redirect, oidcError: oidcError),
   );
 
   Future<void> submit(WidgetTester tester) async {
@@ -93,5 +106,46 @@ void main() {
 
     verify(() => auth.login(username: 'admin', password: 'secret-password', rememberMe: false)).called(1);
     expect(find.text('The username or the password is wrong.'), findsNothing);
+  });
+
+  testWidgets('signs in with single sign-on and keeps the target', (tester) async {
+    final location = MockBrowserLocation();
+    final oidcLogin = Uri.parse('/api/auth/oidc/login?returnUrl=%2Ffiles');
+    when(() => auth.oidcLogin(returnUrl: '/files')).thenReturn(oidcLogin);
+    await pumpLogin(
+      tester,
+      methods: const [AuthenticationMethod.password, AuthenticationMethod.oidc],
+      location: location,
+      redirect: '/files',
+    );
+
+    await tester.tap(find.text('Sign in with single sign-on'));
+    await tester.pump();
+
+    verify(() => location.assign(oidcLogin)).called(1);
+    expect(find.text('or'), findsOneWidget);
+  });
+
+  testWidgets('shows only single sign-on when the password login is disabled in portrait', (tester) async {
+    await pumpLogin(tester, size: const Size(390, 844), methods: const [AuthenticationMethod.oidc]);
+
+    expect(find.widgetWithText(FilledButton, 'Sign in with single sign-on'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Username'), findsNothing);
+    expect(find.text('or'), findsNothing);
+  });
+
+  testWidgets('shows the reason of a refused single sign-on', (tester) async {
+    await pumpLogin(tester, methods: const [AuthenticationMethod.oidc], oidcError: 'noAccount');
+
+    expect(find.text('No user is linked to your account. Ask an administrator to create one.'), findsOneWidget);
+  });
+
+  testWidgets('shows a message when the password login is disabled', (tester) async {
+    loginFailsWith(403);
+    await pumpLogin(tester);
+
+    await submit(tester);
+
+    expect(find.text('The password login is disabled. Use single sign-on.'), findsOneWidget);
   });
 }

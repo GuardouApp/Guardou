@@ -1,3 +1,4 @@
+using Guardou.Application.Settings;
 using Guardou.Domain.Tasks;
 
 namespace Guardou.Application.Tasks;
@@ -27,13 +28,18 @@ public sealed class QueueSettings
         return limits;
     }
 
+    public IReadOnlyList<TaskConcurrency> DefaultConcurrency()
+    {
+        return Kinds().Select(kind => new TaskConcurrency(kind, TaskQueueSettings.DefaultConcurrency)).ToList();
+    }
+
     public async Task ChangeConcurrencyAsync(IReadOnlyList<TaskConcurrency> limits, CancellationToken cancellationToken)
     {
         foreach (TaskConcurrency limit in limits)
         {
             if (!Kinds().Contains(limit.Kind) || !TaskQueueSettings.IsValidConcurrency(limit.Concurrency))
             {
-                throw new InvalidTaskSettingsException($"The concurrency {limit.Concurrency} of the queue '{limit.Kind}' is not valid.");
+                throw new InvalidSettingsException($"The concurrency {limit.Concurrency} of the queue '{limit.Kind}' is not valid.");
             }
 
             (await FindOrCreateAsync(limit.Kind, cancellationToken)).ChangeConcurrency(limit.Concurrency);

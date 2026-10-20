@@ -2,20 +2,26 @@ using Guardou.Application.Authentication;
 using Guardou.Application.Files;
 using Guardou.Application.Persistence;
 using Guardou.Application.Previews;
+using Guardou.Application.Settings;
 using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Guardou.Domain;
+using Guardou.Domain.Authentication;
 using Guardou.Domain.Users;
 using Guardou.Infrastructure.Files;
 using Guardou.Infrastructure.Identity;
+using Guardou.Infrastructure.Identity.Oidc;
 using Guardou.Infrastructure.Persistence;
 using Guardou.Infrastructure.Previews;
 using Guardou.Infrastructure.Storage;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Guardou.Infrastructure;
 
@@ -45,6 +51,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IMimeTypeMap, MimeTypeMap>();
         services.AddScoped<ITaskStore, EfTaskStore>();
         services.AddScoped<ITaskQueueSettingsStore, EfTaskQueueSettingsStore>();
+        services.AddScoped<ISettingsStore, EfSettingsStore>();
+        services.AddSingleton<OidcSettingsSnapshot>();
+        services.AddSingleton<IOidcSettingsObserver>(provider => provider.GetRequiredService<OidcSettingsSnapshot>());
         services.AddSingleton<IImageSource, VipsImageSource>();
         services.AddSingleton<IImageSource, RawImageSource>();
         services.AddSingleton<IImageSource, HeicImageSource>();
@@ -58,7 +67,13 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddWebInfrastructure(this IServiceCollection services)
     {
         new IdentityBuilder(typeof(IdentityUser), typeof(IdentityRole), services).AddSignInManager();
-        services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
+        AuthenticationBuilder authentication = services.AddAuthentication(IdentityConstants.ApplicationScheme);
+        authentication.AddIdentityCookies();
+        authentication.AddOpenIdConnect(OidcSettings.Provider, _ => { });
+        services.AddSingleton<IConfigureOptions<OpenIdConnectOptions>, OidcOptionsSetup>();
+        services.AddSingleton<IOptionsChangeTokenSource<OpenIdConnectOptions>>(provider => provider.GetRequiredService<OidcSettingsSnapshot>());
+        services.AddScoped<OidcEvents>();
+        services.AddScoped<OidcSignOut>();
         services.ConfigureApplicationCookie(SessionCookie.Configure);
         services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
 

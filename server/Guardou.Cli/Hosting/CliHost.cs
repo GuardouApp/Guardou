@@ -10,16 +10,27 @@ namespace Guardou.Cli.Hosting;
 
 internal static class CliHost
 {
-    public static async Task<int> ExecuteAsync(
+    public static Task<int> ExecuteAsync(
         ParseResult parseResult,
         Func<UserAdministration, Task<UserAccountResult>> operation,
         CancellationToken cancellationToken)
     {
+        return ExecuteAsync<UserAdministration>(
+            async administration => await ReportAsync(parseResult, await operation(administration)),
+            cancellationToken);
+    }
+
+    public static async Task<int> ExecuteAsync<TService>(Func<TService, Task<int>> operation, CancellationToken cancellationToken)
+        where TService : notnull
+    {
         using IHost host = Build();
         await using AsyncServiceScope scope = host.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<IDatabaseMigrator>().MigrateAsync(cancellationToken);
+        return await operation(scope.ServiceProvider.GetRequiredService<TService>());
+    }
 
-        UserAccountResult result = await operation(scope.ServiceProvider.GetRequiredService<UserAdministration>());
+    private static async Task<int> ReportAsync(ParseResult parseResult, UserAccountResult result)
+    {
         foreach (UserAccountError error in result.Errors)
         {
             await parseResult.InvocationConfiguration.Error.WriteLineAsync(error.Description);

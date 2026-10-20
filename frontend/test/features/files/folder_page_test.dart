@@ -274,6 +274,25 @@ void main() {
     expect(tester.getSize(find.byType(SelectableItem).first).height, 48);
   });
 
+  testWidgets('scales the grid tiles down when the details panel opens', (tester) async {
+    await pumpFolder(tester, '/folders/docs');
+    await tester.tap(find.byTooltip('Show as grid'));
+    await tester.pumpAndSettle();
+    int columns() => tester
+        .widgetList<SliverGrid>(find.byType(SliverGrid))
+        .map((grid) => (grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount).crossAxisCount)
+        .first;
+    final before = columns();
+    final width = tester.getSize(find.widgetWithText(SelectableItem, 'big.txt')).width;
+
+    await tester.tap(find.byTooltip('Details').first);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DetailsPanel), findsOneWidget);
+    expect(columns(), before);
+    expect(tester.getSize(find.widgetWithText(SelectableItem, 'big.txt')).width, lessThan(width));
+  });
+
   testWidgets('keeps the layout of each folder', (tester) async {
     final container = await pumpRoutedApp(
       tester,

@@ -44,7 +44,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: Routes.root, redirect: (_, _) => Routes.home),
       GoRoute(path: Routes.loading, builder: (_, _) => const LoadingPage()),
-      GoRoute(path: Routes.login, builder: (_, _) => const LoginPage()),
+      GoRoute(
+        path: Routes.login,
+        builder: (_, state) => LoginPage(
+          redirect: state.uri.queryParameters[Routes.redirectParameter],
+          oidcError: state.uri.queryParameters[Routes.oidcErrorParameter],
+        ),
+      ),
       GoRoute(path: Routes.register, builder: (_, _) => const RegisterPage()),
       GoRoute(
         path: Routes.forbidden,

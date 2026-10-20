@@ -9,8 +9,8 @@ public sealed class ConfigurationController(RuntimeConfigurationQuery query) : C
 {
     [HttpGet(Name = "GetConfiguration")]
     [ProducesResponseType<RuntimeConfiguration>(StatusCodes.Status200OK)]
-    public Task<RuntimeConfiguration> Get()
+    public Task<RuntimeConfiguration> Get(CancellationToken cancellationToken)
     {
-        return query.GetAsync();
+        return query.GetAsync(cancellationToken);
     }
 }

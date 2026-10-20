@@ -24,6 +24,20 @@ public sealed class SettingsTests : SignedInTests
         Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5)], await GetTaskSettingsAsync(Client));
     }
 
+    [Fact]
+    public async Task ReadsTheDefaultsWithoutChangingTheSettings()
+    {
+        await PutTaskSettingsAsync([new TaskConcurrency(TaskKind.Preview, 5)]);
+
+        IReadOnlyList<TaskConcurrency>? defaults = await Client.GetFromJsonAsync<IReadOnlyList<TaskConcurrency>>(
+            "/api/settings/tasks/defaults",
+            HttpClientExtensions.JsonOptions,
+            CancellationToken);
+
+        Assert.Equal([new TaskConcurrency(TaskKind.Preview, TaskQueueSettings.DefaultConcurrency)], defaults);
+        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5)], await GetTaskSettingsAsync(Client));
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(17)]

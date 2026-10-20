@@ -26,8 +26,12 @@ class AuthCard extends StatelessWidget {
 
   static String failureMessage(AppLocalizations l10n, AuthFailure failure) => switch (failure) {
     AuthFailure.invalidCredentials => l10n.loginInvalidCredentials,
+    AuthFailure.passwordLoginDisabled => l10n.loginPasswordDisabled,
     AuthFailure.rejected => l10n.registerRejected,
     AuthFailure.registrationClosed => l10n.registerClosed,
+    AuthFailure.oidcFailed => l10n.loginOidcFailed,
+    AuthFailure.oidcNoAccount => l10n.loginOidcNoAccount,
+    AuthFailure.oidcRejected => l10n.loginOidcRejected,
     AuthFailure.unknown => l10n.genericError,
   };
 

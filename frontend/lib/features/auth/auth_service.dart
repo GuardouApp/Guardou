@@ -15,6 +15,9 @@ final authServiceProvider = Provider<AuthService>(
 class AuthService {
   const AuthService(this._api, this._antiforgery);
 
+  static const _oidcLoginPath = '/api/auth/oidc/login';
+  static const _returnUrlParameter = 'returnUrl';
+
   final ApiClient _api;
   final AntiforgeryInterceptor _antiforgery;
 
@@ -45,8 +48,15 @@ class AuthService {
     return _api.auth.getCurrentUser();
   }
 
-  Future<void> logout() async {
-    await _api.auth.logout();
+  Uri oidcLogin({String? returnUrl}) =>
+      Uri(path: _oidcLoginPath, queryParameters: returnUrl == null ? null : {_returnUrlParameter: returnUrl});
+
+  Future<Uri?> logout() async {
+    final result = await _api.auth.logout();
     _antiforgery.reset();
+    return switch (result.redirectUrl) {
+      final url? => Uri.tryParse(url),
+      null => null,
+    };
   }
 }

@@ -10,8 +10,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../helpers/test_app.dart';
 
 void main() {
-  const admin = UserAccount(id: 'admin-id', username: 'admin', email: 'admin@example.com', isAdmin: true);
-  const bob = UserAccount(id: 'bob-id', username: 'bob', email: 'bob@example.com', isAdmin: false);
+  const admin = UserAccount(id: 'admin-id', username: 'admin', email: 'admin@example.com', isAdmin: true, externalLogins: []);
+  const bob = UserAccount(id: 'bob-id', username: 'bob', email: 'bob@example.com', isAdmin: false, externalLogins: []);
   const compact = Size(390, 844);
 
   late MockUsersService users;
@@ -63,7 +63,7 @@ void main() {
   });
 
   testWidgets('hides the administration from users', (tester) async {
-    const user = CurrentUser(id: 'bob-id', username: 'bob', email: 'bob@example.com', isAdmin: false);
+    const user = CurrentUser(id: 'bob-id', username: 'bob', email: 'bob@example.com', isAdmin: false, pictureUrl: null);
     final container = await pumpUsers(tester, user: user);
 
     expect(locationOf(container), '/403');
@@ -74,7 +74,7 @@ void main() {
   });
 
   testWidgets('creates a user in a dialog', (tester) async {
-    const carol = UserAccount(id: 'carol-id', username: 'carol', email: 'carol@example.com', isAdmin: true);
+    const carol = UserAccount(id: 'carol-id', username: 'carol', email: 'carol@example.com', isAdmin: true, externalLogins: []);
     when(() => users.create(any())).thenAnswer((_) async => carol);
     await pumpUsers(tester);
 
@@ -129,6 +129,23 @@ void main() {
       ),
     ).called(1);
     expect(find.text('User saved'), findsOneWidget);
+  });
+
+  testWidgets('unlinks the single sign-on of a user', (tester) async {
+    final linked = bob.copyWith(externalLogins: ['oidc']);
+    when(users.list).thenAnswer((_) async => [admin, linked]);
+    when(() => users.removeOidcLogin('bob-id')).thenAnswer((_) async => bob);
+    await pumpUsers(tester, size: compact);
+
+    await tester.tap(find.text('bob'));
+    await tester.pumpAndSettle();
+    expect(find.text('Linked to single sign-on'), findsOneWidget);
+    await tester.tap(find.text('Unlink'));
+    await tester.pumpAndSettle();
+
+    verify(() => users.removeOidcLogin('bob-id')).called(1);
+    expect(find.text('Linked to single sign-on'), findsNothing);
+    expect(find.text('Edit user'), findsOneWidget);
   });
 
   testWidgets('shows the reason when the server refuses a change', (tester) async {

@@ -13,6 +13,8 @@ class TaskSettingsController extends AsyncNotifier<List<TaskConcurrency>> {
   @override
   Future<List<TaskConcurrency>> build() => ref.read(settingsServiceProvider).taskSettings();
 
+  Future<List<TaskConcurrency>> defaults() => ref.read(settingsServiceProvider).taskSettingsDefaults();
+
   Future<void> save(List<TaskConcurrency> settings) async {
     state = AsyncData(await ref.read(settingsServiceProvider).changeTaskSettings(settings));
   }

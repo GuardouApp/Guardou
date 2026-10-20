@@ -10,11 +10,11 @@ void main() {
 
   setUp(() => auth = MockAuthService());
 
-  Future<void> openPanel(WidgetTester tester, Size size) async {
+  Future<void> openPanel(WidgetTester tester, Size size, {MockBrowserLocation? location}) async {
     await pumpTestApp(
       tester,
       size: size,
-      overrides: serviceOverrides(auth: auth),
+      overrides: serviceOverrides(auth: auth, location: location),
       child: const Scaffold(
         body: Align(alignment: Alignment.topRight, child: AccountMenu()),
       ),
@@ -36,7 +36,7 @@ void main() {
   }
 
   testWidgets('signs out and closes the panel', (tester) async {
-    when(auth.logout).thenAnswer((_) async {});
+    when(auth.logout).thenAnswer((_) async => null);
     await openPanel(tester, const Size(1280, 800));
 
     await tester.tap(find.text('Sign out'));
@@ -44,5 +44,17 @@ void main() {
 
     verify(auth.logout).called(1);
     expect(find.byType(AccountPanel), findsNothing);
+  });
+
+  testWidgets('signs out at the identity provider', (tester) async {
+    final providerLogout = Uri.parse('https://id.example.com/logout?id_token_hint=token');
+    final location = MockBrowserLocation();
+    when(auth.logout).thenAnswer((_) async => providerLogout);
+    await openPanel(tester, const Size(1280, 800), location: location);
+
+    await tester.tap(find.text('Sign out'));
+    await tester.pumpAndSettle();
+
+    verify(() => location.assign(providerLogout)).called(1);
   });
 }
