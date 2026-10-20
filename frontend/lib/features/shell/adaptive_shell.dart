@@ -23,7 +23,6 @@ class AdaptiveShell extends StatelessWidget {
     final selected = ShellDestination.fromPath(location);
     final currentFolderId = Routes.folderIdOf(location);
     void select(ShellDestination destination) => context.go(destination.path);
-    void navigate(String route) => context.go(route);
 
     return FileDropListener(
       child: switch (WindowSizeClass.of(context)) {
@@ -31,7 +30,6 @@ class AdaptiveShell extends StatelessWidget {
           selected: selected,
           onSelected: select,
           currentFolderId: currentFolderId,
-          onNavigate: navigate,
           child: child,
         ),
         WindowSizeClass.medium => _MediumShell(
@@ -44,7 +42,6 @@ class AdaptiveShell extends StatelessWidget {
           selected: selected,
           onSelected: select,
           currentFolderId: currentFolderId,
-          onNavigate: navigate,
           child: child,
         ),
       },
@@ -57,14 +54,12 @@ class _CompactShell extends StatelessWidget {
     required this.selected,
     required this.onSelected,
     required this.currentFolderId,
-    required this.onNavigate,
     required this.child,
   });
 
   final ShellDestination? selected;
   final ValueChanged<ShellDestination> onSelected;
   final String? currentFolderId;
-  final ValueChanged<String> onNavigate;
   final Widget child;
 
   @override
@@ -81,10 +76,6 @@ class _CompactShell extends StatelessWidget {
           onSelected(destination);
         },
         currentFolderId: currentFolderId,
-        onNavigate: (route) {
-          Navigator.of(context).pop();
-          onNavigate(route);
-        },
       ),
       body: _WithStatusBar(child: child),
       floatingActionButton: NewItemButton(
@@ -158,14 +149,12 @@ class _ExpandedShell extends StatelessWidget {
     required this.selected,
     required this.onSelected,
     required this.currentFolderId,
-    required this.onNavigate,
     required this.child,
   });
 
   final ShellDestination? selected;
   final ValueChanged<ShellDestination> onSelected;
   final String? currentFolderId;
-  final ValueChanged<String> onNavigate;
   final Widget child;
 
   @override
@@ -180,7 +169,6 @@ class _ExpandedShell extends StatelessWidget {
               selected: selected,
               onSelected: onSelected,
               currentFolderId: currentFolderId,
-              onNavigate: onNavigate,
               inline: true,
             ),
           ),

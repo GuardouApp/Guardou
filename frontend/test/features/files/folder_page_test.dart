@@ -83,9 +83,8 @@ void main() {
     await pumpFolder(tester, '/files');
 
     expect(find.text('My files'), findsOneWidget);
-    expect(find.widgetWithText(NavigationDrawer, 'docs'), findsOneWidget);
-    expect(find.widgetWithText(NavigationDrawer, 'readme.md'), findsOneWidget);
-    expect(find.text('readme.md'), findsNWidgets(2));
+    expect(find.widgetWithText(NavigationDrawer, 'docs'), findsNothing);
+    expect(find.text('readme.md'), findsOneWidget);
     expect(find.text('1 MB of 4 MB used'), findsOneWidget);
   });
 
@@ -326,7 +325,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(Image), findsOneWidget);
-    expect(find.text('You uploaded · Mar 5'), findsOneWidget);
+    expect(find.text('Created · Mar 5'), findsOneWidget);
     final card = tester.getSize(find.byType(SelectableItem).first);
     final preview = tester.getSize(find.byType(AspectRatio).first);
     expect(card.width, greaterThanOrEqualTo(250));
@@ -400,21 +399,6 @@ void main() {
 
     final menu = tester.getTopLeft(find.byType(PopupMenuItem<ItemAction>).first);
     expect((menu - position).distance, lessThan(80));
-  });
-
-  testWidgets('opens a file from the folder tree', (tester) async {
-    when(() => files.item('readme.md')).thenAnswer((_) async => testFolder(readme, const []));
-    final container = await pumpRoutedApp(
-      tester,
-      location: '/files',
-      overrides: serviceOverrides(auth: MockAuthService(), files: files),
-    );
-
-    await tester.tap(find.descendant(of: find.byType(NavigationDrawer), matching: find.text('readme.md')));
-    await tester.pumpAndSettle();
-
-    expect(container.read(appRouterProvider).state.uri.path, '/file/readme.md');
-    expect(find.text('1 selected'), findsOneWidget);
   });
 
   testWidgets('shows an empty state', (tester) async {

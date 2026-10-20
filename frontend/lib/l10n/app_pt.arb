@@ -45,8 +45,6 @@
   "settings": "Configurações",
   "myFiles": "Meus arquivos",
   "storageUsage": "{used} de {total} usados",
-  "expandFolder": "Expandir",
-  "collapseFolder": "Recolher",
   "moreFolders": "Mais pastas",
   "columnName": "Nome",
   "columnModified": "Modificado",
@@ -194,8 +192,8 @@
     }
   },
   "taskListEmpty": "Nenhuma tarefa",
-  "fileUploadedByYou": "Você fez o upload · {date}",
-  "@fileUploadedByYou": {
+  "fileCreated": "Você criou · {date}",
+  "@fileCreated": {
     "placeholders": {
       "date": {
         "type": "String"

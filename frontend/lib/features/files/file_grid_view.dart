@@ -223,7 +223,7 @@ class _FileCard extends ConsumerWidget {
                   SizedBox(width: spacing / 2),
                   Expanded(
                     child: Text(
-                      l10n.fileUploadedByYou(formatCardDate(entry.created, clock.now(), l10n.localeName)),
+                      l10n.fileCreated(formatCardDate(entry.created, clock.now(), l10n.localeName)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),

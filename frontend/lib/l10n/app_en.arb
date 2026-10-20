@@ -69,8 +69,6 @@
       }
     }
   },
-  "expandFolder": "Expand",
-  "collapseFolder": "Collapse",
   "moreFolders": "More folders",
   "columnName": "Name",
   "columnModified": "Modified",
@@ -364,8 +362,8 @@
     }
   },
   "taskListEmpty": "No tasks",
-  "fileUploadedByYou": "You uploaded · {date}",
-  "@fileUploadedByYou": {
+  "fileCreated": "Created · {date}",
+  "@fileCreated": {
     "placeholders": {
       "date": {
         "type": "String"
