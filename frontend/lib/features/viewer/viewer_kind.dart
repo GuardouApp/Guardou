@@ -10,6 +10,8 @@ enum ViewerKind {
 
   static const _pdfExtension = 'pdf';
 
+  bool get isMedia => this == image || this == video || this == audio;
+
   static ViewerKind of(ItemEntry entry) {
     final extension = extensionOf(entry);
     return switch ((entry.mimeType ?? '').split('/').first) {

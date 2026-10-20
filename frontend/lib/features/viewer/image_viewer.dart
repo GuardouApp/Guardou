@@ -4,11 +4,9 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/preview_size.dart';
-import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../files/files_service.dart';
 import '../files/preview_loader.dart';
@@ -27,13 +25,11 @@ class ImageViewer extends ConsumerStatefulWidget {
 
 class _ImageViewerState extends ConsumerState<ImageViewer> {
   static const _maximumScale = 8.0;
-  static const _quarterTurnsInCircle = 4;
 
   final _cancel = CancelToken();
   Uint8List? _preview;
   Uint8List? _original;
   bool _loading = true;
-  int _quarterTurns = 0;
 
   ItemEntry get _entry => widget.entry;
 
@@ -78,8 +74,6 @@ class _ImageViewerState extends ConsumerState<ImageViewer> {
     }
   }
 
-  void _rotate() => setState(() => _quarterTurns = (_quarterTurns + 1) % _quarterTurnsInCircle);
-
   Widget _image(Uint8List? bytes, Widget fallback) => bytes == null
       ? fallback
       : Image.memory(bytes, fit: BoxFit.contain, gaplessPlayback: true, errorBuilder: (_, _, _) => fallback);
@@ -87,33 +81,14 @@ class _ImageViewerState extends ConsumerState<ImageViewer> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final spacing = AppTokens.of(context).spacing;
     final unsupported = UnsupportedViewer(entry: _entry);
     if (_original == null && _preview == null) {
       return _loading ? Center(child: CircularProgressIndicator(semanticsLabel: l10n.loading)) : unsupported;
     }
 
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: InteractiveViewer(
-            maxScale: _maximumScale,
-            child: Center(
-              child: RotatedBox(quarterTurns: _quarterTurns, child: _image(_original, _image(_preview, unsupported))),
-            ),
-          ),
-        ),
-        Positioned(
-          right: spacing,
-          bottom: spacing,
-          child: FloatingActionButton.small(
-            heroTag: null,
-            tooltip: l10n.viewerRotate,
-            onPressed: _rotate,
-            child: const Icon(LucideIcons.rotateCw),
-          ),
-        ),
-      ],
+    return InteractiveViewer(
+      maxScale: _maximumScale,
+      child: Center(child: _image(_original, _image(_preview, unsupported))),
     );
   }
 }

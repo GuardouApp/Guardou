@@ -11,4 +11,14 @@ void main() {
     expect(ViewerKind.of(testEntry('manual.PDF', mimeType: 'application/pdf')), ViewerKind.pdf);
     expect(ViewerKind.of(testEntry('data.bin', mimeType: 'application/octet-stream')), ViewerKind.unsupported);
   });
+
+  test('treats only images, videos and audio as media', () {
+    expect(
+      [
+        for (final kind in ViewerKind.values)
+          if (kind.isMedia) kind,
+      ],
+      [ViewerKind.image, ViewerKind.video, ViewerKind.audio],
+    );
+  });
 }

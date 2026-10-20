@@ -12,7 +12,7 @@ import '../files/file_actions.dart';
 import '../files/folder_controller.dart';
 import '../files/folder_states.dart';
 import 'viewer_content.dart';
-import 'viewer_siblings.dart';
+import 'media_siblings.dart';
 
 class ViewerPage extends ConsumerWidget {
   const ViewerPage({super.key, required this.fileId});
@@ -51,7 +51,7 @@ class _Viewer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final siblings = ref.watch(viewerSiblingsProvider(entry.parentId ?? Routes.rootFolderId));
+    final siblings = ref.watch(mediaSiblingsProvider(entry.parentId ?? Routes.rootFolderId));
     final index = siblings.indexWhere((sibling) => sibling.id == entry.id);
     final previous = index > 0 ? siblings[index - 1] : null;
     final next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : null;

@@ -84,7 +84,6 @@ void main() {
     await pumpViewer(tester, photo.id);
 
     expect(find.byType(InteractiveViewer), findsOneWidget);
-    expect(find.byTooltip('Rotate'), findsOneWidget);
     verify(() => files.preview(photo.id, PreviewSize.large, 'v1', any())).called(1);
     verifyNever(() => files.original(any(), any()));
   });
@@ -98,19 +97,29 @@ void main() {
     verify(() => browser.download(Uri.parse('/get/${fourth.id}'))).called(1);
   });
 
-  testWidgets('steps through the files of the folder', (tester) async {
-    final container = await pumpViewer(tester, second.id);
+  testWidgets('steps through the media files of the folder only', (tester) async {
+    final container = await pumpViewer(tester, first.id);
+    expect(find.byTooltip('Previous file'), findsNothing);
 
     await tester.tap(find.byTooltip('Next file'));
     await tester.pumpAndSettle();
     expect(container.read(appRouterProvider).state.uri.path, '/view/${third.id}');
 
+    await tester.tap(find.byTooltip('Next file'));
+    await tester.pumpAndSettle();
+    expect(container.read(appRouterProvider).state.uri.path, '/view/${photo.id}');
+    expect(find.byTooltip('Next file'), findsNothing);
+
     await tester.tap(find.byTooltip('Previous file'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Previous file'));
-    await tester.pumpAndSettle();
-    expect(container.read(appRouterProvider).state.uri.path, '/view/${first.id}');
+    expect(container.read(appRouterProvider).state.uri.path, '/view/${third.id}');
+  });
+
+  testWidgets('does not step from a document', (tester) async {
+    await pumpViewer(tester, second.id);
+
     expect(find.byTooltip('Previous file'), findsNothing);
+    expect(find.byTooltip('Next file'), findsNothing);
   });
 
   testWidgets('closes to the file in its folder', (tester) async {
