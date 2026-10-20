@@ -42,14 +42,17 @@ class _WebBrowserFiles implements BrowserFiles {
       ..type = 'file'
       ..multiple = true
       ..webkitdirectory = directory;
+    input.style.display = 'none';
+    web.document.body?.append(input);
     input
-      ..onchange = ((web.Event _) => _complete(completer, _filesOf(input.files, relative: directory))).toJS
-      ..oncancel = ((web.Event _) => _complete(completer, const [])).toJS
+      ..onchange = ((web.Event _) => _complete(completer, input, _filesOf(input.files, relative: directory))).toJS
+      ..oncancel = ((web.Event _) => _complete(completer, input, const [])).toJS
       ..click();
     return completer.future;
   }
 
-  void _complete(Completer<List<LocalFile>> completer, List<LocalFile> files) {
+  void _complete(Completer<List<LocalFile>> completer, web.HTMLInputElement input, List<LocalFile> files) {
+    input.remove();
     if (!completer.isCompleted) {
       completer.complete(files);
     }

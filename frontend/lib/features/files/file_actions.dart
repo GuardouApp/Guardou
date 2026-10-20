@@ -57,9 +57,11 @@ class FileActions {
     if (entry.kind == ItemKind.folder) {
       _context.go(Routes.folder(entry.parentId == null ? Routes.rootFolderId : entry.id));
     } else {
-      _browser.open(_files.viewUri(entry.id));
+      _context.go(Routes.viewer(entry.id));
     }
   }
+
+  void openInNewTab(ItemEntry entry) => _browser.open(_files.viewUri(entry.id));
 
   Future<void> download(List<ItemEntry> entries) async => _browser.download(
     entries.length == 1 ? _files.downloadUri(entries.single.id) : _files.archiveUri([for (final entry in entries) entry.id]),

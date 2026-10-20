@@ -148,6 +148,10 @@
   "actionDetails": "Details",
   "actionTrash": "Move to trash",
   "moreActions": "More actions",
+  "actionOpenInNewTab": "Open in a new tab",
+  "viewerUnsupported": "Guardou cannot show this file.",
+  "viewerPrevious": "Previous file",
+  "viewerNext": "Next file",
   "clearSelection": "Clear the selection",
   "selectedCount": "{count, plural, =1{1 selected} other{{count} selected}}",
   "@selectedCount": {

@@ -18,6 +18,7 @@ import 'package:guardou/app/router/app_router.dart';
 import 'package:guardou/app/router/routes.dart';
 import 'package:guardou/app/theme/app_theme.dart';
 import 'package:guardou/core/api/api_problem.dart';
+import 'package:guardou/core/browser/browser_embeds.dart';
 import 'package:guardou/core/browser/browser_files.dart';
 import 'package:guardou/features/auth/auth_service.dart';
 import 'package:guardou/features/configuration/configuration_service.dart';
@@ -44,6 +45,17 @@ class MockUsersService extends Mock implements UsersService {}
 class MockTasksService extends Mock implements TasksService {}
 
 class MockSettingsService extends Mock implements SettingsService {}
+
+class FakeBrowserEmbeds implements BrowserEmbeds {
+  @override
+  Widget video(Uri source) => Text('video $source');
+
+  @override
+  Widget audio(Uri source) => Text('audio $source');
+
+  @override
+  Widget document(Uri source) => Text('document $source');
+}
 
 const testConfiguration = RuntimeConfiguration(
   applicationName: 'Guardou',
@@ -74,6 +86,7 @@ ItemEntry testEntry(
   bool canModify = true,
   bool hasPreview = false,
   String? previewId,
+  String mimeType = 'text/plain',
 }) {
   final date = modified ?? DateTime.utc(2026, 1, 1);
   return ItemEntry(
@@ -82,7 +95,7 @@ ItemEntry testEntry(
     name: name,
     kind: kind,
     size: size,
-    mimeType: kind == ItemKind.folder ? null : 'text/plain',
+    mimeType: kind == ItemKind.folder ? null : mimeType,
     modified: date,
     created: date,
     hasPreview: hasPreview,
@@ -140,6 +153,7 @@ List<Override> serviceOverrides({
   TasksService? tasks,
   SettingsService? settings,
   BrowserFiles? browser,
+  BrowserEmbeds? embeds,
 }) {
   final configurationService = MockConfigurationService();
   when(configurationService.load).thenAnswer((_) async => configuration);
@@ -153,6 +167,7 @@ List<Override> serviceOverrides({
     tasksServiceProvider.overrideWithValue(tasks ?? MockTasksService()),
     settingsServiceProvider.overrideWithValue(settings ?? MockSettingsService()),
     browserFilesProvider.overrideWithValue(browser ?? stubBrowser()),
+    browserEmbedsProvider.overrideWithValue(embeds ?? FakeBrowserEmbeds()),
   ];
 }
 

@@ -45,7 +45,11 @@ public sealed class DownloadsController(ItemDownloads downloads) : ControllerBas
         ContentDispositionHeaderValue disposition = new(DispositionTypeNames.Inline);
         disposition.SetHttpFileName(file.Name);
         Response.Headers.ContentDisposition = disposition.ToString();
-        Response.Headers.ContentSecurityPolicy = SandboxPolicy;
+        if (file.MimeType != MediaTypeNames.Application.Pdf)
+        {
+            Response.Headers.ContentSecurityPolicy = SandboxPolicy;
+        }
+
         Response.Headers.XContentTypeOptions = NoSniff;
         return File(file.Content, file.MimeType, file.Modified, EntityTagOf(file), enableRangeProcessing: true);
     }
