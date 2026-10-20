@@ -58,6 +58,13 @@ public sealed class UserAccounts(IUserAccountStore store, IItemStore items, IBlo
         previews.DeleteOwner(account.Id);
     }
 
+    public async Task<UserAccount> RemoveLoginAsync(string id, string provider)
+    {
+        UserAccount account = await GetAsync(id);
+        await store.RemoveLoginAsync(account.Id, provider);
+        return await GetAsync(id);
+    }
+
     private async Task<bool> IsLastAdministratorAsync()
     {
         IReadOnlyList<UserAccount> accounts = await store.ListAsync();

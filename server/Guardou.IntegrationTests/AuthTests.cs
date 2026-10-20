@@ -57,7 +57,7 @@ public sealed class AuthTests(TestServerFactory factory) : IClassFixture<TestSer
         CurrentUser? me = await client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, login.StatusCode);
-        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, TestServerFactory.AdminUsername, TestServerFactory.AdminEmail, IsAdmin: true), me);
+        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, TestServerFactory.AdminUsername, TestServerFactory.AdminEmail, IsAdmin: true, PictureUrl: null), me);
         Assert.NotEmpty(me?.Id ?? string.Empty);
     }
 
@@ -69,9 +69,11 @@ public sealed class AuthTests(TestServerFactory factory) : IClassFixture<TestSer
         await client.LoginAsync(TestServerFactory.AdminUsername, TestServerFactory.AdminPassword);
 
         HttpResponseMessage logout = await client.PostAsync("/api/auth/logout", content: null, CancellationToken);
+        LogoutResult? result = await logout.Content.ReadFromJsonAsync<LogoutResult>(CancellationToken);
         HttpResponseMessage me = await client.GetAsync("/api/auth/me", CancellationToken);
 
-        Assert.Equal(HttpStatusCode.NoContent, logout.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, logout.StatusCode);
+        Assert.Null(result?.RedirectUrl);
         Assert.Equal(HttpStatusCode.Unauthorized, me.StatusCode);
     }
 }

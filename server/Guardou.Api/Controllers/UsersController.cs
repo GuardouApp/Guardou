@@ -75,6 +75,16 @@ public sealed class UsersController(UserAccounts accounts, ISessionService sessi
         return NoContent();
     }
 
+    [HttpDelete("{id}/logins/{provider}", Name = "RemoveUserLogin")]
+    [ProducesResponseType<UserAccount>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<UserAccount> RemoveLogin(string id, string provider)
+    {
+        return accounts.RemoveLoginAsync(id, provider);
+    }
+
     private static UserProfile ProfileOf(UserRequest request)
     {
         return new UserProfile(request.Username, request.Email, request.IsAdmin);

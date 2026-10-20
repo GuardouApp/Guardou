@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/models/current_user.dart';
+import '../../core/browser/browser_location.dart';
 import 'auth_service.dart';
 
 final sessionControllerProvider = AsyncNotifierProvider<SessionController, CurrentUser?>(SessionController.new);
@@ -22,13 +23,19 @@ class SessionController extends AsyncNotifier<CurrentUser?> {
     );
   }
 
+  void loginWithOidc({String? returnUrl}) =>
+      ref.read(browserLocationProvider).assign(ref.read(authServiceProvider).oidcLogin(returnUrl: returnUrl));
+
   Future<void> refresh() async {
     state = AsyncData(await ref.read(authServiceProvider).restore());
   }
 
   Future<void> logout() async {
-    await ref.read(authServiceProvider).logout();
+    final providerLogout = await ref.read(authServiceProvider).logout();
     state = const AsyncData(null);
+    if (providerLogout != null) {
+      ref.read(browserLocationProvider).assign(providerLogout);
+    }
   }
 
   void expire() {

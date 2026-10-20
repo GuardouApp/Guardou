@@ -13,7 +13,11 @@ namespace Guardou.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(ISessionService sessions, Registration registration, IAntiforgery antiforgery)
+public sealed class AuthController(
+    ISessionService sessions,
+    PasswordLogin passwordLogin,
+    Registration registration,
+    IAntiforgery antiforgery)
     : ControllerBase
 {
     [HttpPost("login", Name = "Login")]
@@ -21,14 +25,16 @@ public sealed class AuthController(ISessionService sessions, Registration regist
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login(LoginRequest request)
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> Login(LoginRequest request, CancellationToken cancellationToken)
     {
-        if (!await sessions.SignInAsync(request.Username, request.Password, request.RememberMe))
+        PasswordLoginStatus status = await passwordLogin.SignInAsync(request.Username, request.Password, request.RememberMe, cancellationToken);
+        return status switch
         {
-            return Problem(statusCode: StatusCodes.Status401Unauthorized, title: "Invalid username or password.");
-        }
-
-        return NoContent();
+            PasswordLoginStatus.Disabled => Problem(statusCode: StatusCodes.Status403Forbidden, title: "The password login is disabled."),
+            PasswordLoginStatus.InvalidCredentials => Problem(statusCode: StatusCodes.Status401Unauthorized, title: "Invalid username or password."),
+            _ => NoContent(),
+        };
     }
 
     [HttpPost("register", Name = "Register")]
@@ -52,12 +58,11 @@ public sealed class AuthController(ISessionService sessions, Registration regist
 
     [Authorize]
     [HttpPost("logout", Name = "Logout")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<LogoutResult>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Logout()
+    public async Task<LogoutResult> Logout(CancellationToken cancellationToken)
     {
-        await sessions.SignOutAsync();
-        return NoContent();
+        return new LogoutResult(await sessions.SignOutAsync(cancellationToken));
     }
 
     [Authorize]
@@ -73,7 +78,7 @@ public sealed class AuthController(ISessionService sessions, Registration regist
             return Unauthorized();
         }
 
-        return new CurrentUser(User.UserId(), username, email, User.IsInRole(Roles.Admin));
+        return new CurrentUser(User.UserId(), username, email, User.IsInRole(Roles.Admin), User.FindFirstValue(OidcClaimTypes.Picture));
     }
 
     [HttpGet("antiforgery", Name = "GetAntiforgeryToken")]

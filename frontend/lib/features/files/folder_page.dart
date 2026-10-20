@@ -147,7 +147,7 @@ class _FolderPageState extends ConsumerState<FolderPage> {
     );
   }
 
-  Widget _contents(ItemDetails folder, List<ItemEntry> entries, Selection selection) {
+  Widget _contents(ItemDetails folder, List<ItemEntry> entries, Selection selection, {required double reservedWidth}) {
     final layout = ref.watch(folderLayoutsProvider.select((layouts) => layouts.of(folder.entry.id)));
     final scrollKey = '${folder.entry.id}:${layout.name}';
     final interactions = _interactions(entries, selection);
@@ -186,6 +186,7 @@ class _FolderPageState extends ConsumerState<FolderPage> {
                 scrollKey: scrollKey,
               ),
               (false, FileLayout.grid) => FileGridView(
+                reservedWidth: reservedWidth,
                 entries: entries,
                 interactions: interactions,
                 scrollKey: scrollKey,
@@ -209,7 +210,12 @@ class _FolderPageState extends ConsumerState<FolderPage> {
     final selected = entries.where((entry) => selection.contains(entry.id)).toList();
 
     final body = switch (folderState) {
-      AsyncValue(hasValue: true, :final value?) => _contents(value, entries, selection),
+      AsyncValue(hasValue: true, :final value?) => _contents(
+        value,
+        entries,
+        selection,
+        reservedWidth: detailsOpen && sizeClass == WindowSizeClass.expanded ? FolderPage._panelWidth + 1 : 0,
+      ),
       AsyncValue(:final error?) => FolderErrorView(
         isRoot: widget.folderId == Routes.rootFolderId,
         error: error,

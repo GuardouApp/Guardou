@@ -10,6 +10,8 @@ final usersServiceProvider = Provider<UsersService>((ref) => UsersService(ref.wa
 class UsersService {
   const UsersService(this._api);
 
+  static const oidcProvider = 'oidc';
+
   final ApiClient _api;
 
   Future<List<UserAccount>> list() => _api.users.listUsers();
@@ -19,4 +21,6 @@ class UsersService {
   Future<UserAccount> update(String id, UserRequest request) => _api.users.updateUser(id: id, body: request);
 
   Future<void> delete(String id) => _api.users.deleteUser(id: id);
+
+  Future<UserAccount> removeOidcLogin(String id) => _api.users.removeUserLogin(id: id, provider: oidcProvider);
 }

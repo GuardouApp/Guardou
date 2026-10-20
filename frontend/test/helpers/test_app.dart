@@ -20,6 +20,7 @@ import 'package:guardou/app/theme/app_theme.dart';
 import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/core/browser/browser_embeds.dart';
 import 'package:guardou/core/browser/browser_files.dart';
+import 'package:guardou/core/browser/browser_location.dart';
 import 'package:guardou/features/auth/auth_service.dart';
 import 'package:guardou/features/configuration/configuration_service.dart';
 import 'package:guardou/features/files/files_service.dart';
@@ -39,6 +40,8 @@ class MockFilesService extends Mock implements FilesService {}
 class MockTrashService extends Mock implements TrashService {}
 
 class MockBrowserFiles extends Mock implements BrowserFiles {}
+
+class MockBrowserLocation extends Mock implements BrowserLocation {}
 
 class MockUsersService extends Mock implements UsersService {}
 
@@ -70,7 +73,13 @@ const testConfiguration = RuntimeConfiguration(
   ),
 );
 
-const testUser = CurrentUser(id: 'admin-id', username: 'admin', email: 'admin@example.com', isAdmin: true);
+const testUser = CurrentUser(
+  id: 'admin-id',
+  username: 'admin',
+  email: 'admin@example.com',
+  isAdmin: true,
+  pictureUrl: null,
+);
 
 const testUsage = StorageUsage(usedBytes: 1024 * 1024, totalBytes: 4 * 1024 * 1024);
 
@@ -154,6 +163,7 @@ List<Override> serviceOverrides({
   SettingsService? settings,
   BrowserFiles? browser,
   BrowserEmbeds? embeds,
+  BrowserLocation? location,
 }) {
   final configurationService = MockConfigurationService();
   when(configurationService.load).thenAnswer((_) async => configuration);
@@ -168,6 +178,7 @@ List<Override> serviceOverrides({
     settingsServiceProvider.overrideWithValue(settings ?? MockSettingsService()),
     browserFilesProvider.overrideWithValue(browser ?? stubBrowser()),
     browserEmbedsProvider.overrideWithValue(embeds ?? FakeBrowserEmbeds()),
+    browserLocationProvider.overrideWithValue(location ?? MockBrowserLocation()),
   ];
 }
 

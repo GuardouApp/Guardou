@@ -48,7 +48,7 @@ class AccountMenu extends ConsumerWidget {
     return IconButton(
       tooltip: AppLocalizations.of(context).accountMenu,
       onPressed: () => _open(context),
-      icon: UserAvatar(username: user.username, radius: 16),
+      icon: UserAvatar(username: user.username, pictureUrl: user.pictureUrl, radius: 16),
     );
   }
 }
@@ -95,7 +95,7 @@ class AccountPanel extends ConsumerWidget {
                 padding: EdgeInsets.all(spacing * 1.5),
                 child: Column(
                   children: [
-                    UserAvatar(username: user.username, radius: _avatarRadius),
+                    UserAvatar(username: user.username, pictureUrl: user.pictureUrl, radius: _avatarRadius),
                     SizedBox(height: spacing),
                     Text(
                       user.username,

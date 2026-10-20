@@ -45,8 +45,6 @@
   "settings": "Configurações",
   "myFiles": "Meus arquivos",
   "storageUsage": "{used} de {total} usados",
-  "expandFolder": "Expandir",
-  "collapseFolder": "Recolher",
   "moreFolders": "Mais pastas",
   "columnName": "Nome",
   "columnModified": "Modificado",
@@ -194,8 +192,8 @@
     }
   },
   "taskListEmpty": "Nenhuma tarefa",
-  "fileUploadedByYou": "Você fez o upload · {date}",
-  "@fileUploadedByYou": {
+  "fileCreated": "Você criou · {date}",
+  "@fileCreated": {
     "placeholders": {
       "date": {
         "type": "String"
@@ -225,5 +223,28 @@
         "type": "int"
       }
     }
-  }
+  },
+  "loginWithOidc": "Entrar com login único",
+  "loginOr": "ou",
+  "loginPasswordDisabled": "O login com senha está desativado. Use o login único.",
+  "loginOidcFailed": "O login único falhou. Tente novamente.",
+  "loginOidcNoAccount": "Nenhum usuário está vinculado à sua conta. Peça a um administrador para criar um.",
+  "loginOidcRejected": "Não é possível criar um usuário para sua conta. O provedor deve enviar um email que nenhum outro usuário tem.",
+  "userOidcLinked": "Vinculado ao login único",
+  "userOidcUnlink": "Desvincular",
+  "settingsInvalid": "As configurações não são válidas.",
+  "settingsUrlInvalid": "Informe uma URL HTTP ou HTTPS.",
+  "copy": "Copiar",
+  "copied": "Copiado",
+  "serverSettings": "Servidor",
+  "serverSettingsDescription": "Defina o endereço público do Guardou",
+  "oidcSettings": "Login único (OIDC)",
+  "oidcSettingsDescription": "Entrar com um provedor OpenID Connect",
+  "oidcClientRequired": "Defina a URL do emissor e o ID do cliente juntos.",
+  "oidcAutoCreateUsers": "Criar usuários no primeiro login",
+  "oidcPasswordLogin": "Permitir o login com senha",
+  "settingsReset": "Resetar",
+  "settingsRestoreDefaults": "Redefinir para a configuração padrão",
+  "externalUrlDescription": "O endereço público do Guardou, por exemplo https://guardou.exemplo.com.",
+  "externalUrl": "URL Externo"
 }

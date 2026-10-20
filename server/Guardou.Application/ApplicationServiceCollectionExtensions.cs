@@ -1,7 +1,9 @@
 using System.Reflection;
+using Guardou.Application.Authentication;
 using Guardou.Application.Configuration;
 using Guardou.Application.Files;
 using Guardou.Application.Previews;
+using Guardou.Application.Settings;
 using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,10 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
         services.AddScoped<Registration>();
+        services.AddScoped<PasswordLogin>();
+        services.AddScoped<ExternalSignIn>();
+        services.AddScoped<OidcSettingsAdministration>();
+        services.AddScoped<ServerSettingsAdministration>();
         services.AddScoped<OwnedItems>();
         services.AddScoped<ItemEntryFactory>();
         services.AddScoped<ItemPlacement>();

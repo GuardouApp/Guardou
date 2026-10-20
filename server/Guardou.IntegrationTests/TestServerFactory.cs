@@ -21,6 +21,8 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
 
     internal TestTimeProvider Time { get; } = new();
 
+    internal Action<IServiceCollection> TestServices { get; init; } = _ => { };
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         string webRoot = Directory.CreateDirectory(Path.Combine(_dataDir, "wwwroot")).FullName;
@@ -30,6 +32,7 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
         {
             services.Replace(ServiceDescriptor.Singleton(new StoragePaths(FilesDirectory, Path.Combine(_dataDir, "db"), CacheDirectory)));
             services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Time));
+            TestServices(services);
         });
     }
 

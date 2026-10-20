@@ -127,6 +127,20 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.ToTable("TaskQueueSettings", (string)null);
                 });
 
+            modelBuilder.Entity("Guardou.Infrastructure.Persistence.StoredSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Settings", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
                     b.Property<int>("Id")

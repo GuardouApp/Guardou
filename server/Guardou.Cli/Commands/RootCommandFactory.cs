@@ -18,6 +18,7 @@ internal static class RootCommandFactory
         root.Subcommands.Add(RunCommand.Create());
         root.Subcommands.Add(VersionCommand.Create());
         root.Subcommands.Add(UserCommand.Create(noInput));
+        root.Subcommands.Add(AuthCommand.Create());
         return root;
     }
 }

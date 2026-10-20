@@ -10,6 +10,7 @@ import '../auth/credential_validators.dart';
 import '../configuration/configuration_controller.dart';
 import 'user_editor_controller.dart';
 import 'user_failure.dart';
+import 'users_service.dart';
 
 Future<UserAccount?> showUserEditorDialog(BuildContext context, {UserAccount? account}) => showDialog<UserAccount>(
   context: context,
@@ -33,8 +34,11 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
   late final _email = TextEditingController(text: widget.account?.email);
   final _password = TextEditingController();
   late var _isAdmin = widget.account?.isAdmin ?? false;
+  late var _account = widget.account;
 
   bool get _isNew => widget.account == null;
+
+  bool get _oidcLinked => _account?.externalLogins.contains(UsersService.oidcProvider) ?? false;
 
   @override
   void dispose() {
@@ -57,6 +61,13 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
     final saved = await ref.read(userEditorControllerProvider.notifier).save(widget.account?.id, request);
     if (saved != null && mounted) {
       Navigator.of(context).pop(saved);
+    }
+  }
+
+  Future<void> _removeOidcLogin(String id) async {
+    final updated = await ref.read(userEditorControllerProvider.notifier).removeOidcLogin(id);
+    if (updated != null && mounted) {
+      setState(() => _account = updated);
     }
   }
 
@@ -127,6 +138,20 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
                 selected: {_isAdmin},
                 onSelectionChanged: (selection) => setState(() => _isAdmin = selection.single),
               ),
+              if (_account case final account? when _oidcLinked) ...[
+                SizedBox(height: spacing),
+                Row(
+                  children: [
+                    Icon(LucideIcons.link, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(l10n.userOidcLinked, style: theme.textTheme.bodyMedium)),
+                    TextButton(
+                      onPressed: submission.isLoading ? null : () => _removeOidcLogin(account.id),
+                      child: Text(l10n.userOidcUnlink),
+                    ),
+                  ],
+                ),
+              ],
               if (submission.error case final UserFailure failure)
                 Padding(
                   padding: EdgeInsets.only(top: spacing),

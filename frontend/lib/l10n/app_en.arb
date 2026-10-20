@@ -69,8 +69,6 @@
       }
     }
   },
-  "expandFolder": "Expand",
-  "collapseFolder": "Collapse",
   "moreFolders": "More folders",
   "columnName": "Name",
   "columnModified": "Modified",
@@ -364,8 +362,8 @@
     }
   },
   "taskListEmpty": "No tasks",
-  "fileUploadedByYou": "You uploaded · {date}",
-  "@fileUploadedByYou": {
+  "fileCreated": "Created · {date}",
+  "@fileCreated": {
     "placeholders": {
       "date": {
         "type": "String"
@@ -395,5 +393,35 @@
         "type": "int"
       }
     }
-  }
+  },
+  "loginWithOidc": "Sign in with single sign-on",
+  "loginOr": "or",
+  "loginPasswordDisabled": "The password login is disabled. Use single sign-on.",
+  "loginOidcFailed": "The single sign-on failed. Try again.",
+  "loginOidcNoAccount": "No user is linked to your account. Ask an administrator to create one.",
+  "loginOidcRejected": "A user cannot be created for your account. The provider must send an email that no other user has.",
+  "userOidcLinked": "Linked to single sign-on",
+  "userOidcUnlink": "Unlink",
+  "settingsInvalid": "The settings are not valid.",
+  "settingsUrlInvalid": "Enter an HTTP or HTTPS URL.",
+  "copy": "Copy",
+  "copied": "Copied",
+  "serverSettings": "Server",
+  "serverSettingsDescription": "Set the public address of Guardou",
+  "oidcSettings": "Single sign-on (OIDC)",
+  "oidcSettingsDescription": "Sign in with an OpenID Connect provider",
+  "oidcClientRequired": "Set the issuer URL and the client ID together.",
+  "oidcAutoCreateUsers": "Create users at the first sign-in",
+  "oidcPasswordLogin": "Allow the password login",
+  "externalUrl": "External URL",
+  "oidcIssuer": "issuer_url",
+  "oidcClientId": "client_id",
+  "oidcClientSecret": "client_secret",
+  "oidcScopes": "scopes",
+  "oidcUserClaim": "user_claim",
+  "oidcRedirectUri": "redirect_uri",
+  "oidcPostLogoutRedirectUri": "post_logout_redirect_uri",
+  "settingsReset": "Reset",
+  "settingsRestoreDefaults": "Restore the default settings",
+  "externalUrlDescription": "The public address of Guardou, for example https://guardou.example.com."
 }

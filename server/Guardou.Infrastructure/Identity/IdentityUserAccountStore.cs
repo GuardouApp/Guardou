@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Guardou.Application.Authentication;
 using Guardou.Application.Users;
 using Guardou.Domain.Files;
 using Guardou.Domain.Users;
@@ -20,8 +22,12 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
     {
         IList<IdentityUser> administrators = await userManager.GetUsersInRoleAsync(Roles.Admin);
         HashSet<string> administratorIds = administrators.Select(user => user.Id).ToHashSet();
+        ILookup<string, string> logins = (await context.UserLogins
+                .Select(login => new { login.UserId, login.LoginProvider })
+                .ToListAsync())
+            .ToLookup(login => login.UserId, login => login.LoginProvider);
         List<IdentityUser> users = await userManager.Users.ToListAsync();
-        return users.Select(user => ToAccount(user, administratorIds.Contains(user.Id))).ToList();
+        return users.Select(user => ToAccount(user, administratorIds.Contains(user.Id), logins[user.Id].ToList())).ToList();
     }
 
     public async Task<UserAccount?> FindAsync(string id)
@@ -34,11 +40,101 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         return await ToAccountAsync(await userManager.FindByNameAsync(username));
     }
 
-    public async Task<UserAccountResult> CreateAsync(UserProfile profile, string password)
+    public async Task<UserAccount?> FindByEmailAsync(string email)
+    {
+        return await ToAccountAsync(await userManager.FindByEmailAsync(email));
+    }
+
+    public async Task<UserAccount?> FindByLoginAsync(string provider, string key)
+    {
+        return await ToAccountAsync(await userManager.FindByLoginAsync(provider, key));
+    }
+
+    public Task<UserAccountResult> CreateAsync(UserProfile profile, string password)
+    {
+        return CreateAsync(profile, user => userManager.CreateAsync(user, password));
+    }
+
+    public Task<UserAccountResult> CreateExternalAsync(UserProfile profile, string provider, string key)
+    {
+        return CreateAsync(profile, async user =>
+        {
+            IdentityResult created = await userManager.CreateAsync(user);
+            return created.Succeeded ? await userManager.AddLoginAsync(user, LoginOf(provider, key)) : created;
+        });
+    }
+
+    public async Task<UserAccountResult> UpdateAsync(string id, UserProfile profile, string? password)
+    {
+        IdentityUser? user = await userManager.FindByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound(id);
+        }
+
+        await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
+        UserAccountResult result = await ApplyAsync(user, profile, password);
+        if (result.Succeeded)
+        {
+            await transaction.CommitAsync();
+        }
+
+        return result;
+    }
+
+    public async Task<UserAccountResult> AddLoginAsync(string id, string provider, string key)
+    {
+        IdentityUser? user = await userManager.FindByIdAsync(id);
+        return user is null ? NotFound(id) : ToResult(await userManager.AddLoginAsync(user, LoginOf(provider, key)));
+    }
+
+    public async Task RemoveLoginAsync(string id, string provider)
+    {
+        if (await userManager.FindByIdAsync(id) is not { } user)
+        {
+            return;
+        }
+
+        foreach (UserLoginInfo login in (await userManager.GetLoginsAsync(user)).Where(login => login.LoginProvider == provider))
+        {
+            await userManager.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey);
+        }
+    }
+
+    public async Task SetPictureAsync(string id, string? pictureUrl)
+    {
+        if (await userManager.FindByIdAsync(id) is not { } user)
+        {
+            return;
+        }
+
+        List<Claim> pictures = (await userManager.GetClaimsAsync(user)).Where(claim => claim.Type == OidcClaimTypes.Picture).ToList();
+        string[] wanted = pictureUrl is null ? [] : [pictureUrl];
+        if (pictures.Select(claim => claim.Value).SequenceEqual(wanted))
+        {
+            return;
+        }
+
+        await userManager.RemoveClaimsAsync(user, pictures);
+        if (pictureUrl is not null)
+        {
+            await userManager.AddClaimAsync(user, new Claim(OidcClaimTypes.Picture, pictureUrl));
+        }
+    }
+
+    public async Task DeleteAsync(string id)
+    {
+        if (await userManager.FindByIdAsync(id) is { } user)
+        {
+            await userManager.DeleteAsync(user);
+        }
+    }
+
+    private async Task<UserAccountResult> CreateAsync(UserProfile profile, Func<IdentityUser, Task<IdentityResult>> create)
     {
         await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
         IdentityUser user = new(profile.Username) { Email = profile.Email };
-        UserAccountResult result = ToResult(await userManager.CreateAsync(user, password));
+        UserAccountResult result = ToResult(await create(user));
         if (result.Succeeded && profile.IsAdmin)
         {
             result = ToResult(await userManager.AddToRoleAsync(user, Roles.Admin));
@@ -53,32 +149,6 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
         return result;
-    }
-
-    public async Task<UserAccountResult> UpdateAsync(string id, UserProfile profile, string? password)
-    {
-        IdentityUser? user = await userManager.FindByIdAsync(id);
-        if (user is null)
-        {
-            return UserAccountResult.Failure(UserAccountErrorCodes.UserNotFound, $"The user '{id}' does not exist.");
-        }
-
-        await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
-        UserAccountResult result = await ApplyAsync(user, profile, password);
-        if (result.Succeeded)
-        {
-            await transaction.CommitAsync();
-        }
-
-        return result;
-    }
-
-    public async Task DeleteAsync(string id)
-    {
-        if (await userManager.FindByIdAsync(id) is { } user)
-        {
-            await userManager.DeleteAsync(user);
-        }
     }
 
     private async Task<UserAccountResult> ApplyAsync(IdentityUser user, UserProfile profile, string? password)
@@ -127,12 +197,28 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
 
     private async Task<UserAccount?> ToAccountAsync(IdentityUser? user)
     {
-        return user is null ? null : ToAccount(user, await userManager.IsInRoleAsync(user, Roles.Admin));
+        if (user is null)
+        {
+            return null;
+        }
+
+        IList<UserLoginInfo> logins = await userManager.GetLoginsAsync(user);
+        return ToAccount(user, await userManager.IsInRoleAsync(user, Roles.Admin), logins.Select(login => login.LoginProvider).ToList());
     }
 
-    private static UserAccount ToAccount(IdentityUser user, bool administrator)
+    private static UserAccount ToAccount(IdentityUser user, bool administrator, IReadOnlyList<string> logins)
     {
-        return new UserAccount(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, administrator);
+        return new UserAccount(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, administrator, logins.Distinct().ToList());
+    }
+
+    private static UserLoginInfo LoginOf(string provider, string key)
+    {
+        return new UserLoginInfo(provider, key, provider);
+    }
+
+    private static UserAccountResult NotFound(string id)
+    {
+        return UserAccountResult.Failure(UserAccountErrorCodes.UserNotFound, $"The user '{id}' does not exist.");
     }
 
     private static UserAccountResult ToResult(IdentityResult result)

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app/router/routes.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../files/folder_tree.dart';
 import '../files/storage_usage_indicator.dart';
 import 'new_item_button.dart';
 import 'shell_destination.dart';
@@ -16,14 +15,12 @@ class ShellNavigationDrawer extends StatelessWidget {
     required this.selected,
     required this.onSelected,
     required this.currentFolderId,
-    required this.onNavigate,
     this.inline = false,
   });
 
   final ShellDestination? selected;
   final ValueChanged<ShellDestination> onSelected;
   final String? currentFolderId;
-  final ValueChanged<String> onNavigate;
   final bool inline;
 
   @override
@@ -48,7 +45,7 @@ class ShellNavigationDrawer extends StatelessWidget {
             ),
           ),
         ),
-        for (final destination in ShellDestination.navigation) ...[
+        for (final destination in ShellDestination.navigation)
           NavigationDrawerDestination(
             icon: Icon(destination.icon),
             selectedIcon: Icon(destination.selectedIcon),
@@ -57,12 +54,6 @@ class ShellNavigationDrawer extends StatelessWidget {
               child: Text(destination.label(l10n), maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ),
-          if (destination == ShellDestination.files)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: tokens.spacing * 0.75),
-              child: FolderTree(currentFolderId: currentFolderId, onNavigate: onNavigate),
-            ),
-        ],
         const StorageUsageIndicator(),
       ],
     );

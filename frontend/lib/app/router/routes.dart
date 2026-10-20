@@ -19,6 +19,7 @@ abstract final class Routes {
   static const serverError = '/500';
 
   static const redirectParameter = 'redirect';
+  static const oidcErrorParameter = 'oidcError';
   static const idParameter = 'id';
   static const rootFolderId = 'root';
 
