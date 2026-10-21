@@ -25,6 +25,7 @@ class FileGridView extends StatelessWidget {
     this.reservedWidth = 0,
   });
 
+  static const _minimumColumns = 2;
   static const _minimumTileWidth = 250.0;
   static const _minimumScaledTileWidth = 160.0;
   static const _folderHeight = 48.0;
@@ -98,7 +99,7 @@ class FileGridView extends StatelessWidget {
       min(_fit(width + reservedWidth, _minimumTileWidth, spacing), _fit(width, _minimumScaledTileWidth, spacing));
 
   static int _fit(double width, double tileWidth, double spacing) =>
-      max(1, ((width + spacing) / (tileWidth + spacing)).floor());
+      max(_minimumColumns, ((width + spacing) / (tileWidth + spacing)).floor());
 
   static ShapeBorder _shape() => RoundedRectangleBorder(borderRadius: BorderRadius.circular(_radius));
 
