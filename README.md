@@ -44,12 +44,11 @@ docker-compose up -d
 
 ## AI Disclaimer
 
-Guardou is a personal project where I'm trying to build stable software using AI.
-AI is writing **only the code**. Documentation, decisions on architecture, feature set, ui/ux, and technology are on me.
+Guardou is a personal experiment where I leverage my professional knowledge to test if it's possible to build a stable software using AI.
+AI is writing **only the code**. Documentation, architeture, features, UI/UX, and technology choices are up to me.
 
-I'm personally not a fan of LLMs myself, that's why the server is on C# and not Rust 😅, I'm using something I actually understand. 
-That said, Guardou is still a **vibe-coded app**, it's impossible to properly review the thousands and thousands of lines that LLMs generate. 
+I'm personally not a fan of AI generated stuff, that's why the server is on C# and not Rust 😅 I'm using something I actually understand, trying my best to keep track of everything, writing small, focused PR's, and following best practices.
 
-For this reason, Guardou is not recommended for production use. **Use it at your own risk.**
+That said, I still consider Guardou a **vibe-coded app**. For this reason, I don't recommended it for production use. **Use it at your own risk.**
 
 Finally, if you decide to use it, please follow [3-2-1](https://www.backblaze.com/blog/the-3-2-1-backup-strategy/) backup strategy.
