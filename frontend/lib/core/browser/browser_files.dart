@@ -6,13 +6,7 @@ import 'browser_files_stub.dart' if (dart.library.js_interop) 'browser_files_web
 
 @immutable
 class LocalFile {
-  const LocalFile({
-    required this.name,
-    required this.size,
-    required this.read,
-    this.relativePath,
-    this.lastModified,
-  });
+  const LocalFile({required this.name, required this.size, required this.read, this.relativePath, this.lastModified});
 
   final String name;
   final int size;
@@ -46,6 +40,8 @@ abstract interface class BrowserFiles {
   Future<List<LocalFile>> pickFiles();
 
   Future<List<LocalFile>> pickFolder();
+
+  Future<LocalFile?> pickImage();
 
   void download(Uri uri);
 

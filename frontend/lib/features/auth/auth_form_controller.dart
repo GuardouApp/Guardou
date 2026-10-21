@@ -56,16 +56,15 @@ class AuthFormController extends Notifier<AsyncValue<void>> {
     required String displayName,
     required String email,
     required String password,
-  }) =>
-      _run(AuthFailure.ofRegistration, () async {
-        try {
-          await ref
-              .read(sessionControllerProvider.notifier)
-              .register(username: username, displayName: displayName, email: email, password: password);
-        } finally {
-          unawaited(ref.read(configurationControllerProvider.notifier).refresh());
-        }
-      });
+  }) => _run(AuthFailure.ofRegistration, () async {
+    try {
+      await ref
+          .read(sessionControllerProvider.notifier)
+          .register(username: username, displayName: displayName, email: email, password: password);
+    } finally {
+      unawaited(ref.read(configurationControllerProvider.notifier).refresh());
+    }
+  });
 
   Future<void> _run(AuthFailure Function(int status) failureOf, Future<void> Function() action) async {
     state = const AsyncLoading();

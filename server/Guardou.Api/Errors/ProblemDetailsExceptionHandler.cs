@@ -52,6 +52,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             ItemConflictException => StatusCodes.Status409Conflict,
             UserAccountRejectedException => StatusCodes.Status400BadRequest,
             UserNotFoundException => StatusCodes.Status404NotFound,
+            InvalidProfilePictureException => StatusCodes.Status400BadRequest,
             TaskNotFoundException => StatusCodes.Status404NotFound,
             TaskConflictException => StatusCodes.Status409Conflict,
             InvalidSettingsException => StatusCodes.Status400BadRequest,

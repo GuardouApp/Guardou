@@ -8,6 +8,7 @@ import '../../app/theme/app_tokens.dart';
 import '../../core/widgets/user_avatar.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/session_controller.dart';
+import '../profile/profile_picture_editor.dart';
 
 class AccountMenu extends ConsumerWidget {
   const AccountMenu({super.key});
@@ -95,12 +96,7 @@ class AccountPanel extends ConsumerWidget {
                 padding: EdgeInsets.all(spacing * 1.5),
                 child: Column(
                   children: [
-                    UserAvatar(
-                      userId: user.id,
-                      name: user.displayName,
-                      hasPicture: user.hasPicture,
-                      radius: _avatarRadius,
-                    ),
+                    ProfilePictureEditor(user: user, radius: _avatarRadius),
                     SizedBox(height: spacing),
                     Text(
                       user.displayName,

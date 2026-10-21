@@ -57,12 +57,7 @@ class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
   }
 
   Future<void> _load(String id, CancelToken cancel) async {
-    final bytes = await PreviewLoader.load(
-      ref.read(filesServiceProvider),
-      id,
-      PreviewSize.thumbnail,
-      cancel,
-    );
+    final bytes = await PreviewLoader.load(ref.read(filesServiceProvider), id, PreviewSize.thumbnail, cancel);
     if (bytes != null && mounted && !cancel.isCancelled) {
       setState(() => _bytes = bytes);
     }

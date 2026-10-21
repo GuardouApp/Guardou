@@ -88,7 +88,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Row(
               children: [
                 const Expanded(child: Divider()),
-                Padding(padding: EdgeInsets.symmetric(horizontal: spacing), child: Text(l10n.loginOr)),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: spacing),
+                  child: Text(l10n.loginOr),
+                ),
                 const Expanded(child: Divider()),
               ],
             ),

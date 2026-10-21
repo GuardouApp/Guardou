@@ -107,8 +107,7 @@ class _TrashPageState extends ConsumerState<TrashPage> {
             context: context,
             position: menuPositionAt(context, position),
             items: [
-              for (final action in TrashAction.values)
-                PopupMenuItem(value: action, child: Text(action.label(l10n))),
+              for (final action in TrashAction.values) PopupMenuItem(value: action, child: Text(action.label(l10n))),
             ],
           );
     if (action != null && mounted) {

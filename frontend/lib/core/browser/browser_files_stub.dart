@@ -12,6 +12,9 @@ class _UnsupportedBrowserFiles implements BrowserFiles {
   Future<List<LocalFile>> pickFolder() async => const [];
 
   @override
+  Future<LocalFile?> pickImage() async => null;
+
+  @override
   void download(Uri uri) {}
 
   @override

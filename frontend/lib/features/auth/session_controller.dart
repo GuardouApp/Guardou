@@ -24,7 +24,9 @@ class SessionController extends AsyncNotifier<CurrentUser?> {
     required String password,
   }) async {
     state = AsyncData(
-      await ref.read(authServiceProvider).register(username: username, displayName: displayName, email: email, password: password),
+      await ref
+          .read(authServiceProvider)
+          .register(username: username, displayName: displayName, email: email, password: password),
     );
   }
 

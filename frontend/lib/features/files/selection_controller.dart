@@ -22,8 +22,7 @@ class SelectionController extends Notifier<Selection> {
 
   void selectAll(List<String> order) => state = state.all(order);
 
-  void startCheckboxMode(String id) =>
-      state = (state.contains(id) ? state : state.toggle(id)).withCheckboxMode(true);
+  void startCheckboxMode(String id) => state = (state.contains(id) ? state : state.toggle(id)).withCheckboxMode(true);
 
   void replace(Selection selection) => state = selection;
 

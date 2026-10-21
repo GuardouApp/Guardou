@@ -64,14 +64,16 @@ class FileActions {
   void openInNewTab(ItemEntry entry) => _browser.open(_files.viewUri(entry.id));
 
   Future<void> download(List<ItemEntry> entries) async => _browser.download(
-    entries.length == 1 ? _files.downloadUri(entries.single.id) : _files.archiveUri([for (final entry in entries) entry.id]),
+    entries.length == 1
+        ? _files.downloadUri(entries.single.id)
+        : _files.archiveUri([for (final entry in entries) entry.id]),
   );
 
   Future<void> details(ItemEntry entry) async {
     if (WindowSizeClass.of(_context) == WindowSizeClass.compact) {
-      await Navigator.of(_context).push(
-        MaterialPageRoute<void>(fullscreenDialog: true, builder: (_) => DetailsPage(entry: entry)),
-      );
+      await Navigator.of(
+        _context,
+      ).push(MaterialPageRoute<void>(fullscreenDialog: true, builder: (_) => DetailsPage(entry: entry)));
     } else {
       _container.read(detailsPanelProvider.notifier).show();
     }
@@ -175,8 +177,7 @@ class FileActions {
     }
   }
 
-  Future<void> restore(List<String> ids) =>
-      _guard(() => _trash.restore(ids), done: _l10n.itemsRestored(ids.length));
+  Future<void> restore(List<String> ids) => _guard(() => _trash.restore(ids), done: _l10n.itemsRestored(ids.length));
 
   Future<void> deleteForever(List<String> ids) async {
     final confirmed = await showConfirmDialog(

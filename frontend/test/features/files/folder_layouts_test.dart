@@ -40,9 +40,8 @@ void main() {
   test('ignores invalid stored values', () {
     expect(FolderLayouts.decode(null).fallback, FileLayout.list);
     expect(FolderLayouts.decode('not json').overrides, isEmpty);
-    expect(
-      FolderLayouts.decode('{"fallback":"table","overrides":{"a":"grid","b":"table","c":1}}').overrides,
-      {'a': FileLayout.grid},
-    );
+    expect(FolderLayouts.decode('{"fallback":"table","overrides":{"a":"grid","b":"table","c":1}}').overrides, {
+      'a': FileLayout.grid,
+    });
   });
 }

@@ -12,6 +12,7 @@ class _WebBrowserFiles implements BrowserFiles {
   static const _filesType = 'Files';
   static const _copyEffect = 'copy';
   static const _newTab = '_blank';
+  static const _imageTypes = 'image/*';
 
   @override
   late final Stream<FileDragEvent> dragEvents = _listenToDrags().asBroadcastStream();
@@ -21,6 +22,10 @@ class _WebBrowserFiles implements BrowserFiles {
 
   @override
   Future<List<LocalFile>> pickFolder() => _pick(directory: true);
+
+  @override
+  Future<LocalFile?> pickImage() async =>
+      (await _pick(directory: false, multiple: false, accept: _imageTypes)).firstOrNull;
 
   @override
   void download(Uri uri) {
@@ -36,11 +41,12 @@ class _WebBrowserFiles implements BrowserFiles {
   @override
   void open(Uri uri) => web.window.open(uri.toString(), _newTab);
 
-  Future<List<LocalFile>> _pick({required bool directory}) {
+  Future<List<LocalFile>> _pick({required bool directory, bool multiple = true, String accept = ''}) {
     final completer = Completer<List<LocalFile>>();
     final input = web.HTMLInputElement()
       ..type = 'file'
-      ..multiple = true
+      ..multiple = multiple
+      ..accept = accept
       ..webkitdirectory = directory;
     input.style.display = 'none';
     web.document.body?.append(input);
@@ -77,7 +83,9 @@ class _WebBrowserFiles implements BrowserFiles {
         if (_carriesFiles(event)) {
           event.preventDefault();
           final transfer = (event as web.DragEvent).dataTransfer;
-          controller.add(FileDrop(_positionOf(event), transfer == null ? Future.value(const []) : _droppedFiles(transfer)));
+          controller.add(
+            FileDrop(_positionOf(event), transfer == null ? Future.value(const []) : _droppedFiles(transfer)),
+          );
         }
       }),
     ];
@@ -105,8 +113,7 @@ class _WebBrowserFiles implements BrowserFiles {
 
   Future<List<LocalFile>> _droppedFiles(web.DataTransfer transfer) async {
     final entries = <web.FileSystemEntry>[
-      for (var index = 0; index < transfer.items.length; index++)
-        ?transfer.items[index].webkitGetAsEntry(),
+      for (var index = 0; index < transfer.items.length; index++) ?transfer.items[index].webkitGetAsEntry(),
     ];
     final files = await Future.wait(entries.map((entry) => _readEntry(entry, '')));
     return files.expand((list) => list).toList();
