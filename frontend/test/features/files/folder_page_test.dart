@@ -457,6 +457,17 @@ void main() {
     expect(container.read(appRouterProvider).state.uri.path, '/folders/reports');
   });
 
+  testWidgets('portrait grid shows at least two columns', (tester) async {
+    await pumpFolder(tester, '/folders/docs', size: portrait);
+    await tester.tap(find.byTooltip('Show as grid'));
+    await tester.pumpAndSettle();
+
+    final columns = tester
+        .widgetList<SliverGrid>(find.byType(SliverGrid))
+        .map((grid) => (grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount).crossAxisCount);
+    expect(columns, everyElement(greaterThanOrEqualTo(2)));
+  });
+
   testWidgets('portrait shows actions in a bottom sheet', (tester) async {
     await pumpFolder(tester, '/folders/docs', size: portrait);
 
