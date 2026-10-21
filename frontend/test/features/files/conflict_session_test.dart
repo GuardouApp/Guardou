@@ -5,19 +5,18 @@ import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/features/files/conflict_session.dart';
 
 void main() {
-  DioException conflict() => DioException(
-    requestOptions: RequestOptions(),
-    error: const ApiProblem(status: 409),
-  );
+  DioException conflict() => DioException(requestOptions: RequestOptions(), error: const ApiProblem(status: 409));
 
-  Future<String> Function(ConflictPolicy) attemptWith(List<ConflictPolicy> attempts, {Set<ConflictPolicy> conflicts = const {ConflictPolicy.fail}}) =>
-      (policy) async {
-        attempts.add(policy);
-        if (conflicts.contains(policy)) {
-          throw conflict();
-        }
-        return policy.name;
-      };
+  Future<String> Function(ConflictPolicy) attemptWith(
+    List<ConflictPolicy> attempts, {
+    Set<ConflictPolicy> conflicts = const {ConflictPolicy.fail},
+  }) => (policy) async {
+    attempts.add(policy);
+    if (conflicts.contains(policy)) {
+      throw conflict();
+    }
+    return policy.name;
+  };
 
   test('does not ask without a conflict', () async {
     final attempts = <ConflictPolicy>[];
@@ -82,7 +81,10 @@ void main() {
     final session = ConflictSession((_) async => null);
 
     await expectLater(
-      session.run('a', (_) async => throw DioException(requestOptions: RequestOptions(), error: const ApiProblem(status: 500))),
+      session.run(
+        'a',
+        (_) async => throw DioException(requestOptions: RequestOptions(), error: const ApiProblem(status: 500)),
+      ),
       throwsA(isA<DioException>()),
     );
   });

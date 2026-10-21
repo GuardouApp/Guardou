@@ -15,13 +15,7 @@ class ToolbarAction {
 }
 
 class SelectionToolbar extends StatelessWidget {
-  const SelectionToolbar({
-    super.key,
-    required this.count,
-    required this.onClear,
-    required this.actions,
-    this.onMore,
-  });
+  const SelectionToolbar({super.key, required this.count, required this.onClear, required this.actions, this.onMore});
 
   final int count;
   final VoidCallback onClear;

@@ -14,7 +14,8 @@ void main() {
     id: 'admin-id',
     username: 'admin',
     displayName: 'Admin',
-    email: 'admin@example.com', isAdmin: true,
+    email: 'admin@example.com',
+    isAdmin: true,
     hasPicture: false,
     externalLogins: [],
   );
@@ -22,7 +23,8 @@ void main() {
     id: 'bob-id',
     username: 'bob',
     displayName: 'Bob',
-    email: 'bob@example.com', isAdmin: false,
+    email: 'bob@example.com',
+    isAdmin: false,
     hasPicture: false,
     externalLogins: [],
   );
@@ -30,7 +32,11 @@ void main() {
 
   late MockUsersService users;
 
-  setUpAll(() => registerFallbackValue(const UserRequest(username: '', displayName: '', email: '', password: null, isAdmin: false)));
+  setUpAll(
+    () => registerFallbackValue(
+      const UserRequest(username: '', displayName: '', email: '', password: null, isAdmin: false),
+    ),
+  );
 
   setUp(() {
     users = MockUsersService();
@@ -96,13 +102,14 @@ void main() {
 
   testWidgets('creates a user in a dialog', (tester) async {
     const carol = UserAccount(
-    id: 'carol-id',
-    username: 'carol',
-    displayName: 'Carol',
-    email: 'carol@example.com', isAdmin: true,
-    hasPicture: false,
-    externalLogins: [],
-  );
+      id: 'carol-id',
+      username: 'carol',
+      displayName: 'Carol',
+      email: 'carol@example.com',
+      isAdmin: true,
+      hasPicture: false,
+      externalLogins: [],
+    );
     when(() => users.create(any())).thenAnswer((_) async => carol);
     await pumpUsers(tester);
 
@@ -161,7 +168,13 @@ void main() {
     verify(
       () => users.update(
         'bob-id',
-        const UserRequest(username: 'robert', displayName: 'Bob', email: 'bob@example.com', password: null, isAdmin: false),
+        const UserRequest(
+          username: 'robert',
+          displayName: 'Bob',
+          email: 'bob@example.com',
+          password: null,
+          isAdmin: false,
+        ),
       ),
     ).called(1);
     expect(find.text('User saved'), findsOneWidget);

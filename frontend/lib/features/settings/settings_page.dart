@@ -31,7 +31,10 @@ class SettingsPage extends StatelessWidget {
                   Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: _maxWidth),
-                      child: Padding(padding: EdgeInsets.only(bottom: spacing), child: section),
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: spacing),
+                        child: section,
+                      ),
                     ),
                   ),
               ],

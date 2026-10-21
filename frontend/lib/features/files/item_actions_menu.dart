@@ -40,13 +40,7 @@ Future<ItemAction?> showItemActions(
         PopupMenuItem(
           value: action,
           enabled: action.isEnabledFor(entries),
-          child: Row(
-            children: [
-              Icon(action.icon, size: 18),
-              const SizedBox(width: 12),
-              Text(action.label(l10n)),
-            ],
-          ),
+          child: Row(children: [Icon(action.icon, size: 18), const SizedBox(width: 12), Text(action.label(l10n))]),
         ),
     ],
   );

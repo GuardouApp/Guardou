@@ -59,6 +59,21 @@ internal sealed partial class FileProfilePictureStore(
         }
     }
 
+    public async Task SaveAsync(string userId, Stream content, CancellationToken cancellationToken)
+    {
+        byte[] picture;
+        try
+        {
+            picture = Encode(await BoundedStreamReader.ReadAsync(content, ProfilePictureLimits.MaximumBytes, cancellationToken));
+        }
+        catch (Exception exception) when (exception is InvalidDataException or VipsException)
+        {
+            throw new InvalidProfilePictureException("The picture is not a supported image or is too large.", exception);
+        }
+
+        await WriteAsync(userId, picture, cancellationToken);
+    }
+
     public void Delete(string userId)
     {
         string directory = UserDirectory(userId);

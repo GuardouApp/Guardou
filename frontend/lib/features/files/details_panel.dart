@@ -51,7 +51,8 @@ class DetailsPanel extends StatelessWidget {
     );
   }
 
-  static String _formatDateTime(DateTime date, String locale) => DateFormat.yMMMd(locale).add_jm().format(date.toLocal());
+  static String _formatDateTime(DateTime date, String locale) =>
+      DateFormat.yMMMd(locale).add_jm().format(date.toLocal());
 }
 
 class DetailsPage extends StatelessWidget {

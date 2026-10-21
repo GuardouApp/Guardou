@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Guardou.Api.Models;
@@ -33,6 +34,25 @@ internal static class UsersApi
     public static Task<HttpResponseMessage> DeleteUserAsync(this HttpClient client, string id)
     {
         return client.DeleteAsync($"/api/users/{id}", CancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> ReplacePictureAsync(this HttpClient client, string id, byte[] content)
+    {
+        MultipartFormDataContent form = new();
+        ByteArrayContent file = new(content);
+        file.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        form.Add(file, "file", "picture");
+        return client.PutAsync($"/api/users/{id}/picture", form, CancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> DeletePictureAsync(this HttpClient client, string id)
+    {
+        return client.DeleteAsync($"/api/users/{id}/picture", CancellationToken);
+    }
+
+    public static Task<HttpResponseMessage> GetPictureAsync(this HttpClient client, string id)
+    {
+        return client.GetAsync($"/api/users/{id}/picture", CancellationToken);
     }
 
     public static async Task<UserAccount> ReadAccountAsync(HttpResponseMessage response)

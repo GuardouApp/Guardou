@@ -42,15 +42,16 @@ class Selection {
   Selection retainOnly(Iterable<String> available) {
     final present = available.toSet();
     final kept = ids.where(present.contains).toSet();
-    return Selection(ids: kept, anchor: present.contains(anchor) ? anchor : null, checkboxMode: checkboxMode && kept.isNotEmpty);
+    return Selection(
+      ids: kept,
+      anchor: present.contains(anchor) ? anchor : null,
+      checkboxMode: checkboxMode && kept.isNotEmpty,
+    );
   }
 
   @override
   bool operator ==(Object other) =>
-      other is Selection &&
-      setEquals(other.ids, ids) &&
-      other.anchor == anchor &&
-      other.checkboxMode == checkboxMode;
+      other is Selection && setEquals(other.ids, ids) && other.anchor == anchor && other.checkboxMode == checkboxMode;
 
   @override
   int get hashCode => Object.hash(Object.hashAllUnordered(ids), anchor, checkboxMode);

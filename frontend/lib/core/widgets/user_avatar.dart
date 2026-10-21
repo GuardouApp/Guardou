@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_providers.dart';
+import 'picture_revision.dart';
 
 class UserAvatar extends ConsumerWidget {
   const UserAvatar({
@@ -26,7 +27,11 @@ class UserAvatar extends ConsumerWidget {
     if (!hasPicture) {
       return initial;
     }
-    final url = Uri.parse(ref.watch(apiBaseUrlProvider)).replace(pathSegments: ['api', 'users', userId, 'picture']);
+    final revision = ref.watch(pictureRevisionProvider);
+    final url = Uri.parse(ref.watch(apiBaseUrlProvider)).replace(
+      pathSegments: ['api', 'users', userId, 'picture'],
+      queryParameters: revision == 0 ? null : {PictureRevision.parameter: '$revision'},
+    );
     return ClipOval(
       child: Image.network(
         url.toString(),

@@ -86,10 +86,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: '${Routes.file}/:${Routes.idParameter}',
             pageBuilder: (_, state) {
               final id = state.pathParameters[Routes.idParameter] ?? '';
-              return NoTransitionPage(child: FileRoutePage(key: ValueKey(id), fileId: id));
+              return NoTransitionPage(
+                child: FileRoutePage(key: ValueKey(id), fileId: id),
+              );
             },
           ),
-          GoRoute(path: Routes.trash, pageBuilder: (_, _) => const NoTransitionPage(child: TrashPage())),
+          GoRoute(
+            path: Routes.trash,
+            pageBuilder: (_, _) => const NoTransitionPage(child: TrashPage()),
+          ),
         ],
       ),
       GoRoute(path: Routes.admin, redirect: (_, _) => Routes.adminUsers),
@@ -125,5 +130,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
 const _dedicatedPages = {ShellDestination.files, ShellDestination.trash};
 
-Page<void> _folderPage(String folderId) =>
-    NoTransitionPage(child: FolderPage(key: ValueKey(folderId), folderId: folderId));
+Page<void> _folderPage(String folderId) => NoTransitionPage(
+  child: FolderPage(key: ValueKey(folderId), folderId: folderId),
+);

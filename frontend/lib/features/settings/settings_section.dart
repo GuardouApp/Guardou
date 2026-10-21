@@ -53,7 +53,9 @@ class SettingsSection<T> extends StatelessWidget {
               children: [
                 Icon(icon, color: colors.primary, size: 22),
                 const SizedBox(width: 12),
-                Flexible(child: Text(title, style: theme.textTheme.titleMedium?.copyWith(color: colors.primary))),
+                Flexible(
+                  child: Text(title, style: theme.textTheme.titleMedium?.copyWith(color: colors.primary)),
+                ),
               ],
             ),
             const SizedBox(height: 6),
@@ -180,13 +182,7 @@ class _SettingsActions extends StatelessWidget {
 }
 
 class SettingsField extends StatelessWidget {
-  const SettingsField({
-    super.key,
-    required this.label,
-    this.description,
-    this.required = false,
-    required this.child,
-  });
+  const SettingsField({super.key, required this.label, this.description, this.required = false, required this.child});
 
   final String label;
   final String? description;
@@ -208,15 +204,16 @@ class SettingsField extends StatelessWidget {
             TextSpan(
               text: label,
               children: [
-                if (required) TextSpan(text: ' *', style: TextStyle(color: colors.error)),
+                if (required)
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: colors.error),
+                  ),
               ],
             ),
             style: theme.textTheme.titleSmall?.copyWith(color: colors.primary),
           ),
-          if (text != null) ...[
-            const SizedBox(height: 4),
-            Text(text, style: theme.textTheme.bodyMedium),
-          ],
+          if (text != null) ...[const SizedBox(height: 4), Text(text, style: theme.textTheme.bodyMedium)],
           const SizedBox(height: 8),
           child,
         ],

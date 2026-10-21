@@ -166,7 +166,9 @@ void main() {
     await tester.enterText(field('External URL'), ' https://files.example.com ');
     await tapVisible(tester, button('Save').hitTestable());
 
-    verify(() => settings.changeServerSettings(const ServerSettings(externalUrl: 'https://files.example.com'))).called(1);
+    verify(
+      () => settings.changeServerSettings(const ServerSettings(externalUrl: 'https://files.example.com')),
+    ).called(1);
   });
 
   testWidgets('refuses an external URL that is not HTTP', (tester) async {

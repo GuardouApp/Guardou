@@ -15,10 +15,7 @@ class FolderLayouts {
     if (_tryDecode(source) case {_fallbackKey: final fallback, _overridesKey: final Map<String, Object?> overrides}) {
       return FolderLayouts(
         fallback: _layoutOf(fallback) ?? FileLayout.list,
-        overrides: {
-          for (final MapEntry(:key, :value) in overrides.entries)
-            key: ?_layoutOf(value),
-        },
+        overrides: {for (final MapEntry(:key, :value) in overrides.entries) key: ?_layoutOf(value)},
       );
     }
     return const FolderLayouts();
@@ -35,10 +32,7 @@ class FolderLayouts {
 
   FolderLayouts toggled(String folderId) {
     final next = of(folderId) == FileLayout.list ? FileLayout.grid : FileLayout.list;
-    final entries = [
-      ...overrides.entries.where((entry) => entry.key != folderId),
-      MapEntry(folderId, next),
-    ];
+    final entries = [...overrides.entries.where((entry) => entry.key != folderId), MapEntry(folderId, next)];
     final kept = entries.skip(entries.length > maximumOverrides ? entries.length - maximumOverrides : 0);
     return FolderLayouts(fallback: next, overrides: Map.fromEntries(kept));
   }

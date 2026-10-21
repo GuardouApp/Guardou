@@ -9,11 +9,8 @@ import '../../helpers/test_app.dart';
 void main() {
   late MockTrashService trash;
 
-  TrashEntry trashed(String name) => TrashEntry(
-    entry: testEntry(name),
-    trashed: DateTime.utc(2026, 1, 1),
-    expires: DateTime.utc(2026, 1, 31),
-  );
+  TrashEntry trashed(String name) =>
+      TrashEntry(entry: testEntry(name), trashed: DateTime.utc(2026, 1, 1), expires: DateTime.utc(2026, 1, 31));
 
   setUp(() {
     trash = MockTrashService();

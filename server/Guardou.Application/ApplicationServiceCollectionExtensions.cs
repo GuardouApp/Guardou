@@ -21,6 +21,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<RuntimeConfigurationQuery>();
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
+        services.AddScoped<ProfilePictures>();
         services.AddScoped<Registration>();
         services.AddScoped<PasswordLogin>();
         services.AddScoped<ExternalSignIn>();

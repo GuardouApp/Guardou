@@ -78,13 +78,7 @@ class NewItemButton extends ConsumerWidget {
             icon: icon,
             label: Text(l10n.newItem),
           ),
-          _ => FloatingActionButton(
-            heroTag: null,
-            tooltip: l10n.newItem,
-            elevation: 0,
-            onPressed: toggle,
-            child: icon,
-          ),
+          _ => FloatingActionButton(heroTag: null, tooltip: l10n.newItem, elevation: 0, onPressed: toggle, child: icon),
         };
       },
     );

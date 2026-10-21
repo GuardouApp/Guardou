@@ -39,10 +39,7 @@ class ShellNavigationDrawer extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(tokens.spacing, tokens.spacing / 2, tokens.spacing, tokens.spacing),
           child: Align(
             alignment: AlignmentDirectional.centerStart,
-            child: NewItemButton(
-              style: NewItemButtonStyle.extended,
-              folderId: currentFolderId ?? Routes.rootFolderId,
-            ),
+            child: NewItemButton(style: NewItemButtonStyle.extended, folderId: currentFolderId ?? Routes.rootFolderId),
           ),
         ),
         for (final destination in ShellDestination.navigation)

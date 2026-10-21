@@ -141,7 +141,9 @@ class _FolderPageState extends ConsumerState<FolderPage> {
           ToolbarAction(
             icon: action.icon,
             label: action.label(l10n),
-            onPressed: action.isEnabledFor(selected) ? () => unawaited(FileActions(context).perform(action, selected)) : null,
+            onPressed: action.isEnabledFor(selected)
+                ? () => unawaited(FileActions(context).perform(action, selected))
+                : null,
           ),
       ],
     );

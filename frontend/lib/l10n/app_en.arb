@@ -58,6 +58,20 @@
   "accountMenu": "Account",
   "accountAdministrator": "Administrator",
   "accountSettings": "Account settings",
+  "profilePictureEdit": "Change the profile picture",
+  "profilePictureUpload": "Upload a picture",
+  "profilePictureRemove": "Remove the picture",
+  "profilePictureChanged": "Profile picture changed",
+  "profilePictureRemoved": "Profile picture removed",
+  "profilePictureInvalid": "The file is not a supported image.",
+  "profilePictureTooLarge": "The picture is too large. The maximum is {megabytes} MB.",
+  "@profilePictureTooLarge": {
+    "placeholders": {
+      "megabytes": {
+        "type": "int"
+      }
+    }
+  },
   "signOut": "Sign out",
   "emptySectionTitle": "Nothing here yet",
   "emptySectionMessage": "Your files will show here.",
