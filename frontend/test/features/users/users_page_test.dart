@@ -63,13 +63,16 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('opens the user management from the top bar', (tester) async {
+  testWidgets('opens the user management from the account panel', (tester) async {
     final container = await pumpUsers(tester, location: '/files');
 
-    await tester.tap(find.byTooltip('Administration'));
+    await tester.tap(find.byTooltip('Account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Administration'));
     await tester.pumpAndSettle();
 
     expect(locationOf(container), '/admin/users');
+    expect(find.text('admin@example.com'), findsOneWidget);
     expect(find.text('User management'), findsOneWidget);
     expect(find.text('bob@example.com'), findsOneWidget);
     expect(find.text('You'), findsOneWidget);
@@ -96,8 +99,10 @@ void main() {
     expect(locationOf(container), '/403');
     container.read(appRouterProvider).go('/files');
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Administration'), findsNothing);
-    expect(find.byTooltip('Settings'), findsOneWidget);
+    await tester.tap(find.byTooltip('Account'));
+    await tester.pumpAndSettle();
+    expect(find.text('Account settings'), findsOneWidget);
+    expect(find.text('Administration'), findsNothing);
   });
 
   testWidgets('creates a user in a dialog', (tester) async {

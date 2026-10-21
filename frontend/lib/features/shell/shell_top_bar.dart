@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../app/router/routes.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../core/widgets/brand_mark.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../auth/session_controller.dart';
 import '../configuration/configuration_controller.dart';
 import 'account_menu.dart';
 
@@ -29,7 +26,6 @@ class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
     final l10n = AppLocalizations.of(context);
     final tokens = AppTokens.of(context);
     final applicationName = ref.watch(configurationControllerProvider).value?.applicationName ?? '';
-    final isAdmin = ref.watch(sessionControllerProvider).value?.isAdmin ?? false;
     final expanded = WindowSizeClass.of(context) == WindowSizeClass.expanded;
     final brand = _Brand(applicationName: applicationName);
     final searchColor = Theme.of(context).colorScheme.onPrimaryContainer;
@@ -83,13 +79,6 @@ class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       actions: [
         if (showMenuButton) IconButton(tooltip: l10n.search, onPressed: null, icon: const Icon(LucideIcons.search)),
-        IconButton(tooltip: l10n.settings, onPressed: null, icon: const Icon(LucideIcons.settings)),
-        if (isAdmin)
-          IconButton(
-            tooltip: l10n.administration,
-            onPressed: () => context.go(Routes.adminUsers),
-            icon: const Icon(LucideIcons.shieldCheck),
-          ),
         const AccountMenu(),
         const SizedBox(width: 8),
       ],
