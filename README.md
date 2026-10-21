@@ -45,7 +45,7 @@ docker-compose up -d
 ## AI Disclaimer
 
 Guardou is a personal experiment where I leverage my professional knowledge to test if it's possible to build a stable software using AI.
-AI is writing **only the code**. Documentation, architeture, features, UI/UX, and technology choices are up to me.
+AI is writing **only the code**. Documentation, architecture, features, UI/UX, and technology choices are up to me.
 
 I'm personally not a fan of AI generated stuff, that's why the server is on C# and not Rust 😅 I'm using something I actually understand, trying my best to keep track of everything, writing small, focused PR's, and following best practices.
 
