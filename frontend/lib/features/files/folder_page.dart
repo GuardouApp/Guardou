@@ -70,7 +70,6 @@ class _FolderPageState extends ConsumerState<FolderPage> {
       _selection.retainOnly(ids);
       if (focus != null && ids.contains(focus)) {
         _selection.select(focus);
-        ref.read(detailsPanelProvider.notifier).show();
       }
     });
   }

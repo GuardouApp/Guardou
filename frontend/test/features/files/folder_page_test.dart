@@ -418,7 +418,7 @@ void main() {
     await pumpFolder(tester, '/file/big.txt');
 
     expect(find.text('1 selected'), findsOneWidget);
-    expect(find.byType(DetailsPanel), findsOneWidget);
+    expect(find.byType(DetailsPanel), findsNothing);
   });
 
   testWidgets('portrait collapses the breadcrumbs', (tester) async {
