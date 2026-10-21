@@ -78,6 +78,30 @@ public sealed class OidcFlowTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task ReturnsTheNewPictureAfterTheNextLogin()
+    {
+        _provider.Claims["sub"] = "dave-subject";
+        _provider.Claims["preferred_username"] = "dave";
+        _provider.Claims["email"] = "dave@example.com";
+        _provider.Claims["email_verified"] = true;
+        _provider.Claims["picture"] = "https://id.example.com/dave-old.png";
+        await SignInAsync();
+
+        _provider.Claims["picture"] = "https://id.example.com/dave-new.png";
+        CurrentUser? me = await SignInAsync();
+
+        Assert.Equal("https://id.example.com/dave-new.png", me?.PictureUrl);
+    }
+
+    private async Task<CurrentUser?> SignInAsync()
+    {
+        using HttpClient client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        Uri completion = await AuthorizeAsync(client, "/files");
+        await client.GetAsync(completion, CancellationToken);
+        return await client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
+    }
+
+    [Fact]
     public async Task RedirectsToTheLoginPageWhenTheProviderRefuses()
     {
         using HttpClient client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });

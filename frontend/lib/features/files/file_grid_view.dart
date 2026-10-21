@@ -164,7 +164,7 @@ class _FileCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final spacing = AppTokens.of(context).spacing;
-    final username = ref.watch(sessionControllerProvider).value?.username ?? '';
+    final user = ref.watch(sessionControllerProvider).value;
     final placeholder = Center(
       child: Icon(iconFor(entry), size: _placeholderIconSize, color: theme.colorScheme.onSurfaceVariant),
     );
@@ -220,7 +220,7 @@ class _FileCard extends ConsumerWidget {
               height: _footerHeight,
               child: Row(
                 children: [
-                  UserAvatar(username: username, radius: _avatarRadius),
+                  UserAvatar(username: user?.username ?? '', pictureUrl: user?.pictureUrl, radius: _avatarRadius),
                   SizedBox(width: spacing / 2),
                   Expanded(
                     child: Text(

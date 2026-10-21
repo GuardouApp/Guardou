@@ -9,6 +9,8 @@ import 'package:guardou/api/generated/models/breadcrumb.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
 import 'package:guardou/api/generated/models/preview_size.dart';
 import 'package:guardou/app/router/app_router.dart';
+import 'package:guardou/core/widgets/user_avatar.dart';
+import 'package:guardou/features/auth/session_controller.dart';
 import 'package:guardou/features/files/details_panel.dart';
 import 'package:guardou/features/files/item_action.dart';
 import 'package:guardou/features/files/item_interactions.dart';
@@ -290,6 +292,32 @@ void main() {
     expect(find.byType(DetailsPanel), findsOneWidget);
     expect(columns(), before);
     expect(tester.getSize(find.widgetWithText(SelectableItem, 'big.txt')).width, lessThan(width));
+  });
+
+  testWidgets('shows the picture of the creator on the grid cards', (tester) async {
+    final auth = MockAuthService();
+    final container = await pumpRoutedApp(
+      tester,
+      location: '/folders/docs',
+      overrides: serviceOverrides(
+        auth: auth,
+        files: files,
+        user: testUser.copyWith(pictureUrl: 'https://id.example.com/old.png'),
+      ),
+    );
+    await tester.tap(find.byTooltip('Show as grid'));
+    await tester.pumpAndSettle();
+    Iterable<String?> cardPictures() => tester
+        .widgetList<UserAvatar>(find.descendant(of: find.byType(SelectableItem), matching: find.byType(UserAvatar)))
+        .map((avatar) => avatar.pictureUrl);
+
+    expect(cardPictures(), ['https://id.example.com/old.png', 'https://id.example.com/old.png']);
+
+    when(auth.restore).thenAnswer((_) async => testUser.copyWith(pictureUrl: 'https://id.example.com/new.png'));
+    await container.read(sessionControllerProvider.notifier).refresh();
+    await tester.pumpAndSettle();
+
+    expect(cardPictures(), ['https://id.example.com/new.png', 'https://id.example.com/new.png']);
   });
 
   testWidgets('keeps the layout of each folder', (tester) async {
