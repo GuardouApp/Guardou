@@ -76,9 +76,10 @@ const testConfiguration = RuntimeConfiguration(
 const testUser = CurrentUser(
   id: 'admin-id',
   username: 'admin',
+  displayName: 'Admin User',
   email: 'admin@example.com',
   isAdmin: true,
-  pictureUrl: null,
+  hasPicture: false,
 );
 
 const testUsage = StorageUsage(usedBytes: 1024 * 1024, totalBytes: 4 * 1024 * 1024);
@@ -94,7 +95,6 @@ ItemEntry testEntry(
   DateTime? modified,
   bool canModify = true,
   bool hasPreview = false,
-  String? previewId,
   String mimeType = 'text/plain',
 }) {
   final date = modified ?? DateTime.utc(2026, 1, 1);
@@ -108,7 +108,6 @@ ItemEntry testEntry(
     modified: date,
     created: date,
     hasPreview: hasPreview,
-    previewId: previewId,
     permissions: ItemPermissions(canModify: canModify, canAddChildren: kind == ItemKind.folder),
   );
 }

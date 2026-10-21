@@ -66,7 +66,7 @@ internal sealed class LocalBlobStore(StoragePaths paths) : IBlobStore
 
     public string PathOf(string key)
     {
-        return SafePathResolver.Resolve(Path.GetFullPath(paths.FilesDirectory), key)
+        return SafePathResolver.Resolve(paths.FilesDirectory, key)
             ?? throw new InvalidOperationException($"The storage key '{key}' leaves the files directory.");
     }
 }

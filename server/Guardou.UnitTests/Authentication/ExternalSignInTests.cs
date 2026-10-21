@@ -13,6 +13,7 @@ public sealed class ExternalSignInTests
 
     private readonly FakeSettingsStore _settings = new();
     private readonly FakeUserAccountStore _store = new();
+    private readonly FakeProfilePictureStore _pictures = new();
     private readonly FakeSessionService _sessions = new();
 
     private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
@@ -48,7 +49,7 @@ public sealed class ExternalSignInTests
     public async Task NumbersAUsernameThatIsTaken()
     {
         await ConfigureAsync(Configured);
-        await _store.CreateAsync(new UserProfile("alice", "other@example.com", IsAdmin: false), "password");
+        await _store.CreateAsync(new UserProfile("alice", "Alice", "other@example.com", IsAdmin: false), "password");
         _sessions.ExternalLogin = LoginOf(("preferred_username", "alice"), ("email", "alice@example.com"));
 
         await SignInAsync();
@@ -70,7 +71,7 @@ public sealed class ExternalSignInTests
     public async Task LinksAnExistingUserWithAVerifiedEmail()
     {
         await ConfigureAsync(Configured with { AutoCreateUsers = false });
-        await _store.CreateAsync(new UserProfile("alice", "alice@example.com", IsAdmin: false), "password");
+        await _store.CreateAsync(new UserProfile("alice", "Alice", "alice@example.com", IsAdmin: false), "password");
         _sessions.ExternalLogin = LoginOf(("email", "ALICE@example.com"), ("email_verified", "true"));
 
         ExternalSignInStatus status = await SignInAsync();
@@ -83,7 +84,7 @@ public sealed class ExternalSignInTests
     public async Task DoesNotLinkAnUnverifiedEmail()
     {
         await ConfigureAsync(Configured);
-        await _store.CreateAsync(new UserProfile("alice", "alice@example.com", IsAdmin: false), "password");
+        await _store.CreateAsync(new UserProfile("alice", "Alice", "alice@example.com", IsAdmin: false), "password");
         _sessions.ExternalLogin = LoginOf(("email", "alice@example.com"), ("email_verified", "false"));
 
         Assert.Equal(ExternalSignInStatus.Rejected, await SignInAsync());
@@ -91,25 +92,43 @@ public sealed class ExternalSignInTests
     }
 
     [Fact]
-    public async Task SynchronizesThePicture()
+    public async Task CopiesTheDisplayNameAndThePictureOnlyAtCreation()
     {
         await ConfigureAsync(Configured);
-        _sessions.ExternalLogin = LoginOf(("email", "alice@example.com"), ("picture", "https://id.example.com/alice.png"));
+        _sessions.ExternalLogin = LoginOf(
+            ("email", "alice@example.com"),
+            ("display_name", "  Alice Smith "),
+            ("picture", "https://id.example.com/alice.png"));
         await SignInAsync();
         string aliceId = _store.ByUsername("alice").Id;
-        Assert.Equal("https://id.example.com/alice.png", _store.Pictures[aliceId]);
 
-        _sessions.ExternalLogin = LoginOf(("email", "alice@example.com"));
+        _sessions.ExternalLogin = LoginOf(
+            ("email", "alice@example.com"),
+            ("display_name", "Other"),
+            ("picture", "https://id.example.com/other.png"));
         await SignInAsync();
 
-        Assert.False(_store.Pictures.ContainsKey(aliceId));
+        Assert.Equal("Alice Smith", _store.ByUsername("alice").DisplayName);
+        Assert.Equal([(aliceId, new Uri("https://id.example.com/alice.png"))], _pictures.Imports);
+    }
+
+    [Fact]
+    public async Task UsesTheUsernameWhenTheProviderGivesNoDisplayName()
+    {
+        await ConfigureAsync(Configured);
+        _sessions.ExternalLogin = LoginOf(("preferred_username", "alice"), ("email", "alice@example.com"));
+
+        await SignInAsync();
+
+        Assert.Equal("alice", _store.ByUsername("alice").DisplayName);
+        Assert.Empty(_pictures.Imports);
     }
 
     [Fact]
     public async Task KeepsTheTypeOfAnExistingAdmin()
     {
         await ConfigureAsync(Configured);
-        await _store.CreateExternalAsync(new UserProfile("root", "root@example.com", IsAdmin: true), OidcSettings.Provider, Subject);
+        await _store.CreateExternalAsync(new UserProfile("root", "Root", "root@example.com", IsAdmin: true), OidcSettings.Provider, Subject);
         _sessions.ExternalLogin = LoginOf(("email", "root@example.com"));
 
         await SignInAsync();
@@ -130,6 +149,6 @@ public sealed class ExternalSignInTests
 
     private Task<ExternalSignInStatus> SignInAsync()
     {
-        return new ExternalSignIn(_settings, _store, _sessions).SignInAsync(CancellationToken);
+        return new ExternalSignIn(_settings, _store, _pictures, _sessions).SignInAsync(CancellationToken);
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Guardou.Infrastructure.Identity;
 
-internal sealed class IdentitySessionService(SignInManager<IdentityUser> signInManager, OidcSignOut oidcSignOut) : ISessionService
+internal sealed class IdentitySessionService(SignInManager<ApplicationUser> signInManager, OidcSignOut oidcSignOut) : ISessionService
 {
     private const string IdTokenName = "id_token";
 
@@ -29,7 +29,7 @@ internal sealed class IdentitySessionService(SignInManager<IdentityUser> signInM
 
     public async Task SignInExternalAsync(string userId, ExternalLogin login)
     {
-        IdentityUser user = await signInManager.UserManager.FindByIdAsync(userId)
+        ApplicationUser user = await signInManager.UserManager.FindByIdAsync(userId)
             ?? throw new InvalidOperationException($"The user '{userId}' does not exist.");
         AuthenticationProperties properties = new() { IsPersistent = true };
         if (login.IdToken is { } idToken)

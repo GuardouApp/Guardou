@@ -12,5 +12,4 @@ public sealed record ItemEntry(
     DateTimeOffset Modified,
     DateTimeOffset Created,
     bool HasPreview,
-    string? PreviewId,
     ItemPermissions Permissions);

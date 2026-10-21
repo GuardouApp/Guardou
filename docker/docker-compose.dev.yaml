@@ -11,11 +11,7 @@ services:
       - "8080:8080"
     volumes:
       - data:/data
-      - db:/db
-      - cache:/cache
     restart: unless-stopped
 
 volumes:
   data:
-  db:
-  cache:

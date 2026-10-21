@@ -18,7 +18,7 @@ public sealed class VipsPreviewRendererTests : IDisposable
 
     public VipsPreviewRendererTests()
     {
-        _paths = new StoragePaths(_directory.Combine("data"), _directory.Combine("db"), _directory.Combine("cache"));
+        _paths = new StoragePaths(_directory.Path);
         _blobs = new LocalBlobStore(_paths);
         _renderer = new VipsPreviewRenderer(
             [new VipsImageSource(), new RawImageSource(), new HeicImageSource(_paths), new PdfImageSource(_paths), new VideoImageSource()],

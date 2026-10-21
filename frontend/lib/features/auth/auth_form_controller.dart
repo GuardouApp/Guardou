@@ -51,12 +51,17 @@ class AuthFormController extends Notifier<AsyncValue<void>> {
         .login(username: username, password: password, rememberMe: rememberMe),
   );
 
-  Future<void> register({required String username, required String email, required String password}) =>
+  Future<void> register({
+    required String username,
+    required String displayName,
+    required String email,
+    required String password,
+  }) =>
       _run(AuthFailure.ofRegistration, () async {
         try {
           await ref
               .read(sessionControllerProvider.notifier)
-              .register(username: username, email: email, password: password);
+              .register(username: username, displayName: displayName, email: email, password: password);
         } finally {
           unawaited(ref.read(configurationControllerProvider.notifier).refresh());
         }

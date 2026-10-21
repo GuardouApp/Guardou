@@ -10,11 +10,16 @@ internal sealed class FilePreviewCache(StoragePaths paths) : IPreviewCache
     private const string Extension = ".webp";
     private const string PartialSuffix = ".part";
 
-    public Stream? TryOpen(string ownerId, Guid previewId, PreviewSize size)
+    public bool Contains(string ownerId, Guid itemId)
+    {
+        return PreviewSizes.All.All(size => File.Exists(PathOf(ownerId, itemId, size)));
+    }
+
+    public Stream? TryOpen(string ownerId, Guid itemId, PreviewSize size)
     {
         try
         {
-            return new FileStream(PathOf(ownerId, previewId, size), FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete);
+            return new FileStream(PathOf(ownerId, itemId, size), FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete);
         }
         catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
         {
@@ -22,9 +27,9 @@ internal sealed class FilePreviewCache(StoragePaths paths) : IPreviewCache
         }
     }
 
-    public async Task WriteAsync(string ownerId, Guid previewId, PreviewSize size, byte[] content, CancellationToken cancellationToken)
+    public async Task WriteAsync(string ownerId, Guid itemId, PreviewSize size, byte[] content, CancellationToken cancellationToken)
     {
-        string path = PathOf(ownerId, previewId, size);
+        string path = PathOf(ownerId, itemId, size);
         string partial = path + PartialSuffix;
         Directory.CreateDirectory(OwnerDirectory(ownerId));
         try
@@ -39,7 +44,7 @@ internal sealed class FilePreviewCache(StoragePaths paths) : IPreviewCache
         }
     }
 
-    public void Delete(string ownerId, Guid previewId)
+    public void Delete(string ownerId, Guid itemId)
     {
         if (!Directory.Exists(OwnerDirectory(ownerId)))
         {
@@ -48,7 +53,7 @@ internal sealed class FilePreviewCache(StoragePaths paths) : IPreviewCache
 
         foreach (PreviewSize size in PreviewSizes.All)
         {
-            File.Delete(PathOf(ownerId, previewId, size));
+            File.Delete(PathOf(ownerId, itemId, size));
         }
     }
 
@@ -61,15 +66,15 @@ internal sealed class FilePreviewCache(StoragePaths paths) : IPreviewCache
         }
     }
 
-    private string PathOf(string ownerId, Guid previewId, PreviewSize size)
+    private string PathOf(string ownerId, Guid itemId, PreviewSize size)
     {
-        string fileName = $"{previewId:N}.{size.ToString().ToLowerInvariant()}{Extension}";
+        string fileName = $"{itemId:N}.{size.ToString().ToLowerInvariant()}{Extension}";
         return Path.Combine(OwnerDirectory(ownerId), fileName);
     }
 
     private string OwnerDirectory(string ownerId)
     {
-        return SafePathResolver.Resolve(paths.PreviewsDirectory, ownerId)
+        return SafePathResolver.Resolve(paths.ThumbsDirectory, ownerId)
             ?? throw new InvalidOperationException($"The owner '{ownerId}' leaves the preview directory.");
     }
 }

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Guardou.Infrastructure.Identity;
 
-internal sealed class UsernameValidator : IUserValidator<IdentityUser>
+internal sealed class UsernameValidator : IUserValidator<ApplicationUser>
 {
-    public Task<IdentityResult> ValidateAsync(UserManager<IdentityUser> manager, IdentityUser user)
+    public Task<IdentityResult> ValidateAsync(UserManager<ApplicationUser> manager, ApplicationUser user)
     {
         string username = user.UserName ?? string.Empty;
         IdentityResult result = UsernameRule.IsValid(username)

@@ -1,18 +1,18 @@
 namespace Guardou.Infrastructure.Storage;
 
-internal sealed class StoragePaths(string filesRoot, string databaseRoot, string cacheRoot)
+internal sealed class StoragePaths(string root)
 {
-    public const string DefaultFilesRoot = "/data";
-    public const string DefaultDatabaseRoot = "/db";
-    public const string DefaultCacheRoot = "/cache";
+    public const string DefaultRoot = "/data";
 
-    public string FilesDirectory { get; } = Path.GetFullPath(filesRoot);
+    public string FilesDirectory { get; } = Path.Combine(Path.GetFullPath(root), "files");
 
-    public string DatabaseDirectory { get; } = Path.GetFullPath(databaseRoot);
+    public string DatabaseDirectory { get; } = Path.Combine(Path.GetFullPath(root), "db");
 
     public string DatabaseFile => Path.Combine(DatabaseDirectory, "app.db");
 
-    public string PreviewsDirectory { get; } = Path.Combine(Path.GetFullPath(cacheRoot), "previews");
+    public string ProfileDirectory { get; } = Path.Combine(Path.GetFullPath(root), "profile");
 
-    public string TemporaryDirectory { get; } = Path.Combine(Path.GetFullPath(cacheRoot), "tmp");
+    public string ThumbsDirectory { get; } = Path.Combine(Path.GetFullPath(root), "thumbs");
+
+    public string TemporaryDirectory { get; } = Path.Combine(Path.GetFullPath(root), "cache", "tmp");
 }

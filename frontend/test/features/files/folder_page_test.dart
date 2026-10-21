@@ -32,7 +32,6 @@ void main() {
     'photo.jpg',
     parentId: 'photos',
     hasPreview: true,
-    previewId: 'v1',
     modified: DateTime(DateTime.now().year, 3, 5),
   );
   final many = testEntry('many', kind: ItemKind.folder);
@@ -318,7 +317,7 @@ void main() {
   });
 
   testWidgets('shows thumbnails for files with previews', (tester) async {
-    when(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).thenAnswer((_) async => pixel);
+    when(() => files.preview('photo.jpg', PreviewSize.thumbnail, any())).thenAnswer((_) async => pixel);
 
     await pumpFolder(tester, '/folders/photos');
     await tester.tap(find.byTooltip('Show as grid'));
@@ -330,13 +329,13 @@ void main() {
     final preview = tester.getSize(find.byType(AspectRatio).first);
     expect(card.width, greaterThanOrEqualTo(250));
     expect(preview.width / preview.height, closeTo(4 / 3, 0.01));
-    verify(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).called(greaterThanOrEqualTo(1));
+    verify(() => files.preview('photo.jpg', PreviewSize.thumbnail, any())).called(greaterThanOrEqualTo(1));
   });
 
   testWidgets('retries a pending thumbnail and cancels it on navigation', (tester) async {
     CancelToken? token;
-    when(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).thenAnswer((invocation) async {
-      token = invocation.positionalArguments[3] as CancelToken;
+    when(() => files.preview('photo.jpg', PreviewSize.thumbnail, any())).thenAnswer((invocation) async {
+      token = invocation.positionalArguments[2] as CancelToken;
       return null;
     });
     final container = await pumpRoutedApp(
@@ -352,7 +351,7 @@ void main() {
 
     expect(find.byType(Image), findsNothing);
     expect(token?.isCancelled, isTrue);
-    verify(() => files.preview('photo.jpg', PreviewSize.thumbnail, 'v1', any())).called(2);
+    verify(() => files.preview('photo.jpg', PreviewSize.thumbnail, any())).called(2);
   });
 
   testWidgets('keeps the scroll position of a folder', (tester) async {

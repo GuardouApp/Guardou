@@ -1,8 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using Guardou.Api.Hosting;
 using Guardou.Application.Configuration;
 using Guardou.Domain;
 using Guardou.Domain.Users;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Guardou.IntegrationTests;
 
@@ -21,6 +24,14 @@ public sealed class HostTests(TestServerFactory factory) : IClassFixture<TestSer
         Assert.Equal([AuthenticationMethod.Password], configuration.AuthenticationMethods);
         Assert.True(configuration.RegistrationOpen);
         Assert.Equal(PasswordPolicy.Default, configuration.PasswordPolicy);
+    }
+
+    [Fact]
+    public void MigratesTheDatabaseBeforeTheOtherHostedServicesStart()
+    {
+        IHostedService first = factory.Services.GetServices<IHostedService>().First();
+
+        Assert.IsType<StartupInitializer>(first);
     }
 
     [Fact]

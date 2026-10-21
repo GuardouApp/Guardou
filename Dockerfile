@@ -68,8 +68,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 RUN apk add --no-cache shadow su-exec tzdata libdav1d zlib poppler-utils fontconfig ttf-liberation libheif-tools \
     && addgroup -g 1000 guardou \
     && adduser -D -u 1000 -G guardou -h /home/guardou guardou \
-    && mkdir -p /data /db /cache \
-    && chown guardou:guardou /data /db /cache
+    && mkdir -p /data \
+    && chown guardou:guardou /data
 COPY --chmod=755 docker/guardou.sh /usr/local/bin/guardou
 COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/entrypoint
 COPY --from=ffmpeg /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe /usr/local/bin/
@@ -77,7 +77,7 @@ WORKDIR /app
 COPY --from=server /app ./
 COPY --from=frontend /src/frontend/build/web ./wwwroot/
 ENV ASPNETCORE_HTTP_PORTS=8080
-VOLUME ["/data", "/db", "/cache"]
+VOLUME ["/data"]
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1

@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using Guardou.Application.Authentication;
 using Guardou.Application.Users;
 using Guardou.Domain.Files;
 using Guardou.Domain.Users;
@@ -10,7 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Guardou.Infrastructure.Identity;
 
-internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userManager, AppDbContext context, TimeProvider time)
+internal sealed class IdentityUserAccountStore(
+    UserManager<ApplicationUser> userManager,
+    AppDbContext context,
+    IProfilePictureStore pictures,
+    TimeProvider time)
     : IUserAccountStore
 {
     public Task<bool> AnyUserAsync()
@@ -20,13 +22,13 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
 
     public async Task<IReadOnlyList<UserAccount>> ListAsync()
     {
-        IList<IdentityUser> administrators = await userManager.GetUsersInRoleAsync(Roles.Admin);
+        IList<ApplicationUser> administrators = await userManager.GetUsersInRoleAsync(Roles.Admin);
         HashSet<string> administratorIds = administrators.Select(user => user.Id).ToHashSet();
         ILookup<string, string> logins = (await context.UserLogins
                 .Select(login => new { login.UserId, login.LoginProvider })
                 .ToListAsync())
             .ToLookup(login => login.UserId, login => login.LoginProvider);
-        List<IdentityUser> users = await userManager.Users.ToListAsync();
+        List<ApplicationUser> users = await userManager.Users.ToListAsync();
         return users.Select(user => ToAccount(user, administratorIds.Contains(user.Id), logins[user.Id].ToList())).ToList();
     }
 
@@ -66,7 +68,7 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
 
     public async Task<UserAccountResult> UpdateAsync(string id, UserProfile profile, string? password)
     {
-        IdentityUser? user = await userManager.FindByIdAsync(id);
+        ApplicationUser? user = await userManager.FindByIdAsync(id);
         if (user is null)
         {
             return NotFound(id);
@@ -84,7 +86,7 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
 
     public async Task<UserAccountResult> AddLoginAsync(string id, string provider, string key)
     {
-        IdentityUser? user = await userManager.FindByIdAsync(id);
+        ApplicationUser? user = await userManager.FindByIdAsync(id);
         return user is null ? NotFound(id) : ToResult(await userManager.AddLoginAsync(user, LoginOf(provider, key)));
     }
 
@@ -101,27 +103,6 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         }
     }
 
-    public async Task SetPictureAsync(string id, string? pictureUrl)
-    {
-        if (await userManager.FindByIdAsync(id) is not { } user)
-        {
-            return;
-        }
-
-        List<Claim> pictures = (await userManager.GetClaimsAsync(user)).Where(claim => claim.Type == OidcClaimTypes.Picture).ToList();
-        string[] wanted = pictureUrl is null ? [] : [pictureUrl];
-        if (pictures.Select(claim => claim.Value).SequenceEqual(wanted))
-        {
-            return;
-        }
-
-        await userManager.RemoveClaimsAsync(user, pictures);
-        if (pictureUrl is not null)
-        {
-            await userManager.AddClaimAsync(user, new Claim(OidcClaimTypes.Picture, pictureUrl));
-        }
-    }
-
     public async Task DeleteAsync(string id)
     {
         if (await userManager.FindByIdAsync(id) is { } user)
@@ -130,10 +111,15 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         }
     }
 
-    private async Task<UserAccountResult> CreateAsync(UserProfile profile, Func<IdentityUser, Task<IdentityResult>> create)
+    private async Task<UserAccountResult> CreateAsync(UserProfile profile, Func<ApplicationUser, Task<IdentityResult>> create)
     {
         await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync();
-        IdentityUser user = new(profile.Username) { Email = profile.Email };
+        ApplicationUser user = new()
+        {
+            UserName = profile.Username,
+            DisplayName = DisplayNameRule.Normalize(profile.DisplayName),
+            Email = profile.Email,
+        };
         UserAccountResult result = ToResult(await create(user));
         if (result.Succeeded && profile.IsAdmin)
         {
@@ -151,7 +137,7 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         return result;
     }
 
-    private async Task<UserAccountResult> ApplyAsync(IdentityUser user, UserProfile profile, string? password)
+    private async Task<UserAccountResult> ApplyAsync(ApplicationUser user, UserProfile profile, string? password)
     {
         if (password is not null)
         {
@@ -165,12 +151,13 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         }
 
         user.UserName = profile.Username;
+        user.DisplayName = DisplayNameRule.Normalize(profile.DisplayName);
         user.Email = profile.Email;
         UserAccountResult result = await SetAdministratorAsync(user, profile.IsAdmin);
         return result.Succeeded ? ToResult(await userManager.UpdateSecurityStampAsync(user)) : result;
     }
 
-    private async Task<UserAccountResult> SetAdministratorAsync(IdentityUser user, bool administrator)
+    private async Task<UserAccountResult> SetAdministratorAsync(ApplicationUser user, bool administrator)
     {
         bool current = await userManager.IsInRoleAsync(user, Roles.Admin);
         if (current == administrator)
@@ -183,10 +170,10 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
             : await userManager.RemoveFromRoleAsync(user, Roles.Admin));
     }
 
-    private async Task<UserAccountResult> ValidatePasswordAsync(IdentityUser user, string password)
+    private async Task<UserAccountResult> ValidatePasswordAsync(ApplicationUser user, string password)
     {
         List<UserAccountError> errors = [];
-        foreach (IPasswordValidator<IdentityUser> validator in userManager.PasswordValidators)
+        foreach (IPasswordValidator<ApplicationUser> validator in userManager.PasswordValidators)
         {
             IdentityResult result = await validator.ValidateAsync(userManager, user, password);
             errors.AddRange(result.Errors.Select(ToError));
@@ -195,7 +182,7 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         return new UserAccountResult(errors);
     }
 
-    private async Task<UserAccount?> ToAccountAsync(IdentityUser? user)
+    private async Task<UserAccount?> ToAccountAsync(ApplicationUser? user)
     {
         if (user is null)
         {
@@ -206,9 +193,16 @@ internal sealed class IdentityUserAccountStore(UserManager<IdentityUser> userMan
         return ToAccount(user, await userManager.IsInRoleAsync(user, Roles.Admin), logins.Select(login => login.LoginProvider).ToList());
     }
 
-    private static UserAccount ToAccount(IdentityUser user, bool administrator, IReadOnlyList<string> logins)
+    private UserAccount ToAccount(ApplicationUser user, bool administrator, IReadOnlyList<string> logins)
     {
-        return new UserAccount(user.Id, user.UserName ?? string.Empty, user.Email ?? string.Empty, administrator, logins.Distinct().ToList());
+        return new UserAccount(
+            user.Id,
+            user.UserName ?? string.Empty,
+            user.DisplayName,
+            user.Email ?? string.Empty,
+            administrator,
+            pictures.Contains(user.Id),
+            logins.Distinct().ToList());
     }
 
     private static UserLoginInfo LoginOf(string provider, string key)

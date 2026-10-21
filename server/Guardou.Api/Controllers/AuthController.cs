@@ -17,6 +17,7 @@ public sealed class AuthController(
     ISessionService sessions,
     PasswordLogin passwordLogin,
     Registration registration,
+    UserAccounts accounts,
     IAntiforgery antiforgery)
     : ControllerBase
 {
@@ -44,7 +45,7 @@ public sealed class AuthController(
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        RegistrationResult result = await registration.RegisterFirstAdministratorAsync(request.Username, request.Email, request.Password);
+        RegistrationResult result = await registration.RegisterFirstAdministratorAsync(request.Username, request.DisplayName, request.Email, request.Password);
         return result.Status switch
         {
             RegistrationStatus.Closed => Problem(statusCode: StatusCodes.Status403Forbidden, title: "The registration is closed."),
@@ -69,16 +70,10 @@ public sealed class AuthController(
     [HttpGet("me", Name = "GetCurrentUser")]
     [ProducesResponseType<CurrentUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public ActionResult<CurrentUser> Me()
+    public async Task<CurrentUser> Me()
     {
-        string? username = User.Identity?.Name;
-        string? email = User.FindFirstValue(ClaimTypes.Email);
-        if (username is null || email is null)
-        {
-            return Unauthorized();
-        }
-
-        return new CurrentUser(User.UserId(), username, email, User.IsInRole(Roles.Admin), User.FindFirstValue(OidcClaimTypes.Picture));
+        UserAccount account = await accounts.GetAsync(User.UserId());
+        return new CurrentUser(account.Id, account.Username, account.DisplayName, account.Email, account.IsAdmin, account.HasPicture);
     }
 
     [HttpGet("antiforgery", Name = "GetAntiforgeryToken")]

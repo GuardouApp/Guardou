@@ -13,6 +13,7 @@ using Guardou.Infrastructure.Identity;
 using Guardou.Infrastructure.Identity.Oidc;
 using Guardou.Infrastructure.Persistence;
 using Guardou.Infrastructure.Previews;
+using Guardou.Infrastructure.Profiles;
 using Guardou.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -29,14 +30,15 @@ public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton(new StoragePaths(StoragePaths.DefaultFilesRoot, StoragePaths.DefaultDatabaseRoot, StoragePaths.DefaultCacheRoot));
+        services.AddSingleton(new StoragePaths(StoragePaths.DefaultRoot));
         services.AddDbContext<AppDbContext>((provider, options) =>
             options.UseSqlite(ConnectionString(provider.GetRequiredService<StoragePaths>())));
 
-        services.AddIdentityCore<IdentityUser>()
+        services.AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddUserValidator<UsernameValidator>();
+            .AddUserValidator<UsernameValidator>()
+            .AddUserValidator<DisplayNameValidator>();
         services.Configure<IdentityOptions>(identity =>
         {
             identity.User.RequireUniqueEmail = true;
@@ -61,12 +63,14 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IImageSource, VideoImageSource>();
         services.AddSingleton<IPreviewRenderer, VipsPreviewRenderer>();
         services.AddSingleton<IPreviewCache, FilePreviewCache>();
+        services.AddHttpClient<ProfilePictureDownloader>(client => client.Timeout = ProfilePictureDownloader.Timeout);
+        services.AddSingleton<IProfilePictureStore, FileProfilePictureStore>();
         return services;
     }
 
     public static IServiceCollection AddWebInfrastructure(this IServiceCollection services)
     {
-        new IdentityBuilder(typeof(IdentityUser), typeof(IdentityRole), services).AddSignInManager();
+        new IdentityBuilder(typeof(ApplicationUser), typeof(IdentityRole), services).AddSignInManager();
         AuthenticationBuilder authentication = services.AddAuthentication(IdentityConstants.ApplicationScheme);
         authentication.AddIdentityCookies();
         authentication.AddOpenIdConnect(OidcSettings.Provider, _ => { });

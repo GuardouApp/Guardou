@@ -15,6 +15,7 @@ public sealed class ExternalIdentityTests
             [
                 new Claim("sub", "42"),
                 new Claim("upn", "alice"),
+                new Claim("display_name", "Alice Smith"),
                 new Claim("email", "alice@example.com"),
                 new Claim("email_verified", "True"),
                 new Claim("picture", "https://id.example.com/alice.png"),
@@ -24,8 +25,9 @@ public sealed class ExternalIdentityTests
         Assert.NotNull(identity);
         Assert.Equal("42", identity.Key);
         Assert.Equal("alice", identity.Username);
+        Assert.Equal("Alice Smith", identity.DisplayName);
         Assert.True(identity.EmailVerified);
-        Assert.Equal("https://id.example.com/alice.png", identity.PictureUrl);
+        Assert.Equal(new Uri("https://id.example.com/alice.png"), identity.PictureUrl);
     }
 
     [Fact]
@@ -49,7 +51,7 @@ public sealed class ExternalIdentityTests
     [InlineData("...", null, "user")]
     public void DerivesAValidUsername(string? username, string? email, string expected)
     {
-        ExternalIdentity identity = new("42", username, email, EmailVerified: false, PictureUrl: null);
+        ExternalIdentity identity = new("42", username, DisplayName: null, email, EmailVerified: false, PictureUrl: null);
 
         Assert.Equal(expected, identity.UsernameBase);
     }

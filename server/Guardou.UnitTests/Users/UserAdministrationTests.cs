@@ -10,11 +10,12 @@ public sealed class UserAdministrationTests
     public async Task SetCreatesAMissingUser()
     {
         UserAccountResult result = await new UserAdministration(_store)
-            .SetAsync("bob", "bob@example.com", "password", administrator: false);
+            .SetAsync("bob", "Bob Jones", "bob@example.com", "password", administrator: false);
 
         UserAccount bob = _store.ByUsername("bob");
         Assert.True(result.Succeeded);
         Assert.Equal("password", _store.Passwords[bob.Id]);
+        Assert.Equal("Bob Jones", bob.DisplayName);
         Assert.Equal("bob@example.com", bob.Email);
         Assert.False(bob.IsAdmin);
     }
@@ -22,7 +23,7 @@ public sealed class UserAdministrationTests
     [Fact]
     public async Task SetRequiresAnEmailToCreateAUser()
     {
-        UserAccountResult result = await new UserAdministration(_store).SetAsync("bob", null, "password", administrator: false);
+        UserAccountResult result = await new UserAdministration(_store).SetAsync("bob", null, null, "password", administrator: false);
 
         Assert.Equal(UserAccountErrorCodes.EmailRequired, Assert.Single(result.Errors).Code);
         Assert.Empty(_store.Accounts);
@@ -31,9 +32,9 @@ public sealed class UserAdministrationTests
     [Fact]
     public async Task SetChangesThePasswordOfAnExistingUser()
     {
-        await _store.CreateAsync(new UserProfile("bob", "bob@example.com", IsAdmin: false), "old");
+        await _store.CreateAsync(new UserProfile("bob", "Bob", "bob@example.com", IsAdmin: false), "old");
 
-        await new UserAdministration(_store).SetAsync("bob", null, "new", administrator: false);
+        await new UserAdministration(_store).SetAsync("bob", null, null, "new", administrator: false);
 
         UserAccount bob = _store.ByUsername("bob");
         Assert.Equal("new", _store.Passwords[bob.Id]);
@@ -43,19 +44,41 @@ public sealed class UserAdministrationTests
     [Fact]
     public async Task SetChangesTheEmailOfAnExistingUserWhenGiven()
     {
-        await _store.CreateAsync(new UserProfile("bob", "bob@example.com", IsAdmin: false), "old");
+        await _store.CreateAsync(new UserProfile("bob", "Bob", "bob@example.com", IsAdmin: false), "old");
 
-        await new UserAdministration(_store).SetAsync("bob", "robert@example.com", "new", administrator: false);
+        await new UserAdministration(_store).SetAsync("bob", null, "robert@example.com", "new", administrator: false);
 
         Assert.Equal("robert@example.com", _store.ByUsername("bob").Email);
     }
 
     [Fact]
+    public async Task SetUsesTheUsernameAsTheDisplayNameOfANewUser()
+    {
+        await new UserAdministration(_store).SetAsync("bob", null, "bob@example.com", "password", administrator: false);
+
+        Assert.Equal("bob", _store.ByUsername("bob").DisplayName);
+    }
+
+    [Fact]
+    public async Task SetChangesTheDisplayNameOfAnExistingUserOnlyWhenGiven()
+    {
+        await _store.CreateAsync(new UserProfile("bob", "Bob", "bob@example.com", IsAdmin: false), "old");
+        UserAdministration administration = new(_store);
+
+        await administration.SetAsync("bob", null, null, "new", administrator: false);
+        string kept = _store.ByUsername("bob").DisplayName;
+        await administration.SetAsync("bob", "Robert", null, "new", administrator: false);
+
+        Assert.Equal("Bob", kept);
+        Assert.Equal("Robert", _store.ByUsername("bob").DisplayName);
+    }
+
+    [Fact]
     public async Task SetKeepsTheAdminRoleOfAnExistingAdmin()
     {
-        await _store.CreateAsync(new UserProfile("bob", "bob@example.com", IsAdmin: true), "old");
+        await _store.CreateAsync(new UserProfile("bob", "Bob", "bob@example.com", IsAdmin: true), "old");
 
-        await new UserAdministration(_store).SetAsync("bob", null, "new", administrator: false);
+        await new UserAdministration(_store).SetAsync("bob", null, null, "new", administrator: false);
 
         Assert.True(_store.ByUsername("bob").IsAdmin);
     }
@@ -63,7 +86,7 @@ public sealed class UserAdministrationTests
     [Fact]
     public async Task SetPromotesWhenAdministratorIsRequested()
     {
-        await new UserAdministration(_store).SetAsync("bob", "bob@example.com", "password", administrator: true);
+        await new UserAdministration(_store).SetAsync("bob", null, "bob@example.com", "password", administrator: true);
 
         Assert.True(_store.ByUsername("bob").IsAdmin);
     }
@@ -71,7 +94,7 @@ public sealed class UserAdministrationTests
     [Fact]
     public async Task PromoteGivesTheAdminRole()
     {
-        await _store.CreateAsync(new UserProfile("bob", "bob@example.com", IsAdmin: false), "password");
+        await _store.CreateAsync(new UserProfile("bob", "Bob", "bob@example.com", IsAdmin: false), "password");
 
         UserAccountResult result = await new UserAdministration(_store).PromoteAsync("bob");
 

@@ -28,10 +28,7 @@ internal sealed class ItemRemover(IItemStore store, IBlobStore blobs, IPreviewCa
                 blobs.Delete(key);
             }
 
-            if (file.PreviewId is { } previewId)
-            {
-                previews.Delete(file.OwnerId, previewId);
-            }
+            previews.Delete(file.OwnerId, file.Id);
         }
     }
 }

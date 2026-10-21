@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserAvatar extends StatelessWidget {
-  const UserAvatar({super.key, required this.username, required this.radius, this.pictureUrl});
+import '../api/api_providers.dart';
 
-  final String username;
+class UserAvatar extends ConsumerWidget {
+  const UserAvatar({
+    super.key,
+    required this.userId,
+    required this.name,
+    required this.hasPicture,
+    required this.radius,
+  });
+
+  final String userId;
+  final String name;
+  final bool hasPicture;
   final double radius;
-  final String? pictureUrl;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final initial = CircleAvatar(
       radius: radius,
-      child: Text(username.characters.firstOrNull?.toUpperCase() ?? '', style: TextStyle(fontSize: radius * 0.9)),
+      child: Text(name.characters.firstOrNull?.toUpperCase() ?? '', style: TextStyle(fontSize: radius * 0.9)),
     );
-    final url = pictureUrl;
-    if (url == null) {
+    if (!hasPicture) {
       return initial;
     }
+    final url = Uri.parse(ref.watch(apiBaseUrlProvider)).replace(pathSegments: ['api', 'users', userId, 'picture']);
     return ClipOval(
       child: Image.network(
-        url,
+        url.toString(),
         width: radius * 2,
         height: radius * 2,
         fit: BoxFit.cover,

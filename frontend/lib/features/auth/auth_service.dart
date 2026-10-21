@@ -40,9 +40,14 @@ class AuthService {
     return _api.auth.getCurrentUser();
   }
 
-  Future<CurrentUser> register({required String username, required String email, required String password}) async {
+  Future<CurrentUser> register({
+    required String username,
+    required String displayName,
+    required String email,
+    required String password,
+  }) async {
     await _api.auth.register(
-      body: RegisterRequest(username: username, email: email, password: password),
+      body: RegisterRequest(username: username, displayName: displayName, email: email, password: password),
     );
     _antiforgery.reset();
     return _api.auth.getCurrentUser();

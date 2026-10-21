@@ -3,7 +3,12 @@ using Guardou.Application.Previews;
 
 namespace Guardou.Application.Users;
 
-public sealed class UserAccounts(IUserAccountStore store, IItemStore items, IBlobStore blobs, IPreviewCache previews)
+public sealed class UserAccounts(
+    IUserAccountStore store,
+    IItemStore items,
+    IBlobStore blobs,
+    IPreviewCache previews,
+    IProfilePictureStore pictures)
 {
     public async Task<IReadOnlyList<UserAccount>> ListAsync()
     {
@@ -56,6 +61,7 @@ public sealed class UserAccounts(IUserAccountStore store, IItemStore items, IBlo
         }
 
         previews.DeleteOwner(account.Id);
+        pictures.Delete(account.Id);
     }
 
     public async Task<UserAccount> RemoveLoginAsync(string id, string provider)

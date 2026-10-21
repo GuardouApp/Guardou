@@ -13,7 +13,7 @@ public sealed class LocalBlobStoreTests : IDisposable
 
     public LocalBlobStoreTests()
     {
-        _store = new LocalBlobStore(new StoragePaths(_data.Combine("data"), _data.Combine("db"), _data.Combine("cache")));
+        _store = new LocalBlobStore(new StoragePaths(_data.Path));
     }
 
     private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
@@ -28,7 +28,7 @@ public sealed class LocalBlobStoreTests : IDisposable
     {
         long size = await WriteAsync("owner/2024/2024-05-06/a.txt", "hello");
 
-        string path = _data.Combine("data", "owner", "2024", "2024-05-06", "a.txt");
+        string path = _data.Combine("files", "owner", "2024", "2024-05-06", "a.txt");
         Assert.Equal(5, size);
         Assert.Equal("hello", await File.ReadAllTextAsync(path, CancellationToken));
         Assert.Equal(Modified.UtcDateTime, File.GetLastWriteTimeUtc(path));
@@ -43,7 +43,7 @@ public sealed class LocalBlobStoreTests : IDisposable
         await _store.CopyAsync("owner/a.txt", "owner/b.txt", CancellationToken);
         _store.Delete("owner/a.txt");
 
-        Assert.False(File.Exists(_data.Combine("data", "owner", "a.txt")));
+        Assert.False(File.Exists(_data.Combine("files", "owner", "a.txt")));
         await using Stream copy = _store.OpenRead("owner/b.txt");
         using StreamReader reader = new(copy);
         Assert.Equal("hello", await reader.ReadToEndAsync(CancellationToken));

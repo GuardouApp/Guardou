@@ -13,12 +13,11 @@ abstract final class PreviewLoader {
     FilesService files,
     String id,
     PreviewSize size,
-    String? previewId,
     CancelToken cancel,
   ) async {
     try {
       for (var attempt = 0; attempt < maximumAttempts && !cancel.isCancelled; attempt++) {
-        final bytes = await files.preview(id, size, previewId, cancel);
+        final bytes = await files.preview(id, size, cancel);
         if (bytes != null) {
           return bytes;
         }

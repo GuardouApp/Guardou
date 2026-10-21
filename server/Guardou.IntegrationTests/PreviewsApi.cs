@@ -46,6 +46,16 @@ internal static class PreviewsApi
         }
     }
 
+    public static async Task WaitForIdleQueuesAsync(this HttpClient client)
+    {
+        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken);
+        timeout.CancelAfter(PollTimeout);
+        while ((await client.ListQueuesAsync()).Any(queue => queue.Pending > 0 || queue.Running > 0))
+        {
+            await Task.Delay(PollInterval, timeout.Token);
+        }
+    }
+
     public static async Task<IReadOnlyList<TaskEntry>> ListTasksAsync(this HttpClient client, string query = "")
     {
         return await client.GetFromJsonAsync<IReadOnlyList<TaskEntry>>($"/api/tasks{query}", HttpClientExtensions.JsonOptions, CancellationToken)

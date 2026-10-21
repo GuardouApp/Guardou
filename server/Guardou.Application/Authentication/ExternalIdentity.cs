@@ -7,9 +7,10 @@ namespace Guardou.Application.Authentication;
 public sealed record ExternalIdentity(
     string Key,
     string? Username,
+    string? DisplayName,
     string? Email,
     bool EmailVerified,
-    string? PictureUrl)
+    Uri? PictureUrl)
 {
     private const string FallbackUsername = "user";
 
@@ -27,6 +28,7 @@ public sealed record ExternalIdentity(
             : new ExternalIdentity(
                 key,
                 ValueOf(claims, settings.UserClaim),
+                ValueOf(claims, OidcClaimTypes.DisplayName),
                 ValueOf(claims, OidcClaimTypes.Email),
                 string.Equals(ValueOf(claims, OidcClaimTypes.EmailVerified), bool.TrueString, StringComparison.OrdinalIgnoreCase),
                 PictureOf(ValueOf(claims, OidcClaimTypes.Picture)));
@@ -38,11 +40,11 @@ public sealed record ExternalIdentity(
         return string.IsNullOrEmpty(value) ? null : value;
     }
 
-    private static string? PictureOf(string? value)
+    private static Uri? PictureOf(string? value)
     {
         return Uri.TryCreate(value, UriKind.Absolute, out Uri? uri)
             && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp)
-                ? value
+                ? uri
                 : null;
     }
 }

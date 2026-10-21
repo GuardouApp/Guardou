@@ -10,13 +10,27 @@ import 'package:mocktail/mocktail.dart';
 import '../../helpers/test_app.dart';
 
 void main() {
-  const admin = UserAccount(id: 'admin-id', username: 'admin', email: 'admin@example.com', isAdmin: true, externalLogins: []);
-  const bob = UserAccount(id: 'bob-id', username: 'bob', email: 'bob@example.com', isAdmin: false, externalLogins: []);
+  const admin = UserAccount(
+    id: 'admin-id',
+    username: 'admin',
+    displayName: 'Admin',
+    email: 'admin@example.com', isAdmin: true,
+    hasPicture: false,
+    externalLogins: [],
+  );
+  const bob = UserAccount(
+    id: 'bob-id',
+    username: 'bob',
+    displayName: 'Bob',
+    email: 'bob@example.com', isAdmin: false,
+    hasPicture: false,
+    externalLogins: [],
+  );
   const compact = Size(390, 844);
 
   late MockUsersService users;
 
-  setUpAll(() => registerFallbackValue(const UserRequest(username: '', email: '', password: null, isAdmin: false)));
+  setUpAll(() => registerFallbackValue(const UserRequest(username: '', displayName: '', email: '', password: null, isAdmin: false)));
 
   setUp(() {
     users = MockUsersService();
@@ -63,7 +77,14 @@ void main() {
   });
 
   testWidgets('hides the administration from users', (tester) async {
-    const user = CurrentUser(id: 'bob-id', username: 'bob', email: 'bob@example.com', isAdmin: false, pictureUrl: null);
+    const user = CurrentUser(
+      id: 'bob-id',
+      username: 'bob',
+      displayName: 'Bob',
+      email: 'bob@example.com',
+      isAdmin: false,
+      hasPicture: false,
+    );
     final container = await pumpUsers(tester, user: user);
 
     expect(locationOf(container), '/403');
@@ -74,13 +95,21 @@ void main() {
   });
 
   testWidgets('creates a user in a dialog', (tester) async {
-    const carol = UserAccount(id: 'carol-id', username: 'carol', email: 'carol@example.com', isAdmin: true, externalLogins: []);
+    const carol = UserAccount(
+    id: 'carol-id',
+    username: 'carol',
+    displayName: 'Carol',
+    email: 'carol@example.com', isAdmin: true,
+    hasPicture: false,
+    externalLogins: [],
+  );
     when(() => users.create(any())).thenAnswer((_) async => carol);
     await pumpUsers(tester);
 
     await tester.tap(find.text('Create user'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'carol');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), ' Carol Doe ');
     await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'carol@example.com');
     await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'long-password');
     await tester.tap(find.descendant(of: find.byType(SegmentedButton<bool>), matching: find.text('Administrator')));
@@ -89,7 +118,13 @@ void main() {
 
     verify(
       () => users.create(
-        const UserRequest(username: 'carol', email: 'carol@example.com', password: 'long-password', isAdmin: true),
+        const UserRequest(
+          username: 'carol',
+          displayName: 'Carol Doe',
+          email: 'carol@example.com',
+          password: 'long-password',
+          isAdmin: true,
+        ),
       ),
     ).called(1);
     expect(find.byType(AlertDialog), findsNothing);
@@ -102,6 +137,7 @@ void main() {
     await tester.tap(find.text('Create user'));
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'carol');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), 'Carol');
     await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'carol@example.com');
     await tester.tap(find.widgetWithText(FilledButton, 'Create'));
     await tester.pumpAndSettle();
@@ -125,7 +161,7 @@ void main() {
     verify(
       () => users.update(
         'bob-id',
-        const UserRequest(username: 'robert', email: 'bob@example.com', password: null, isAdmin: false),
+        const UserRequest(username: 'robert', displayName: 'Bob', email: 'bob@example.com', password: null, isAdmin: false),
       ),
     ).called(1);
     expect(find.text('User saved'), findsOneWidget);

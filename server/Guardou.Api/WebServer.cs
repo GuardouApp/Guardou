@@ -37,6 +37,7 @@ public static class WebServer
 
     private static void AddServices(IServiceCollection services)
     {
+        services.AddHostedService<StartupInitializer>();
         services.AddApplication();
         services.AddInfrastructure();
         services.AddWebInfrastructure();
@@ -63,7 +64,6 @@ public static class WebServer
             options.AddDocumentTransformer<FormFileDocumentTransformer>();
         });
         services.Configure<HostOptions>(options => options.ShutdownTimeout = ShutdownTimeout);
-        services.AddHostedService<StartupInitializer>();
         services.AddHostedService<TrashPurgeWorker>();
         services.AddHostedService<TaskWorkerPool>();
     }

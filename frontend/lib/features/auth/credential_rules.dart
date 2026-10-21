@@ -9,6 +9,8 @@ final _lowercase = RegExp('[a-z]');
 final _uppercase = RegExp('[A-Z]');
 final _nonAlphanumeric = RegExp('[^A-Za-z0-9]');
 
+const maximumDisplayNameLength = 100;
+
 bool isValidUsername(String username) => _username.hasMatch(username);
 
 bool isValidEmail(String email) => _email.hasMatch(email);

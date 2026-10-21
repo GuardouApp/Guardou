@@ -19,6 +19,15 @@
   "registerSubtitle": "No account exists yet. The first account becomes the administrator.",
   "registerEmail": "Email",
   "registerEmailInvalid": "Enter a valid email address.",
+  "displayName": "Display name",
+  "displayNameInvalid": "Use 1 to {count} characters.",
+  "@displayNameInvalid": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "registerConfirmPassword": "Confirm the password",
   "registerSubmit": "Create account",
   "registerUsernameInvalid": "Use only letters and digits.",

@@ -1,5 +1,5 @@
 using Guardou.Domain.Files;
-using Microsoft.AspNetCore.Identity;
+using Guardou.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -23,7 +23,7 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(item => item.Modified).HasConversion<DateTimeOffsetToBinaryConverter>();
         builder.Property(item => item.Trashed).HasConversion<DateTimeOffsetToBinaryConverter>();
 
-        builder.HasOne<IdentityUser>().WithMany().HasForeignKey(item => item.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<ApplicationUser>().WithMany().HasForeignKey(item => item.OwnerId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<Item>().WithMany().HasForeignKey(item => item.ParentId).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(item => new { item.ParentId, item.Name }).IsUnique().HasFilter(ActiveFilter);

@@ -11,6 +11,7 @@ internal sealed class FakeIdentityProvider : HttpMessageHandler
     public const string Issuer = "https://id.example.com";
     public const string ClientId = "guardou";
     public const string EndSessionEndpoint = Issuer + "/logout";
+    public const string PictureUrl = Issuer + "/picture.png";
 
     private const string KeyId = "test-key";
 
@@ -22,6 +23,11 @@ internal sealed class FakeIdentityProvider : HttpMessageHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        if (request.RequestUri?.AbsoluteUri == PictureUrl)
+        {
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(PreviewsApi.Png(300, 200)) };
+        }
+
         object? body = request.RequestUri?.AbsolutePath switch
         {
             "/.well-known/openid-configuration" => Metadata(),

@@ -18,13 +18,15 @@ internal static class UserCommand
     private static Command CreateSet(Option<bool> noInput)
     {
         Argument<string> username = new("username") { Description = "The username." };
+        Option<string> displayName = new("--display-name", "-d") { Description = "The display name. The username when not given for a new user." };
         Option<string> email = new("--email", "-e") { Description = "The email. Required to create a user." };
         Option<string> password = new("--password", "-p") { Description = "The password. Prompt when not given." };
         Option<bool> admin = new("--admin") { Description = "Give the admin role to the user." };
 
-        Command command = new("set", "Create a user or change the password and the email of a user.")
+        Command command = new("set", "Create a user or change the password, the display name and the email of a user.")
         {
             username,
+            displayName,
             email,
             password,
             admin,
@@ -42,6 +44,7 @@ internal static class UserCommand
                 parseResult,
                 administration => administration.SetAsync(
                     parseResult.GetRequiredValue(username),
+                    parseResult.GetValue(displayName),
                     parseResult.GetValue(email),
                     resolvedPassword,
                     parseResult.GetValue(admin)),

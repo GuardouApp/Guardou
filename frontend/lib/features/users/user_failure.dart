@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 
 import '../../core/api/api_problem.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../auth/credential_rules.dart';
 
 enum UserFailure {
   usernameTaken,
   usernameInvalid,
+  displayNameInvalid,
   emailTaken,
   emailInvalid,
   passwordRejected,
@@ -23,6 +25,7 @@ enum UserFailure {
   static UserFailure _fromCode(String code) => switch (code) {
     'DuplicateUserName' => usernameTaken,
     'InvalidUserName' => usernameInvalid,
+    'InvalidDisplayName' => displayNameInvalid,
     'DuplicateEmail' => emailTaken,
     'InvalidEmail' => emailInvalid,
     'LastAdministrator' => lastAdministrator,
@@ -34,6 +37,7 @@ enum UserFailure {
   String message(AppLocalizations l10n) => switch (this) {
     usernameTaken => l10n.userUsernameTaken,
     usernameInvalid => l10n.registerUsernameInvalid,
+    displayNameInvalid => l10n.displayNameInvalid(maximumDisplayNameLength),
     emailTaken => l10n.userEmailTaken,
     emailInvalid => l10n.registerEmailInvalid,
     passwordRejected => l10n.userPasswordRejected,

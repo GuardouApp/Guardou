@@ -35,13 +35,14 @@ internal static class HttpClientExtensions
     public static async Task<HttpResponseMessage> RegisterAsync(
         this HttpClient client,
         string username,
+        string displayName,
         string email,
         string password)
     {
         await client.RefreshAntiforgeryTokenAsync();
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "/api/auth/register",
-            new RegisterRequest(username, email, password),
+            new RegisterRequest(username, displayName, email, password),
             TestContext.Current.CancellationToken);
         await client.RefreshAntiforgeryTokenAsync();
         return response;
@@ -49,6 +50,6 @@ internal static class HttpClientExtensions
 
     public static async Task EnsureAdministratorAsync(this TestServerFactory factory)
     {
-        await factory.CreateClient().RegisterAsync(TestServerFactory.AdminUsername, TestServerFactory.AdminEmail, TestServerFactory.AdminPassword);
+        await factory.CreateClient().RegisterAsync(TestServerFactory.AdminUsername, TestServerFactory.AdminDisplayName, TestServerFactory.AdminEmail, TestServerFactory.AdminPassword);
     }
 }

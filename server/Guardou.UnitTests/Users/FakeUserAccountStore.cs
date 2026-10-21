@@ -10,8 +10,6 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
 
     public Dictionary<(string Provider, string Key), string> Logins { get; } = [];
 
-    public Dictionary<string, string> Pictures { get; } = [];
-
     public int Updates { get; private set; }
 
     public Task<bool> AnyUserAsync()
@@ -69,7 +67,7 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
     public Task<UserAccountResult> UpdateAsync(string id, UserProfile profile, string? password)
     {
         Updates++;
-        Accounts[id] = new UserAccount(id, profile.Username, profile.Email, profile.IsAdmin, []);
+        Accounts[id] = AccountOf(id, profile);
         if (password is not null)
         {
             Passwords[id] = password;
@@ -94,20 +92,6 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
         return Task.CompletedTask;
     }
 
-    public Task SetPictureAsync(string id, string? pictureUrl)
-    {
-        if (pictureUrl is null)
-        {
-            Pictures.Remove(id);
-        }
-        else
-        {
-            Pictures[id] = pictureUrl;
-        }
-
-        return Task.CompletedTask;
-    }
-
     public Task DeleteAsync(string id)
     {
         Accounts.Remove(id);
@@ -124,6 +108,11 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
         return $"id-{username}";
     }
 
+    private static UserAccount AccountOf(string id, UserProfile profile)
+    {
+        return new UserAccount(id, profile.Username, profile.DisplayName, profile.Email, profile.IsAdmin, HasPicture: false, []);
+    }
+
     private UserAccountResult Add(UserProfile profile)
     {
         if (Accounts.Values.Any(account => string.Equals(account.Email, profile.Email, StringComparison.OrdinalIgnoreCase)))
@@ -132,7 +121,7 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
         }
 
         string id = IdOf(profile.Username);
-        Accounts.Add(id, new UserAccount(id, profile.Username, profile.Email, profile.IsAdmin, []));
+        Accounts.Add(id, AccountOf(id, profile));
         return UserAccountResult.Success;
     }
 

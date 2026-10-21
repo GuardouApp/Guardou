@@ -57,7 +57,7 @@ class _ImageViewerState extends ConsumerState<ImageViewer> {
   }
 
   Future<void> _loadPreview(FilesService files) async {
-    final bytes = await PreviewLoader.load(files, _entry.id, PreviewSize.large, _entry.previewId, _cancel);
+    final bytes = await PreviewLoader.load(files, _entry.id, PreviewSize.large, _cancel);
     if (bytes != null && mounted && _original == null) {
       setState(() => _preview = bytes);
     }

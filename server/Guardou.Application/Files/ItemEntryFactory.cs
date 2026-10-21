@@ -17,7 +17,6 @@ internal sealed class ItemEntryFactory(IMimeTypeMap mimeTypes, IPreviewRenderer 
             item.Modified,
             item.Created,
             HasPreview(item),
-            HasPreview(item) && item.PreviewId is { } previewId ? ItemId.Format(previewId) : null,
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));
     }
 

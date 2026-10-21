@@ -1,6 +1,6 @@
 using System.Net;
-using System.Net.Http.Headers;
 using Guardou.Application.Files;
+using Guardou.Domain.Files;
 
 namespace Guardou.IntegrationTests;
 
@@ -18,58 +18,48 @@ public sealed class PreviewsTests : SignedInTests
         Assert.Equal(HttpStatusCode.OK, thumbnail.StatusCode);
         Assert.Equal("image/webp", thumbnail.Content.Headers.ContentType?.MediaType);
         Assert.Equal(HttpStatusCode.OK, large.StatusCode);
-        Assert.NotEqual(thumbnail.Headers.ETag, large.Headers.ETag);
         Assert.True(thumbnail.Headers.CacheControl?.Private);
-        Assert.True(thumbnail.Headers.CacheControl?.NoCache);
+        Assert.Equal(TimeSpan.FromDays(365), thumbnail.Headers.CacheControl?.MaxAge);
+        Assert.Contains("immutable", thumbnail.Headers.CacheControl?.Extensions.Select(extension => extension.Name) ?? []);
     }
 
     [Fact]
-    public async Task ListsThePreviewIdAndCachesPreviewsByIdForever()
+    public async Task NamesThePreviewFilesWithTheItemId()
     {
         ItemEntry image = await Client.UploadImageAsync("wide.png");
-        await Client.WaitForPreviewAsync(image.Id);
+        await Client.WaitForIdleQueuesAsync();
 
-        string? previewId = (await Client.GetItemAsync(image.Id)).Entry.PreviewId;
-        HttpResponseMessage response = await Client.GetAsync(
-            $"/api/items/{image.Id}/previews/{previewId}?size=thumbnail",
-            CancellationToken);
-
-        Assert.Null(image.PreviewId);
-        Assert.NotNull(previewId);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("image/webp", response.Content.Headers.ContentType?.MediaType);
-        Assert.Equal(TimeSpan.FromDays(365), response.Headers.CacheControl?.MaxAge);
-        Assert.Contains("immutable", response.Headers.CacheControl?.Extensions.Select(extension => extension.Name) ?? []);
+        string itemId = ItemId.TryParse(image.Id, out Guid id) ? id.ToString("N") : string.Empty;
+        Assert.Equal(
+            [$"{itemId}.large.webp", $"{itemId}.thumbnail.webp"],
+            ThumbFiles().Select(Path.GetFileName).Order(StringComparer.Ordinal));
     }
 
     [Fact]
-    public async Task GivesANewPreviewIdAfterARegenerationAndRemovesTheOldOne()
+    public async Task KeepsTheExistingPreviewsWhenAllPreviewsAreRequested()
     {
         ItemEntry image = await Client.UploadImageAsync("wide.png");
-        await Client.WaitForPreviewAsync(image.Id);
-        string? before = (await Client.GetItemAsync(image.Id)).Entry.PreviewId;
+        await Client.WaitForIdleQueuesAsync();
+        DateTime written = File.GetLastWriteTimeUtc(ThumbFiles()[0]);
 
         await Client.PostAsync("/api/tasks/queues/preview/all", null, CancellationToken);
-        string? after = await WaitForNewPreviewIdAsync(image.Id, before);
-        HttpResponseMessage old = await Client.GetAsync($"/api/items/{image.Id}/previews/{before}?size=thumbnail", CancellationToken);
+        await Client.WaitForIdleQueuesAsync();
 
-        Assert.NotNull(after);
-        Assert.NotEqual(before, after);
-        Assert.Equal(HttpStatusCode.NotFound, old.StatusCode);
-        Assert.Equal(2, CacheFiles().Count);
+        Assert.Equal(written, File.GetLastWriteTimeUtc(ThumbFiles()[0]));
     }
 
     [Fact]
-    public async Task ReturnsNotModifiedForTheSameEntityTag()
+    public async Task RendersThePreviewAgainWhenTheCacheIsDeleted()
     {
         ItemEntry image = await Client.UploadImageAsync("wide.png");
-        EntityTagHeaderValue? entityTag = (await Client.WaitForPreviewAsync(image.Id)).Headers.ETag;
+        await Client.WaitForPreviewAsync(image.Id);
+        Directory.Delete(Factory.ThumbsDirectory, recursive: true);
 
-        using HttpRequestMessage request = new(HttpMethod.Get, $"/api/items/{image.Id}/preview?size=thumbnail");
-        request.Headers.IfNoneMatch.Add(entityTag ?? EntityTagHeaderValue.Any);
-        HttpResponseMessage response = await Client.SendAsync(request, CancellationToken);
+        HttpResponseMessage pending = await Client.GetPreviewAsync(image.Id);
+        HttpResponseMessage rendered = await Client.WaitForPreviewAsync(image.Id);
 
-        Assert.Equal(HttpStatusCode.NotModified, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Accepted, pending.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, rendered.StatusCode);
     }
 
     [Fact]
@@ -123,31 +113,19 @@ public sealed class PreviewsTests : SignedInTests
         ItemEntry image = await Client.UploadImageAsync("wide.png");
         await Client.WaitForPreviewAsync(image.Id);
         await Client.WaitForPreviewAsync(image.Id, "large");
-        int cached = CacheFiles().Count;
+        int cached = ThumbFiles().Count;
 
         await Client.PostSelectionAsync("/api/items/trash", image.Id);
         await Client.PostSelectionAsync("/api/trash/delete", image.Id);
 
         Assert.Equal(2, cached);
-        Assert.Empty(CacheFiles());
+        Assert.Empty(ThumbFiles());
     }
 
-    private async Task<string?> WaitForNewPreviewIdAsync(string id, string? previous)
+    private List<string> ThumbFiles()
     {
-        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken);
-        timeout.CancelAfter(TimeSpan.FromSeconds(30));
-        while ((await Client.GetItemAsync(id)).Entry.PreviewId is var current && (current is null || current == previous))
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(100), timeout.Token);
-        }
-
-        return (await Client.GetItemAsync(id)).Entry.PreviewId;
-    }
-
-    private List<string> CacheFiles()
-    {
-        return Directory.Exists(Factory.CacheDirectory)
-            ? Directory.EnumerateFiles(Factory.CacheDirectory, "*", SearchOption.AllDirectories).ToList()
+        return Directory.Exists(Factory.ThumbsDirectory)
+            ? Directory.EnumerateFiles(Factory.ThumbsDirectory, "*", SearchOption.AllDirectories).ToList()
             : [];
     }
 }

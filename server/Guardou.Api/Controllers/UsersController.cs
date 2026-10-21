@@ -87,6 +87,6 @@ public sealed class UsersController(UserAccounts accounts, ISessionService sessi
 
     private static UserProfile ProfileOf(UserRequest request)
     {
-        return new UserProfile(request.Username, request.Email, request.IsAdmin);
+        return new UserProfile(request.Username, request.DisplayName, request.Email, request.IsAdmin);
     }
 }

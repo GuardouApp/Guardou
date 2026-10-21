@@ -36,7 +36,7 @@ class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
     super.didUpdateWidget(oldWidget);
     final entry = widget.entry;
     final previous = oldWidget.entry;
-    if (previous.id != entry.id || previous.hasPreview != entry.hasPreview || previous.previewId != entry.previewId) {
+    if (previous.id != entry.id || previous.hasPreview != entry.hasPreview) {
       _cancel.cancel();
       _cancel = CancelToken();
       _bytes = null;
@@ -52,16 +52,15 @@ class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
 
   void _start() {
     if (widget.entry.hasPreview) {
-      unawaited(_load(widget.entry.id, widget.entry.previewId, _cancel));
+      unawaited(_load(widget.entry.id, _cancel));
     }
   }
 
-  Future<void> _load(String id, String? previewId, CancelToken cancel) async {
+  Future<void> _load(String id, CancelToken cancel) async {
     final bytes = await PreviewLoader.load(
       ref.read(filesServiceProvider),
       id,
       PreviewSize.thumbnail,
-      previewId,
       cancel,
     );
     if (bytes != null && mounted && !cancel.isCancelled) {

@@ -23,12 +23,12 @@ public sealed class ItemPreviews
         _previewTasks = previewTasks;
     }
 
-    public async Task<CachedPreview?> OpenCurrentAsync(string ownerId, string id, PreviewSize size, CancellationToken cancellationToken)
+    public async Task<Stream?> OpenAsync(string ownerId, string id, PreviewSize size, CancellationToken cancellationToken)
     {
         Item item = await FindPreviewableAsync(ownerId, id, cancellationToken);
-        if (item.PreviewId is { } previewId && _cache.TryOpen(item.OwnerId, previewId, size) is { } content)
+        if (_cache.TryOpen(item.OwnerId, item.Id, size) is { } content)
         {
-            return new CachedPreview(ItemId.Format(previewId), content);
+            return content;
         }
 
         if (await _tasks.FindStateAsync(TaskKind.Preview, item.Id, cancellationToken) == TaskState.Failed)
@@ -38,21 +38,6 @@ public sealed class ItemPreviews
 
         await _previewTasks.EnqueueAsync([item], TaskPriority.High, cancellationToken);
         return null;
-    }
-
-    public async Task<CachedPreview> OpenAsync(
-        string ownerId,
-        string id,
-        string previewId,
-        PreviewSize size,
-        CancellationToken cancellationToken)
-    {
-        Item item = await FindPreviewableAsync(ownerId, id, cancellationToken);
-        return ItemId.TryParse(previewId, out Guid requested)
-            && item.PreviewId == requested
-            && _cache.TryOpen(item.OwnerId, requested, size) is { } content
-                ? new CachedPreview(previewId, content)
-                : throw new ItemNotFoundException($"The preview '{previewId}' of the item '{id}' does not exist.");
     }
 
     private async Task<Item> FindPreviewableAsync(string ownerId, string id, CancellationToken cancellationToken)

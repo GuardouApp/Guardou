@@ -12,6 +12,8 @@
   "registerSubtitle": "Ainda não existe nenhuma conta. A primeira conta será a de administrador.",
   "registerEmail": "E-mail",
   "registerEmailInvalid": "Informe um endereço de e-mail válido.",
+  "displayName": "Nome de exibição",
+  "displayNameInvalid": "Use de 1 a {count} caracteres.",
   "registerConfirmPassword": "Confirme a senha",
   "registerSubmit": "Criar conta",
   "registerUsernameInvalid": "Use apenas letras e números.",
