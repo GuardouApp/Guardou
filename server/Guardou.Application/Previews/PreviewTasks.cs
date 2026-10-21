@@ -39,7 +39,7 @@ public sealed class PreviewTasks : ITaskProducer
 
     internal Task EnqueueAsync(IEnumerable<Item> items, TaskPriority priority, CancellationToken cancellationToken)
     {
-        return EnqueueAsync(items.Where(NeedsPreview).ToList(), priority, cancellationToken);
+        return EnqueueAsync(items.Where(CanPreview).ToList(), priority, cancellationToken);
     }
 
     private async Task EnqueueFilesAsync(CancellationToken cancellationToken)
@@ -70,10 +70,5 @@ public sealed class PreviewTasks : ITaskProducer
     private bool CanPreview(Item item)
     {
         return !item.IsFolder && _renderer.Supports(item.Name);
-    }
-
-    private bool NeedsPreview(Item item)
-    {
-        return CanPreview(item) && item.PreviewId is null;
     }
 }

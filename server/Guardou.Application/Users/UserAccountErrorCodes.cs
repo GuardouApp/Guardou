@@ -7,4 +7,5 @@ public static class UserAccountErrorCodes
     public const string PasswordRequired = nameof(PasswordRequired);
     public const string LastAdministrator = nameof(LastAdministrator);
     public const string SelfDeletion = nameof(SelfDeletion);
+    public const string InvalidDisplayName = nameof(InvalidDisplayName);
 }

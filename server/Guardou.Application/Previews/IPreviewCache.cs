@@ -4,11 +4,13 @@ namespace Guardou.Application.Previews;
 
 public interface IPreviewCache
 {
-    Stream? TryOpen(string ownerId, Guid previewId, PreviewSize size);
+    bool Contains(string ownerId, Guid itemId);
 
-    Task WriteAsync(string ownerId, Guid previewId, PreviewSize size, byte[] content, CancellationToken cancellationToken);
+    Stream? TryOpen(string ownerId, Guid itemId, PreviewSize size);
 
-    void Delete(string ownerId, Guid previewId);
+    Task WriteAsync(string ownerId, Guid itemId, PreviewSize size, byte[] content, CancellationToken cancellationToken);
+
+    void Delete(string ownerId, Guid itemId);
 
     void DeleteOwner(string ownerId);
 }

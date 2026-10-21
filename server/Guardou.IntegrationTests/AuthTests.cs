@@ -57,7 +57,13 @@ public sealed class AuthTests(TestServerFactory factory) : IClassFixture<TestSer
         CurrentUser? me = await client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, login.StatusCode);
-        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, TestServerFactory.AdminUsername, TestServerFactory.AdminEmail, IsAdmin: true, PictureUrl: null), me);
+        Assert.Equal(new CurrentUser(
+            me?.Id ?? string.Empty,
+            TestServerFactory.AdminUsername,
+            TestServerFactory.AdminDisplayName,
+            TestServerFactory.AdminEmail,
+            IsAdmin: true,
+            HasPicture: false), me);
         Assert.NotEmpty(me?.Id ?? string.Empty);
     }
 

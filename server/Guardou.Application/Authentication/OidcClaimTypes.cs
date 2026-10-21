@@ -6,4 +6,5 @@ public static class OidcClaimTypes
     public const string Email = "email";
     public const string EmailVerified = "email_verified";
     public const string Picture = "picture";
+    public const string DisplayName = "display_name";
 }

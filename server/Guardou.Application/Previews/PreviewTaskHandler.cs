@@ -11,24 +11,16 @@ internal sealed class PreviewTaskHandler(IItemStore items, IPreviewRenderer rend
 
     public async Task ExecuteAsync(QueuedTask task, CancellationToken cancellationToken)
     {
-        if (await items.FindAnyAsync(task.ItemId, cancellationToken) is not { StorageKey: { } key } item)
+        if (await items.FindAnyAsync(task.ItemId, cancellationToken) is not { StorageKey: { } key } item
+            || cache.Contains(item.OwnerId, item.Id))
         {
             return;
         }
 
         IReadOnlyDictionary<PreviewSize, byte[]> previews = await renderer.RenderAsync(key, item.Name, cancellationToken);
-        Guid previewId = Guid.CreateVersion7();
         foreach ((PreviewSize size, byte[] preview) in previews)
         {
-            await cache.WriteAsync(item.OwnerId, previewId, size, preview, cancellationToken);
-        }
-
-        Guid? replaced = item.PreviewId;
-        item.SetPreview(previewId);
-        await items.SaveAsync(cancellationToken);
-        if (replaced is { } oldPreviewId)
-        {
-            cache.Delete(item.OwnerId, oldPreviewId);
+            await cache.WriteAsync(item.OwnerId, item.Id, size, preview, cancellationToken);
         }
     }
 }

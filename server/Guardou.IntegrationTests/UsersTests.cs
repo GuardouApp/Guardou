@@ -40,7 +40,7 @@ public sealed class UsersTests : SignedInTests
     [Fact]
     public async Task CreateAddsAUserWithARootFolder()
     {
-        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest("carol", "carol@example.com", NewPassword, IsAdmin: true));
+        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest("carol", "Carol", "carol@example.com", NewPassword, IsAdmin: true));
         UserAccount carol = await UsersApi.ReadAccountAsync(response);
         HttpClient client = Factory.CreateClient();
         await client.LoginAsync("carol", NewPassword);
@@ -49,14 +49,14 @@ public sealed class UsersTests : SignedInTests
         HttpResponseMessage root = await client.GetAsync("/api/items/root", CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Equal(new CurrentUser(carol.Id, "carol", "carol@example.com", IsAdmin: true, PictureUrl: null), me);
+        Assert.Equal(new CurrentUser(carol.Id, "carol", "Carol", "carol@example.com", IsAdmin: true, HasPicture: false), me);
         Assert.Equal(HttpStatusCode.OK, root.StatusCode);
     }
 
     [Fact]
     public async Task CreateRequiresAPassword()
     {
-        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest("carol", "carol@example.com", Password: null, IsAdmin: false));
+        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest("carol", "Carol", "carol@example.com", Password: null, IsAdmin: false));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal([UserAccountErrorCodes.PasswordRequired], await UsersApi.ReadErrorCodesAsync(response));
@@ -65,7 +65,7 @@ public sealed class UsersTests : SignedInTests
     [Fact]
     public async Task CreateRefusesATakenUsername()
     {
-        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest(BobUsername, "other@example.com", NewPassword, IsAdmin: false));
+        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest(BobUsername, BobDisplayName, "other@example.com", NewPassword, IsAdmin: false));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(["DuplicateUserName"], await UsersApi.ReadErrorCodesAsync(response));
@@ -81,13 +81,13 @@ public sealed class UsersTests : SignedInTests
         IReadOnlyList<string> blobs = BlobFiles();
 
         UserAccount updated = await UsersApi.ReadAccountAsync(
-            await Client.UpdateUserAsync(account.Id, new UserRequest("robert", "robert@example.com", NewPassword, IsAdmin: true)));
+            await Client.UpdateUserAsync(account.Id, new UserRequest("robert", "Robert", "robert@example.com", NewPassword, IsAdmin: true)));
         HttpResponseMessage oldSession = await bob.GetAsync("/api/auth/me", CancellationToken);
         HttpClient robert = Factory.CreateClient();
         await robert.LoginAsync("robert", NewPassword);
         ItemDetails details = await robert.GetItemAsync(file.Id);
 
-        Assert.Equal(new UserAccount(account.Id, "robert", "robert@example.com", IsAdmin: true, updated.ExternalLogins), updated);
+        Assert.Equal(new UserAccount(account.Id, "robert", "Robert", "robert@example.com", IsAdmin: true, HasPicture: false, updated.ExternalLogins), updated);
         Assert.Empty(updated.ExternalLogins);
         Assert.Equal(HttpStatusCode.Unauthorized, oldSession.StatusCode);
         Assert.Equal("notes.txt", details.Entry.Name);
@@ -99,7 +99,7 @@ public sealed class UsersTests : SignedInTests
     {
         UserAccount account = await Client.FindUserAsync(BobUsername);
 
-        await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, "bobby@example.com", Password: null, IsAdmin: false));
+        await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, BobDisplayName, "bobby@example.com", Password: null, IsAdmin: false));
         HttpClient bob = await SignInAsBobAsync();
         CurrentUser? me = await bob.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
 
@@ -107,11 +107,42 @@ public sealed class UsersTests : SignedInTests
     }
 
     [Fact]
+    public async Task UpdateTrimsTheDisplayName()
+    {
+        UserAccount account = await Client.FindUserAsync(BobUsername);
+
+        UserAccount updated = await UsersApi.ReadAccountAsync(
+            await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, "  Robert Jones ", account.Email, Password: null, IsAdmin: false)));
+
+        Assert.Equal("Robert Jones", updated.DisplayName);
+    }
+
+    [Fact]
+    public async Task CreateRefusesAnEmptyDisplayName()
+    {
+        HttpResponseMessage response = await Client.CreateUserAsync(new UserRequest("carol", "   ", "carol@example.com", NewPassword, IsAdmin: false));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PictureIsMissingForAUserWithoutAPicture()
+    {
+        UserAccount account = await Client.FindUserAsync(BobUsername);
+        HttpClient bob = await SignInAsBobAsync();
+
+        HttpResponseMessage response = await bob.GetAsync($"/api/users/{account.Id}/picture", CancellationToken);
+
+        Assert.False(account.HasPicture);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
     public async Task UpdateRefusesAPasswordThatBreaksThePolicy()
     {
         UserAccount account = await Client.FindUserAsync(BobUsername);
 
-        HttpResponseMessage response = await Client.UpdateUserAsync(account.Id, new UserRequest("robert", account.Email, "short", IsAdmin: false));
+        HttpResponseMessage response = await Client.UpdateUserAsync(account.Id, new UserRequest("robert", "Robert", account.Email, "short", IsAdmin: false));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("PasswordTooShort", await UsersApi.ReadErrorCodesAsync(response));
@@ -125,7 +156,7 @@ public sealed class UsersTests : SignedInTests
 
         HttpResponseMessage response = await Client.UpdateUserAsync(
             account.Id,
-            new UserRequest(BobUsername, TestServerFactory.AdminEmail, Password: null, IsAdmin: false));
+            new UserRequest(BobUsername, BobDisplayName, TestServerFactory.AdminEmail, Password: null, IsAdmin: false));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(["DuplicateEmail"], await UsersApi.ReadErrorCodesAsync(response));
@@ -138,7 +169,7 @@ public sealed class UsersTests : SignedInTests
 
         HttpResponseMessage response = await Client.UpdateUserAsync(
             admin.Id,
-            new UserRequest(admin.Username, admin.Email, Password: null, IsAdmin: false));
+            new UserRequest(admin.Username, admin.DisplayName, admin.Email, Password: null, IsAdmin: false));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal([UserAccountErrorCodes.LastAdministrator], await UsersApi.ReadErrorCodesAsync(response));
@@ -151,22 +182,22 @@ public sealed class UsersTests : SignedInTests
 
         HttpResponseMessage response = await Client.UpdateUserAsync(
             admin.Id,
-            new UserRequest("root", "root@example.com", Password: null, IsAdmin: true));
+            new UserRequest("root", "Root", "root@example.com", Password: null, IsAdmin: true));
         CurrentUser? me = await Client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(new CurrentUser(admin.Id, "root", "root@example.com", IsAdmin: true, PictureUrl: null), me);
+        Assert.Equal(new CurrentUser(admin.Id, "root", "Root", "root@example.com", IsAdmin: true, HasPicture: false), me);
     }
 
     [Fact]
     public async Task DemotionRemovesTheAdminAccessImmediately()
     {
         UserAccount account = await Client.FindUserAsync(BobUsername);
-        await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, account.Email, Password: null, IsAdmin: true));
+        await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, BobDisplayName, account.Email, Password: null, IsAdmin: true));
         HttpClient bob = await SignInAsBobAsync();
         HttpResponseMessage asAdmin = await bob.GetAsync("/api/users", CancellationToken);
 
-        await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, account.Email, Password: null, IsAdmin: false));
+        await Client.UpdateUserAsync(account.Id, new UserRequest(BobUsername, BobDisplayName, account.Email, Password: null, IsAdmin: false));
         HttpResponseMessage afterDemotion = await bob.GetAsync("/api/users", CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, asAdmin.StatusCode);
@@ -182,6 +213,9 @@ public sealed class UsersTests : SignedInTests
         await bob.UploadEntryAsync(ItemsApi.Root, "notes.txt", "hello");
         await Client.UploadEntryAsync(ItemsApi.Root, "admin.txt", "admin");
         UserAccount account = await Client.FindUserAsync(BobUsername);
+        string pictures = Directory.CreateDirectory(Path.Combine(Factory.ProfileDirectory, account.Id)).FullName;
+        await File.WriteAllBytesAsync(Path.Combine(pictures, "picture.webp"), [1, 2, 3], CancellationToken);
+        HttpResponseMessage picture = await Client.GetAsync($"/api/users/{account.Id}/picture", CancellationToken);
 
         HttpResponseMessage response = await Client.DeleteUserAsync(account.Id);
         HttpResponseMessage login = await Factory.CreateClient().LoginAsync(BobUsername, BobPassword);
@@ -191,6 +225,8 @@ public sealed class UsersTests : SignedInTests
         Assert.Equal(HttpStatusCode.Unauthorized, login.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, get.StatusCode);
         Assert.Single(BlobFiles());
+        Assert.Equal("image/webp", picture.Content.Headers.ContentType?.MediaType);
+        Assert.False(Directory.Exists(pictures));
     }
 
     [Fact]

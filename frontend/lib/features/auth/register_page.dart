@@ -18,6 +18,7 @@ class RegisterPage extends ConsumerStatefulWidget {
 class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _username = TextEditingController();
+  final _displayName = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirmation = TextEditingController();
@@ -25,6 +26,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   void dispose() {
     _username.dispose();
+    _displayName.dispose();
     _email.dispose();
     _password.dispose();
     _confirmation.dispose();
@@ -37,7 +39,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     }
     await ref
         .read(authFormControllerProvider.notifier)
-        .register(username: _username.text, email: _email.text.trim(), password: _password.text);
+        .register(
+          username: _username.text,
+          displayName: _displayName.text.trim(),
+          email: _email.text.trim(),
+          password: _password.text,
+        );
   }
 
   String? _validateConfirmation(String? value) =>
@@ -65,6 +72,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           autofillHints: const [AutofillHints.newUsername],
           textInputAction: TextInputAction.next,
           validator: (value) => validateUsername(l10n, value),
+        ),
+        SizedBox(height: spacing),
+        TextFormField(
+          controller: _displayName,
+          decoration: InputDecoration(labelText: l10n.displayName),
+          autofillHints: const [AutofillHints.name],
+          textInputAction: TextInputAction.next,
+          validator: (value) => validateDisplayName(l10n, value),
         ),
         SizedBox(height: spacing),
         TextFormField(

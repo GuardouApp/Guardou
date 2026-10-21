@@ -31,6 +31,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
 
   final _formKey = GlobalKey<FormState>();
   late final _username = TextEditingController(text: widget.account?.username);
+  late final _displayName = TextEditingController(text: widget.account?.displayName);
   late final _email = TextEditingController(text: widget.account?.email);
   final _password = TextEditingController();
   late var _isAdmin = widget.account?.isAdmin ?? false;
@@ -43,6 +44,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
   @override
   void dispose() {
     _username.dispose();
+    _displayName.dispose();
     _email.dispose();
     _password.dispose();
     super.dispose();
@@ -54,6 +56,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
     }
     final request = UserRequest(
       username: _username.text,
+      displayName: _displayName.text.trim(),
       email: _email.text.trim(),
       password: _password.text.isEmpty ? null : _password.text,
       isAdmin: _isAdmin,
@@ -102,6 +105,13 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
                 decoration: InputDecoration(labelText: l10n.loginUsername),
                 textInputAction: TextInputAction.next,
                 validator: (value) => validateUsername(l10n, value),
+              ),
+              SizedBox(height: spacing),
+              TextFormField(
+                controller: _displayName,
+                decoration: InputDecoration(labelText: l10n.displayName),
+                textInputAction: TextInputAction.next,
+                validator: (value) => validateDisplayName(l10n, value),
               ),
               SizedBox(height: spacing),
               TextFormField(

@@ -64,7 +64,7 @@ internal sealed class OidcOptionsSetup(OidcSettingsSnapshot snapshot) : IConfigu
             options.Scope.Add(scope);
         }
 
-        foreach (string claim in new[] { settings.UserClaim, OidcClaimTypes.EmailVerified, OidcClaimTypes.Picture })
+        foreach (string claim in new[] { settings.UserClaim, OidcClaimTypes.DisplayName, OidcClaimTypes.EmailVerified, OidcClaimTypes.Picture })
         {
             options.ClaimActions.MapUniqueJsonKey(claim, claim);
         }

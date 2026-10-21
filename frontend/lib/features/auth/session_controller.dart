@@ -17,9 +17,14 @@ class SessionController extends AsyncNotifier<CurrentUser?> {
     state = AsyncData(user);
   }
 
-  Future<void> register({required String username, required String email, required String password}) async {
+  Future<void> register({
+    required String username,
+    required String displayName,
+    required String email,
+    required String password,
+  }) async {
     state = AsyncData(
-      await ref.read(authServiceProvider).register(username: username, email: email, password: password),
+      await ref.read(authServiceProvider).register(username: username, displayName: displayName, email: email, password: password),
     );
   }
 

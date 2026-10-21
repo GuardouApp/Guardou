@@ -6,6 +6,7 @@ namespace Guardou.IntegrationTests;
 public abstract class SignedInTests : IAsyncLifetime
 {
     protected const string BobUsername = "bob";
+    protected const string BobDisplayName = "Bob Jones";
     protected const string BobPassword = "Second-user-pass1";
 
     internal TestServerFactory Factory { get; } = new();
@@ -19,7 +20,7 @@ public abstract class SignedInTests : IAsyncLifetime
         await Factory.EnsureAdministratorAsync();
         await using AsyncServiceScope scope = Factory.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<UserAdministration>()
-            .SetAsync(BobUsername, "bob@example.com", BobPassword, administrator: false);
+            .SetAsync(BobUsername, BobDisplayName, "bob@example.com", BobPassword, administrator: false);
         Client = await SignInAsync(TestServerFactory.AdminUsername, TestServerFactory.AdminPassword);
     }
 

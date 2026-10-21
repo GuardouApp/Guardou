@@ -1369,9 +1369,6 @@
           "202": {
             "description": "Accepted"
           },
-          "304": {
-            "description": "Not Modified"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -1420,12 +1417,12 @@
         }
       }
     },
-    "/api/items/{id}/previews/{previewId}": {
+    "/api/users/{id}/picture": {
       "get": {
         "tags": [
-          "Previews"
+          "ProfilePictures"
         ],
-        "operationId": "GetItemPreviewById",
+        "operationId": "GetUserPicture",
         "parameters": [
           {
             "name": "id",
@@ -1433,21 +1430,6 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "previewId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/PreviewSize"
             }
           }
         ],
@@ -1457,21 +1439,6 @@
           },
           "304": {
             "description": "Not Modified"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
           },
           "401": {
             "description": "Unauthorized",
@@ -3403,9 +3370,10 @@
         "required": [
           "id",
           "username",
+          "displayName",
           "email",
           "isAdmin",
-          "pictureUrl"
+          "hasPicture"
         ],
         "type": "object",
         "properties": {
@@ -3415,15 +3383,17 @@
           "username": {
             "type": "string"
           },
+          "displayName": {
+            "type": "string"
+          },
           "email": {
             "type": "string"
           },
           "isAdmin": {
             "type": "boolean"
           },
-          "pictureUrl": {
-            "type": "string",
-            "nullable": true
+          "hasPicture": {
+            "type": "boolean"
           }
         }
       },
@@ -3469,7 +3439,6 @@
           "modified",
           "created",
           "hasPreview",
-          "previewId",
           "permissions"
         ],
         "type": "object",
@@ -3505,10 +3474,6 @@
           },
           "hasPreview": {
             "type": "boolean"
-          },
-          "previewId": {
-            "type": "string",
-            "nullable": true
           },
           "permissions": {
             "$ref": "#/components/schemas/ItemPermissions"
@@ -3753,12 +3718,16 @@
       "RegisterRequest": {
         "required": [
           "username",
+          "displayName",
           "email",
           "password"
         ],
         "type": "object",
         "properties": {
           "username": {
+            "type": "string"
+          },
+          "displayName": {
             "type": "string"
           },
           "email": {
@@ -3977,8 +3946,10 @@
         "required": [
           "id",
           "username",
+          "displayName",
           "email",
           "isAdmin",
+          "hasPicture",
           "externalLogins"
         ],
         "type": "object",
@@ -3989,10 +3960,16 @@
           "username": {
             "type": "string"
           },
+          "displayName": {
+            "type": "string"
+          },
           "email": {
             "type": "string"
           },
           "isAdmin": {
+            "type": "boolean"
+          },
+          "hasPicture": {
             "type": "boolean"
           },
           "externalLogins": {
@@ -4006,6 +3983,7 @@
       "UserRequest": {
         "required": [
           "username",
+          "displayName",
           "email",
           "password",
           "isAdmin"
@@ -4013,6 +3991,9 @@
         "type": "object",
         "properties": {
           "username": {
+            "type": "string"
+          },
+          "displayName": {
             "type": "string"
           },
           "email": {
@@ -4079,6 +4060,9 @@
     },
     {
       "name": "Previews"
+    },
+    {
+      "name": "ProfilePictures"
     },
     {
       "name": "Settings"

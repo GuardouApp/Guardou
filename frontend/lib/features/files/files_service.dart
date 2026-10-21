@@ -76,10 +76,9 @@ class FilesService {
     return ItemEntry.fromJson(response.data ?? const {});
   }
 
-  Future<Uint8List?> preview(String id, PreviewSize size, String? previewId, CancelToken cancelToken) async {
-    final item = Uri.encodeComponent(id);
+  Future<Uint8List?> preview(String id, PreviewSize size, CancelToken cancelToken) async {
     final response = await _dio.get<List<int>>(
-      previewId == null ? '/api/items/$item/preview' : '/api/items/$item/previews/${Uri.encodeComponent(previewId)}',
+      '/api/items/${Uri.encodeComponent(id)}/preview',
       queryParameters: {'size': size.json},
       options: Options(responseType: ResponseType.bytes),
       cancelToken: cancelToken,

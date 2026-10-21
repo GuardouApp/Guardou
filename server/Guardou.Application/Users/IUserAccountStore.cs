@@ -22,8 +22,6 @@ public interface IUserAccountStore
 
     Task RemoveLoginAsync(string id, string provider);
 
-    Task SetPictureAsync(string id, string? pictureUrl);
-
     Task<UserAccountResult> UpdateAsync(string id, UserProfile profile, string? password);
 
     Task DeleteAsync(string id);

@@ -20,7 +20,7 @@ public sealed class RegistrationTests
     [Fact]
     public async Task TheFirstUserBecomesAnAdministrator()
     {
-        RegistrationResult result = await CreateRegistration().RegisterFirstAdministratorAsync("alice", "alice@example.com", "password");
+        RegistrationResult result = await CreateRegistration().RegisterFirstAdministratorAsync("alice", "Alice", "alice@example.com", "password");
 
         Assert.Equal(RegistrationStatus.Registered, result.Status);
         Assert.True(_store.ByUsername("alice").IsAdmin);
@@ -30,9 +30,9 @@ public sealed class RegistrationTests
     public async Task ClosesAfterTheFirstUser()
     {
         Registration registration = CreateRegistration();
-        await registration.RegisterFirstAdministratorAsync("alice", "alice@example.com", "password");
+        await registration.RegisterFirstAdministratorAsync("alice", "Alice", "alice@example.com", "password");
 
-        RegistrationResult result = await registration.RegisterFirstAdministratorAsync("bob", "bob@example.com", "password");
+        RegistrationResult result = await registration.RegisterFirstAdministratorAsync("bob", "Bob", "bob@example.com", "password");
 
         Assert.False(await registration.IsOpenAsync());
         Assert.Equal(RegistrationStatus.Closed, result.Status);

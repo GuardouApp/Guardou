@@ -9,6 +9,14 @@ String? validateUsername(AppLocalizations l10n, String? value) {
   return isValidUsername(value) ? null : l10n.registerUsernameInvalid;
 }
 
+String? validateDisplayName(AppLocalizations l10n, String? value) {
+  final displayName = value?.trim() ?? '';
+  if (displayName.isEmpty) {
+    return l10n.loginValueRequired;
+  }
+  return displayName.length <= maximumDisplayNameLength ? null : l10n.displayNameInvalid(maximumDisplayNameLength);
+}
+
 String? validateEmail(AppLocalizations l10n, String? value) {
   final email = value?.trim() ?? '';
   if (email.isEmpty) {

@@ -1,3 +1,3 @@
 namespace Guardou.Application.Users;
 
-public sealed record UserProfile(string Username, string Email, bool IsAdmin);
+public sealed record UserProfile(string Username, string DisplayName, string Email, bool IsAdmin);

@@ -9,7 +9,7 @@ public sealed class Registration(IUserAccountStore store, UserAdministration adm
         return !await store.AnyUserAsync();
     }
 
-    public async Task<RegistrationResult> RegisterFirstAdministratorAsync(string username, string email, string password)
+    public async Task<RegistrationResult> RegisterFirstAdministratorAsync(string username, string displayName, string email, string password)
     {
         await Gate.WaitAsync();
         try
@@ -19,7 +19,7 @@ public sealed class Registration(IUserAccountStore store, UserAdministration adm
                 return RegistrationResult.Closed;
             }
 
-            UserAccountResult result = await administration.SetAsync(username, email, password, administrator: true);
+            UserAccountResult result = await administration.SetAsync(username, displayName, email, password, administrator: true);
             return result.Succeeded
                 ? RegistrationResult.Registered
                 : RegistrationResult.Rejected(result.Errors.Select(error => error.Description).ToList());

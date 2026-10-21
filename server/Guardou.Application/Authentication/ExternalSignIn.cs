@@ -1,12 +1,14 @@
 using Guardou.Application.Settings;
 using Guardou.Application.Users;
 using Guardou.Domain.Authentication;
+using Guardou.Domain.Users;
 
 namespace Guardou.Application.Authentication;
 
 public sealed class ExternalSignIn(
     ISettingsStore settings,
     IUserAccountStore store,
+    IProfilePictureStore pictures,
     ISessionService sessions)
 {
     public async Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
@@ -30,13 +32,12 @@ public sealed class ExternalSignIn(
             return ExternalSignInStatus.NoAccount;
         }
 
-        account ??= await CreateAsync(identity);
+        account ??= await CreateAsync(identity, cancellationToken);
         if (account is null)
         {
             return ExternalSignInStatus.Rejected;
         }
 
-        await store.SetPictureAsync(account.Id, identity.PictureUrl);
         await sessions.SignInExternalAsync(account.Id, login);
         return ExternalSignInStatus.SignedIn;
     }
@@ -60,7 +61,7 @@ public sealed class ExternalSignIn(
         return result.Succeeded ? account : null;
     }
 
-    private async Task<UserAccount?> CreateAsync(ExternalIdentity identity)
+    private async Task<UserAccount?> CreateAsync(ExternalIdentity identity, CancellationToken cancellationToken)
     {
         if (identity.Email is null)
         {
@@ -68,9 +69,19 @@ public sealed class ExternalSignIn(
         }
 
         string username = await AvailableUsernameAsync(identity.UsernameBase);
-        UserProfile profile = new(username, identity.Email, IsAdmin: false);
+        UserProfile profile = new(username, DisplayNameRule.Sanitize(identity.DisplayName, username), identity.Email, IsAdmin: false);
         UserAccountResult result = await store.CreateExternalAsync(profile, OidcSettings.Provider, identity.Key);
-        return result.Succeeded ? await store.FindByUsernameAsync(username) : null;
+        if (!result.Succeeded || await store.FindByUsernameAsync(username) is not { } account)
+        {
+            return null;
+        }
+
+        if (identity.PictureUrl is { } picture)
+        {
+            await pictures.ImportAsync(account.Id, picture, cancellationToken);
+        }
+
+        return await store.FindAsync(account.Id);
     }
 
     private async Task<string> AvailableUsernameAsync(string username)

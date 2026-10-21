@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Guardou.Api.Models;
 using Guardou.Application.Authentication;
 using Guardou.Domain.Authentication;
+using Guardou.Infrastructure.Profiles;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -19,9 +20,13 @@ public sealed class OidcFlowTests : IAsyncLifetime
     {
         _factory = new TestServerFactory
         {
-            TestServices = services => services.Configure<OpenIdConnectOptions>(
-                OidcSettings.Provider,
-                options => options.BackchannelHttpHandler = _provider),
+            TestServices = services =>
+            {
+                services.Configure<OpenIdConnectOptions>(OidcSettings.Provider, options => options.BackchannelHttpHandler = _provider);
+                services.AddHttpClient<ProfilePictureDownloader>()
+                    .ConfigurePrimaryHttpMessageHandler(() => _provider)
+                    .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+            },
         };
     }
 
@@ -57,15 +62,18 @@ public sealed class OidcFlowTests : IAsyncLifetime
         _provider.Claims["preferred_username"] = "carol.doe";
         _provider.Claims["email"] = "carol@example.com";
         _provider.Claims["email_verified"] = true;
-        _provider.Claims["picture"] = "https://id.example.com/carol.png";
+        _provider.Claims["display_name"] = "Carol Doe";
+        _provider.Claims["picture"] = FakeIdentityProvider.PictureUrl;
         using HttpClient client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
         Uri completion = await AuthorizeAsync(client, "/files");
         HttpResponseMessage completed = await client.GetAsync(completion, CancellationToken);
         CurrentUser? me = await client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
+        HttpResponseMessage picture = await client.GetAsync($"/api/users/{me?.Id}/picture", CancellationToken);
 
         Assert.Equal("/files", completed.Headers.Location?.OriginalString);
-        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, "caroldoe", "carol@example.com", IsAdmin: false, "https://id.example.com/carol.png"), me);
+        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, "caroldoe", "Carol Doe", "carol@example.com", IsAdmin: false, HasPicture: true), me);
+        Assert.Equal("image/webp", picture.Content.Headers.ContentType?.MediaType);
 
         await client.RefreshAntiforgeryTokenAsync();
         HttpResponseMessage logout = await client.PostAsync("/api/auth/logout", content: null, CancellationToken);

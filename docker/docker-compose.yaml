@@ -8,8 +8,6 @@ services:
       - "8080:8080"
     volumes:
       - data:/data
-      - db:/db
-      - cache:/cache
     # environment:
     #   PUID: 1000
     #   PGID: 1000
@@ -18,5 +16,3 @@ services:
 
 volumes:
   data:
-  db:
-  cache:

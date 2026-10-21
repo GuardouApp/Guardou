@@ -18,7 +18,7 @@ void main() {
   final second = testEntry('b-manual.pdf', mimeType: 'application/pdf');
   final third = testEntry('c-song.mp3', mimeType: 'audio/mpeg');
   final fourth = testEntry('d-data.bin', mimeType: 'application/octet-stream');
-  final photo = testEntry('photo.heic', mimeType: 'image/heic', hasPreview: true, previewId: 'v1');
+  final photo = testEntry('photo.heic', mimeType: 'image/heic', hasPreview: true);
   final entries = [first, second, third, fourth, photo];
   final pixel = base64Decode(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
@@ -47,7 +47,7 @@ void main() {
     when(
       () => files.downloadUri(any()),
     ).thenAnswer((invocation) => Uri.parse('/get/${invocation.positionalArguments.single}'));
-    when(() => files.preview(any(), any(), any(), any())).thenAnswer((_) async => pixel);
+    when(() => files.preview(any(), any(), any())).thenAnswer((_) async => pixel);
     browser = stubBrowser();
     embeds = FakeBrowserEmbeds();
   });
@@ -84,7 +84,7 @@ void main() {
     await pumpViewer(tester, photo.id);
 
     expect(find.byType(InteractiveViewer), findsOneWidget);
-    verify(() => files.preview(photo.id, PreviewSize.large, 'v1', any())).called(1);
+    verify(() => files.preview(photo.id, PreviewSize.large, any())).called(1);
     verifyNever(() => files.original(any(), any()));
   });
 

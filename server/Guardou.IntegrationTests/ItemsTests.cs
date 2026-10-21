@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Guardou.Api.Models;
 using Guardou.Application.Files;
 using Guardou.Domain.Files;
+using Guardou.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,7 +40,7 @@ public sealed class ItemsTests : SignedInTests
     public async Task CreatesTheRootFolderWithTheUser()
     {
         await using AsyncServiceScope scope = Factory.Services.CreateAsyncScope();
-        IdentityUser? bob = await scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>().FindByNameAsync(BobUsername);
+        ApplicationUser? bob = await scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>().FindByNameAsync(BobUsername);
         Item? root = await scope.ServiceProvider.GetRequiredService<IItemStore>().FindRootAsync(bob?.Id ?? string.Empty, CancellationToken);
 
         Assert.NotNull(root);

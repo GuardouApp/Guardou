@@ -15,8 +15,7 @@ internal sealed class VipsPreviewRenderer(IEnumerable<IImageSource> sources, Loc
 
     static VipsPreviewRenderer()
     {
-        NetVips.NetVips.BlockUntrusted = true;
-        Cache.Max = 0;
+        VipsDefaults.Apply();
     }
 
     public bool Supports(string fileName)

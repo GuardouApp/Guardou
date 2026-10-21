@@ -30,6 +30,7 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
+                    DisplayName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
@@ -37,7 +38,6 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
                     SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
@@ -59,6 +59,30 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DataProtectionKeys", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Settings",
+                columns: table => new
+                {
+                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Settings", x => x.Key);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskQueueSettings",
+                columns: table => new
+                {
+                    Kind = table.Column<string>(type: "TEXT", nullable: false),
+                    Concurrency = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskQueueSettings", x => x.Kind);
                 });
 
             migrationBuilder.CreateTable(
@@ -148,26 +172,6 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Items",
                 columns: table => new
                 {
@@ -194,6 +198,30 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_Items_Items_ParentId",
                         column: x => x.ParentId,
+                        principalTable: "Items",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tasks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Kind = table.Column<string>(type: "TEXT", nullable: false),
+                    ItemId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Priority = table.Column<int>(type: "INTEGER", nullable: false),
+                    State = table.Column<string>(type: "TEXT", nullable: false),
+                    Error = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: true),
+                    Created = table.Column<long>(type: "INTEGER", nullable: false),
+                    Updated = table.Column<long>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tasks_Items_ItemId",
+                        column: x => x.ItemId,
                         principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -260,6 +288,22 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                 columns: new[] { "ParentId", "Name" },
                 unique: true,
                 filter: "\"Trashed\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tasks_ItemId",
+                table: "Tasks",
+                column: "ItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tasks_Kind_ItemId",
+                table: "Tasks",
+                columns: new[] { "Kind", "ItemId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tasks_State_Priority_Created",
+                table: "Tasks",
+                columns: new[] { "State", "Priority", "Created" });
         }
 
         /// <inheritdoc />
@@ -278,16 +322,22 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                 name: "AspNetUserRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
                 name: "DataProtectionKeys");
 
             migrationBuilder.DropTable(
-                name: "Items");
+                name: "Settings");
+
+            migrationBuilder.DropTable(
+                name: "TaskQueueSettings");
+
+            migrationBuilder.DropTable(
+                name: "Tasks");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Items");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

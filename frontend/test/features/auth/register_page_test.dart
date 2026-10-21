@@ -26,10 +26,12 @@ void main() {
   Future<void> fill(
     WidgetTester tester, {
     String username = 'alice',
+    String displayName = 'Alice',
     String email = 'alice@example.com',
     String password = 'long-password',
   }) async {
     await tester.enterText(find.widgetWithText(TextFormField, 'Username'), username);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), displayName);
     await tester.enterText(find.widgetWithText(TextFormField, 'Email'), email);
     await tester.enterText(find.widgetWithText(TextFormField, 'Password'), password);
     await tester.enterText(find.widgetWithText(TextFormField, 'Confirm the password'), password);
@@ -67,6 +69,7 @@ void main() {
     verifyNever(
       () => auth.register(
         username: any(named: 'username'),
+        displayName: any(named: 'displayName'),
         email: any(named: 'email'),
         password: any(named: 'password'),
       ),
@@ -75,13 +78,13 @@ void main() {
 
   testWidgets('registers the first user', (tester) async {
     when(
-      () => auth.register(username: 'alice', email: 'alice@example.com', password: 'long-password'),
+      () => auth.register(username: 'alice', displayName: 'Alice', email: 'alice@example.com', password: 'long-password'),
     ).thenAnswer((_) async => testUser);
     await pumpRegister(tester);
 
     await fill(tester);
 
-    verify(() => auth.register(username: 'alice', email: 'alice@example.com', password: 'long-password')).called(1);
+    verify(() => auth.register(username: 'alice', displayName: 'Alice', email: 'alice@example.com', password: 'long-password')).called(1);
   });
 
   testWidgets('shows a message when an account already exists', (tester) async {
@@ -89,6 +92,7 @@ void main() {
     when(
       () => auth.register(
         username: any(named: 'username'),
+        displayName: any(named: 'displayName'),
         email: any(named: 'email'),
         password: any(named: 'password'),
       ),

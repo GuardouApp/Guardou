@@ -205,7 +205,7 @@ class _UserList extends ConsumerWidget {
       children: [
         for (final user in users)
           ListTile(
-            leading: UserAvatar(username: user.username, radius: 20),
+            leading: UserAvatar(userId: user.id, name: user.displayName, hasPicture: user.hasPicture, radius: 20),
             title: Text(user.username, overflow: TextOverflow.ellipsis),
             subtitle: Text(
               [
