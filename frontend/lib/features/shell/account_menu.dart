@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../app/router/routes.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/widgets/user_avatar.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -67,6 +69,12 @@ class AccountPanel extends ConsumerWidget {
     unawaited(ref.read(sessionControllerProvider.notifier).logout());
   }
 
+  void _openAdministration(BuildContext context) {
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    router.go(Routes.adminUsers);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(sessionControllerProvider).value;
@@ -115,6 +123,14 @@ class AccountPanel extends ConsumerWidget {
                       icon: const Icon(LucideIcons.settings, size: 18),
                       label: Text(l10n.accountSettings),
                     ),
+                    if (user.isAdmin) ...[
+                      SizedBox(height: spacing / 2),
+                      FilledButton.tonalIcon(
+                        onPressed: () => _openAdministration(context),
+                        icon: const Icon(LucideIcons.shieldCheck, size: 18),
+                        label: Text(l10n.administration),
+                      ),
+                    ],
                   ],
                 ),
               ),
