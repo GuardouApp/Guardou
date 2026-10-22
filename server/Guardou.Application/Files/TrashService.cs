@@ -1,3 +1,4 @@
+using Guardou.Application.Shares;
 using Guardou.Domain.Files;
 
 namespace Guardou.Application.Files;
@@ -8,6 +9,7 @@ public sealed class TrashService
     private readonly OwnedItems _items;
     private readonly ItemPlacement _placement;
     private readonly ItemRemover _remover;
+    private readonly ShareCleanup _shares;
     private readonly ItemEntryFactory _entries;
     private readonly TimeProvider _time;
 
@@ -16,6 +18,7 @@ public sealed class TrashService
         OwnedItems items,
         ItemPlacement placement,
         ItemRemover remover,
+        ShareCleanup shares,
         ItemEntryFactory entries,
         TimeProvider time)
     {
@@ -23,6 +26,7 @@ public sealed class TrashService
         _items = items;
         _placement = placement;
         _remover = remover;
+        _shares = shares;
         _entries = entries;
         _time = time;
     }
@@ -37,6 +41,7 @@ public sealed class TrashService
         }
 
         await _store.SaveAsync(cancellationToken);
+        await _shares.RemoveInactiveAsync(ownerId, cancellationToken);
     }
 
     public async Task<IReadOnlyList<TrashEntry>> ListAsync(string ownerId, CancellationToken cancellationToken)

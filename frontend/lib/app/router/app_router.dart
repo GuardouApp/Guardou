@@ -12,6 +12,7 @@ import '../../features/errors/loading_page.dart';
 import '../../features/files/file_route_page.dart';
 import '../../features/files/folder_page.dart';
 import '../../features/settings/settings_page.dart';
+import '../../features/shares/shared_file_page.dart';
 import '../../features/shell/adaptive_shell.dart';
 import '../../features/shell/section_page.dart';
 import '../../features/shell/shell_destination.dart';
@@ -65,6 +66,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, state) {
           final id = state.pathParameters[Routes.idParameter] ?? '';
           return ViewerPage(key: ValueKey(id), fileId: id);
+        },
+      ),
+      GoRoute(
+        path: '${Routes.sharedLink}/:${Routes.tokenParameter}',
+        builder: (_, state) {
+          final token = state.pathParameters[Routes.tokenParameter] ?? '';
+          return SharedFilePage(key: ValueKey(token), token: token);
         },
       ),
       ShellRoute(

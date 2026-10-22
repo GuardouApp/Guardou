@@ -8,11 +8,11 @@ import '../../api/generated/models/item_entry.dart';
 import '../../app/router/routes.dart';
 import '../../app/theme/app_theme.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../files/file_actions.dart';
+import '../files/files_service.dart';
 import '../files/folder_controller.dart';
 import '../files/folder_states.dart';
-import 'viewer_content.dart';
 import 'media_siblings.dart';
+import 'viewer_frame.dart';
 
 class ViewerPage extends ConsumerWidget {
   const ViewerPage({super.key, required this.fileId});
@@ -55,7 +55,6 @@ class _Viewer extends ConsumerWidget {
     final index = siblings.indexWhere((sibling) => sibling.id == entry.id);
     final previous = index > 0 ? siblings[index - 1] : null;
     final next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : null;
-    final actions = FileActions(context);
 
     void show(ItemEntry? target) {
       if (target != null) {
@@ -71,48 +70,30 @@ class _Viewer extends ConsumerWidget {
       },
       child: Focus(
         autofocus: true,
-        child: Scaffold(
-          appBar: AppBar(
-            leading: _CloseButton(location: Routes.fileItem(entry.id)),
-            title: Text(entry.name, overflow: TextOverflow.ellipsis),
-            actions: [
-              IconButton(
-                tooltip: l10n.actionOpenInNewTab,
-                onPressed: () => actions.openInNewTab(entry),
-                icon: const Icon(LucideIcons.externalLink),
-              ),
-              IconButton(
-                tooltip: l10n.actionDownload,
-                onPressed: () => actions.download([entry]),
-                icon: const Icon(LucideIcons.download),
-              ),
-            ],
-          ),
-          body: Stack(
-            children: [
-              Positioned.fill(
-                child: ViewerContent(key: ValueKey(entry.id), entry: entry),
-              ),
-              if (previous != null)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _StepButton(
-                    icon: LucideIcons.chevronLeft,
-                    tooltip: l10n.viewerPrevious,
-                    onPressed: () => show(previous),
-                  ),
+        child: ViewerFrame(
+          entry: entry,
+          source: ref.watch(filesServiceProvider),
+          leading: _CloseButton(location: Routes.fileItem(entry.id)),
+          overlays: [
+            if (previous != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _StepButton(
+                  icon: LucideIcons.chevronLeft,
+                  tooltip: l10n.viewerPrevious,
+                  onPressed: () => show(previous),
                 ),
-              if (next != null)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: _StepButton(
-                    icon: LucideIcons.chevronRight,
-                    tooltip: l10n.viewerNext,
-                    onPressed: () => show(next),
-                  ),
+              ),
+            if (next != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: _StepButton(
+                  icon: LucideIcons.chevronRight,
+                  tooltip: l10n.viewerNext,
+                  onPressed: () => show(next),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

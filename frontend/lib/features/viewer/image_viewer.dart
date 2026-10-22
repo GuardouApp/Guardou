@@ -3,27 +3,27 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/preview_size.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../files/files_service.dart';
+import '../files/file_source.dart';
 import '../files/preview_loader.dart';
 import 'unsupported_viewer.dart';
 
-class ImageViewer extends ConsumerStatefulWidget {
-  const ImageViewer({super.key, required this.entry});
+class ImageViewer extends StatefulWidget {
+  const ImageViewer({super.key, required this.entry, required this.source});
 
   static const _browserImageTypes = {'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/avif'};
 
   final ItemEntry entry;
+  final FileSource source;
 
   @override
-  ConsumerState<ImageViewer> createState() => _ImageViewerState();
+  State<ImageViewer> createState() => _ImageViewerState();
 }
 
-class _ImageViewerState extends ConsumerState<ImageViewer> {
+class _ImageViewerState extends State<ImageViewer> {
   static const _maximumScale = 8.0;
 
   final _cancel = CancelToken();
@@ -46,7 +46,7 @@ class _ImageViewerState extends ConsumerState<ImageViewer> {
   }
 
   Future<void> _load() async {
-    final files = ref.read(filesServiceProvider);
+    final files = widget.source;
     await Future.wait([
       if (_entry.hasPreview) _loadPreview(files),
       if (ImageViewer._browserImageTypes.contains(_entry.mimeType)) _loadOriginal(files),
@@ -56,14 +56,14 @@ class _ImageViewerState extends ConsumerState<ImageViewer> {
     }
   }
 
-  Future<void> _loadPreview(FilesService files) async {
+  Future<void> _loadPreview(FileSource files) async {
     final bytes = await PreviewLoader.load(files, _entry.id, PreviewSize.large, _cancel);
     if (bytes != null && mounted && _original == null) {
       setState(() => _preview = bytes);
     }
   }
 
-  Future<void> _loadOriginal(FilesService files) async {
+  Future<void> _loadOriginal(FileSource files) async {
     try {
       final bytes = await files.original(_entry.id, _cancel);
       if (mounted) {
@@ -81,7 +81,7 @@ class _ImageViewerState extends ConsumerState<ImageViewer> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final unsupported = UnsupportedViewer(entry: _entry);
+    final unsupported = UnsupportedViewer(entry: _entry, source: widget.source);
     if (_original == null && _preview == null) {
       return _loading ? Center(child: CircularProgressIndicator(semanticsLabel: l10n.loading)) : unsupported;
     }

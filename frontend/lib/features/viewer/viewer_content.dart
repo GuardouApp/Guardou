@@ -5,31 +5,32 @@ import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/browser/browser_embeds.dart';
 import '../files/file_presentation.dart';
-import '../files/files_service.dart';
+import '../files/file_source.dart';
 import 'image_viewer.dart';
 import 'unsupported_viewer.dart';
 import 'viewer_kind.dart';
 
 class ViewerContent extends ConsumerWidget {
-  const ViewerContent({super.key, required this.entry});
+  const ViewerContent({super.key, required this.entry, required this.source});
 
   static const _audioWidth = 480.0;
   static const _audioHeight = 56.0;
   static const _audioIconSize = 96.0;
 
   final ItemEntry entry;
+  final FileSource source;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final embeds = ref.watch(browserEmbedsProvider);
-    final source = ref.watch(filesServiceProvider).viewUri(entry.id);
+    final view = source.viewUri(entry.id);
 
     return switch (ViewerKind.of(entry)) {
-      ViewerKind.image => ImageViewer(entry: entry),
-      ViewerKind.video => embeds.video(source),
-      ViewerKind.audio => _audio(context, embeds.audio(source)),
-      ViewerKind.pdf => embeds.document(source),
-      ViewerKind.unsupported => UnsupportedViewer(entry: entry),
+      ViewerKind.image => ImageViewer(entry: entry, source: source),
+      ViewerKind.video => embeds.video(view),
+      ViewerKind.audio => _audio(context, embeds.audio(view)),
+      ViewerKind.pdf => embeds.document(view),
+      ViewerKind.unsupported => UnsupportedViewer(entry: entry, source: source),
     };
   }
 

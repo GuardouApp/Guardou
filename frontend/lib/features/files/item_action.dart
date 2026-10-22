@@ -2,11 +2,13 @@ import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
+import '../../api/generated/models/item_kind.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 enum ItemAction {
   open(LucideIcons.externalLink),
   download(LucideIcons.download),
+  share(LucideIcons.userPlus),
   rename(LucideIcons.pencil),
   move(LucideIcons.folderInput),
   copy(LucideIcons.copy),
@@ -20,6 +22,7 @@ enum ItemAction {
   String label(AppLocalizations l10n) => switch (this) {
     open => l10n.actionOpen,
     download => l10n.actionDownload,
+    share => l10n.actionShare,
     rename => l10n.actionRename,
     move => l10n.actionMove,
     copy => l10n.actionCopy,
@@ -32,6 +35,7 @@ enum ItemAction {
     open || details => entries.length == 1,
     download => true,
     rename => entries.length == 1 && entries.single.permissions.canModify,
+    share => entries.length == 1 && entries.single.kind == ItemKind.file && entries.single.permissions.canModify,
     move || copy || trash => entries.every((entry) => entry.permissions.canModify),
   };
 }

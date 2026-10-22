@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
+import '../../core/browser/browser_files.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../files/file_actions.dart';
 import '../files/file_presentation.dart';
+import '../files/file_source.dart';
 
-class UnsupportedViewer extends StatelessWidget {
-  const UnsupportedViewer({super.key, required this.entry});
+class UnsupportedViewer extends ConsumerWidget {
+  const UnsupportedViewer({super.key, required this.entry, required this.source});
 
   static const _iconSize = 64.0;
 
   final ItemEntry entry;
+  final FileSource source;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final spacing = AppTokens.of(context).spacing;
-    final actions = FileActions(context);
+    final browser = ref.watch(browserFilesProvider);
 
     return Center(
       child: SingleChildScrollView(
@@ -36,12 +39,12 @@ class UnsupportedViewer extends StatelessWidget {
               alignment: WrapAlignment.center,
               children: [
                 FilledButton.icon(
-                  onPressed: () => actions.download([entry]),
+                  onPressed: () => browser.download(source.downloadUri(entry.id)),
                   icon: const Icon(LucideIcons.download),
                   label: Text(l10n.actionDownload),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => actions.openInNewTab(entry),
+                  onPressed: () => browser.open(source.viewUri(entry.id)),
                   icon: const Icon(LucideIcons.externalLink),
                   label: Text(l10n.actionOpenInNewTab),
                 ),

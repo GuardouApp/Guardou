@@ -26,6 +26,7 @@ import 'package:guardou/features/configuration/configuration_service.dart';
 import 'package:guardou/features/files/files_service.dart';
 import 'package:guardou/features/profile/profile_picture_service.dart';
 import 'package:guardou/features/settings/settings_service.dart';
+import 'package:guardou/features/shares/shares_service.dart';
 import 'package:guardou/features/tasks/tasks_service.dart';
 import 'package:guardou/features/trash/trash_service.dart';
 import 'package:guardou/features/users/users_service.dart';
@@ -49,6 +50,8 @@ class MockUsersService extends Mock implements UsersService {}
 class MockTasksService extends Mock implements TasksService {}
 
 class MockSettingsService extends Mock implements SettingsService {}
+
+class MockSharesService extends Mock implements SharesService {}
 
 class MockProfilePictureService extends Mock implements ProfilePictureService {}
 
@@ -163,6 +166,7 @@ List<Override> serviceOverrides({
   UsersService? users,
   TasksService? tasks,
   SettingsService? settings,
+  SharesService? shares,
   ProfilePictureService? pictures,
   BrowserFiles? browser,
   BrowserEmbeds? embeds,
@@ -179,6 +183,7 @@ List<Override> serviceOverrides({
     usersServiceProvider.overrideWithValue(users ?? MockUsersService()),
     tasksServiceProvider.overrideWithValue(tasks ?? MockTasksService()),
     settingsServiceProvider.overrideWithValue(settings ?? MockSettingsService()),
+    sharesServiceProvider.overrideWithValue(shares ?? MockSharesService()),
     profilePictureServiceProvider.overrideWithValue(pictures ?? MockProfilePictureService()),
     browserFilesProvider.overrideWithValue(browser ?? stubBrowser()),
     browserEmbedsProvider.overrideWithValue(embeds ?? FakeBrowserEmbeds()),

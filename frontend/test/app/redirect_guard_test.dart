@@ -33,6 +33,11 @@ void main() {
       location: Uri.parse(location),
     );
 
+    test('opens shared links without a session', () {
+      expect(resolve('/s/token', session: signedOut), isNull);
+      expect(resolve('/s/token', session: const AsyncLoading()), isNull);
+    });
+
     test('shows the loading page and keeps the target', () {
       expect(resolve('/trash', session: const AsyncLoading()), '/loading?redirect=%2Ftrash');
       expect(resolve('/loading', session: const AsyncLoading()), isNull);

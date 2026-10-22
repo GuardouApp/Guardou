@@ -1,8 +1,9 @@
+using Guardou.Application.Shares;
 using Guardou.Domain.Files;
 
 namespace Guardou.Application.Files;
 
-internal sealed class ItemPlacement(IItemStore store, TimeProvider time)
+internal sealed class ItemPlacement(IItemStore store, ShareCleanup shares, TimeProvider time)
 {
     public async Task<string?> ResolveNameAsync(
         Item folder,
@@ -47,6 +48,7 @@ internal sealed class ItemPlacement(IItemStore store, TimeProvider time)
     {
         existing.Trash(time.GetUtcNow());
         await store.SaveAsync(cancellationToken);
+        await shares.RemoveInactiveAsync(existing.OwnerId, cancellationToken);
         return existing.Name;
     }
 }
