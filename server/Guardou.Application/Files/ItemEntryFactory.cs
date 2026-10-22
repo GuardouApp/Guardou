@@ -5,6 +5,8 @@ namespace Guardou.Application.Files;
 
 internal sealed class ItemEntryFactory(IMimeTypeMap mimeTypes, IPreviewRenderer previews)
 {
+    private static readonly ItemPermissions ReadOnly = new(CanModify: false, CanAddChildren: false);
+
     public ItemEntry Create(Item item)
     {
         return new ItemEntry(
@@ -18,6 +20,11 @@ internal sealed class ItemEntryFactory(IMimeTypeMap mimeTypes, IPreviewRenderer 
             item.Created,
             HasPreview(item),
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));
+    }
+
+    public ItemEntry CreateShared(Item item)
+    {
+        return Create(item) with { ParentId = null, Permissions = ReadOnly };
     }
 
     public IReadOnlyList<ItemEntry> Create(IEnumerable<Item> items)

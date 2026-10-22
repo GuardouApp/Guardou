@@ -4,6 +4,7 @@ using Guardou.Application.Configuration;
 using Guardou.Application.Files;
 using Guardou.Application.Previews;
 using Guardou.Application.Settings;
+using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ItemPlacement>();
         services.AddScoped<ItemTree>();
         services.AddScoped<ItemRemover>();
+        services.AddScoped<ShareCleanup>();
         AddScopedWithInternalConstructor<ItemBrowser>(services);
         AddScopedWithInternalConstructor<ItemOrganizer>(services);
         AddScopedWithInternalConstructor<FileUploader>(services);
@@ -40,6 +42,8 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<PreviewTasks>(services);
         services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<PreviewTasks>());
         AddScopedWithInternalConstructor<ItemPreviews>(services);
+        AddScopedWithInternalConstructor<ItemSharing>(services);
+        AddScopedWithInternalConstructor<SharedItems>(services);
         AddScopedWithInternalConstructor<TaskRunner>(services);
         AddScopedWithInternalConstructor<QueueSettings>(services);
         AddScopedWithInternalConstructor<TaskAdministration>(services);

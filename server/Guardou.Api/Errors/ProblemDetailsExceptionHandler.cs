@@ -1,5 +1,6 @@
 using Guardou.Application.Files;
 using Guardou.Application.Settings;
+using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Microsoft.AspNetCore.Diagnostics;
@@ -50,6 +51,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             InvalidItemRequestException => StatusCodes.Status400BadRequest,
             ItemNotFoundException => StatusCodes.Status404NotFound,
             ItemConflictException => StatusCodes.Status409Conflict,
+            ShareNotFoundException => StatusCodes.Status404NotFound,
             UserAccountRejectedException => StatusCodes.Status400BadRequest,
             UserNotFoundException => StatusCodes.Status404NotFound,
             InvalidProfilePictureException => StatusCodes.Status400BadRequest,
