@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,24 +7,20 @@ import '../../api/generated/models/item_details.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/item_selection.dart';
 import '../../api/generated/models/name_request.dart';
-import '../../api/generated/models/preview_size.dart';
 import '../../api/generated/models/storage_usage.dart';
 import '../../api/generated/models/transfer_request.dart';
 import '../../core/api/api_providers.dart';
 import '../../core/browser/browser_files.dart';
+import 'file_source.dart';
 
 final filesServiceProvider = Provider<FilesService>(
   (ref) => FilesService(ref.watch(apiClientProvider), ref.watch(dioProvider), Uri.parse(ref.watch(apiBaseUrlProvider))),
 );
 
-class FilesService {
-  const FilesService(this._api, this._dio, this._baseUri);
-
-  static const _previewPending = 202;
+class FilesService extends FileSource {
+  const FilesService(this._api, super.dio, super.baseUri);
 
   final ApiClient _api;
-  final Dio _dio;
-  final Uri _baseUri;
 
   Future<ItemDetails> item(String id) => _api.items.getItem(id: id);
 
@@ -68,7 +62,7 @@ class FilesService {
       'relativePath': ?file.relativePath,
       'modified': ?file.lastModified?.toUtc().toIso8601String(),
     });
-    final response = await _dio.post<Map<String, Object?>>(
+    final response = await dio.post<Map<String, Object?>>(
       '/api/items/${Uri.encodeComponent(folderId)}/files',
       data: form,
       onSendProgress: onProgress,
@@ -76,31 +70,8 @@ class FilesService {
     return ItemEntry.fromJson(response.data ?? const {});
   }
 
-  Future<Uint8List?> preview(String id, PreviewSize size, CancelToken cancelToken) async {
-    final response = await _dio.get<List<int>>(
-      '/api/items/${Uri.encodeComponent(id)}/preview',
-      queryParameters: {'size': size.json},
-      options: Options(responseType: ResponseType.bytes),
-      cancelToken: cancelToken,
-    );
-    final data = response.data;
-    return response.statusCode == _previewPending || data == null ? null : Uint8List.fromList(data);
-  }
+  Uri archiveUri(List<String> ids) => baseUri.replace(path: '/api/items/archive', queryParameters: {'ids': ids});
 
-  Future<Uint8List> original(String id, CancelToken cancelToken) async {
-    final response = await _dio.get<List<int>>(
-      viewUri(id).path,
-      options: Options(responseType: ResponseType.bytes),
-      cancelToken: cancelToken,
-    );
-    return Uint8List.fromList(response.data ?? const []);
-  }
-
-  Uri downloadUri(String id) => _itemUri(id, 'download');
-
-  Uri viewUri(String id) => _itemUri(id, 'view');
-
-  Uri archiveUri(List<String> ids) => _baseUri.replace(path: '/api/items/archive', queryParameters: {'ids': ids});
-
-  Uri _itemUri(String id, String action) => _baseUri.replace(pathSegments: ['api', 'items', id, action]);
+  @override
+  List<String> itemPath(String id) => ['api', 'items', id];
 }
