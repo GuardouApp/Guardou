@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/configuration/configuration_controller.dart';
 import '../l10n/generated/app_localizations.dart';
+import 'browser_chrome.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
@@ -22,6 +23,7 @@ class App extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(appRouterProvider),
+      builder: (context, child) => BrowserChrome(child: child ?? const SizedBox.shrink()),
     );
   }
 }
