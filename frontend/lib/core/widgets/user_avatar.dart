@@ -11,12 +11,14 @@ class UserAvatar extends ConsumerWidget {
     required this.name,
     required this.hasPicture,
     required this.radius,
+    this.pictureUri,
   });
 
   final String userId;
   final String name;
   final bool hasPicture;
   final double radius;
+  final Uri? pictureUri;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,10 +30,8 @@ class UserAvatar extends ConsumerWidget {
       return initial;
     }
     final revision = ref.watch(pictureRevisionProvider);
-    final url = Uri.parse(ref.watch(apiBaseUrlProvider)).replace(
-      pathSegments: ['api', 'users', userId, 'picture'],
-      queryParameters: revision == 0 ? null : {PictureRevision.parameter: '$revision'},
-    );
+    final picture = pictureUri ?? Uri.parse(ref.watch(apiBaseUrlProvider)).replace(pathSegments: ['api', 'users', userId, 'picture']);
+    final url = picture.replace(queryParameters: revision == 0 ? null : {PictureRevision.parameter: '$revision'});
     return ClipOval(
       child: Image.network(
         url.toString(),

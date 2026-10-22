@@ -159,12 +159,18 @@ class _FileCard extends ConsumerWidget {
 
   static double _gap(double spacing) => spacing / 2;
 
+  String _createdLabel(AppLocalizations l10n, String? currentUserId) {
+    final date = formatCardDate(entry.created, clock.now(), l10n.localeName);
+    final creator = entry.creator;
+    return creator.id == currentUserId ? l10n.fileCreatedByYou(date) : l10n.fileCreatedBy(creator.displayName, date);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final spacing = AppTokens.of(context).spacing;
-    final user = ref.watch(sessionControllerProvider).value;
+    final currentUserId = ref.watch(sessionControllerProvider).value?.id;
     final placeholder = Center(
       child: Icon(iconFor(entry), size: _placeholderIconSize, color: theme.colorScheme.onSurfaceVariant),
     );
@@ -210,7 +216,12 @@ class _FileCard extends ConsumerWidget {
                 child: ColoredBox(
                   color: theme.colorScheme.surface,
                   child: entry.hasPreview
-                      ? ItemThumbnail(key: ValueKey(entry.id), entry: entry, placeholder: placeholder)
+                      ? ItemThumbnail(
+                          key: ValueKey(entry.id),
+                          entry: entry,
+                          source: interactions.source,
+                          placeholder: placeholder,
+                        )
                       : placeholder,
                 ),
               ),
@@ -221,15 +232,16 @@ class _FileCard extends ConsumerWidget {
               child: Row(
                 children: [
                   UserAvatar(
-                    userId: user?.id ?? '',
-                    name: user?.displayName ?? '',
-                    hasPicture: user?.hasPicture ?? false,
+                    userId: entry.creator.id,
+                    name: entry.creator.displayName,
+                    hasPicture: entry.creator.hasPicture,
+                    pictureUri: interactions.source.creatorPictureUri(entry.id),
                     radius: _avatarRadius,
                   ),
                   SizedBox(width: spacing / 2),
                   Expanded(
                     child: Text(
-                      l10n.fileCreated(formatCardDate(entry.created, clock.now(), l10n.localeName)),
+                      _createdLabel(l10n, currentUserId),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),

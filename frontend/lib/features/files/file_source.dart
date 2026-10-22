@@ -21,6 +21,8 @@ abstract class FileSource {
 
   Uri viewUri(String id) => _itemUri(id, 'view');
 
+  Uri? creatorPictureUri(String id) => null;
+
   Future<Uint8List?> preview(String id, PreviewSize size, CancelToken cancelToken) async {
     final response = await dio.get<List<int>>(
       _itemUri(id, 'preview').path,
