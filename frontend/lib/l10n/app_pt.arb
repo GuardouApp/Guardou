@@ -255,5 +255,17 @@
   "settingsReset": "Resetar",
   "settingsRestoreDefaults": "Redefinir para a configuração padrão",
   "externalUrlDescription": "O endereço público do Guardou, por exemplo https://guardou.exemplo.com.",
-  "externalUrl": "URL Externo"
+  "externalUrl": "URL Externo",
+  "actionShare": "Compartilhar",
+  "shareTitle": "Compartilhar \"{name}\"",
+  "shareGeneralAccess": "Acesso geral",
+  "shareAccessRestricted": "Restrito",
+  "shareAccessRestrictedDescription": "Somente você pode acessar o arquivo.",
+  "shareAccessAnyoneWithLink": "Qualquer pessoa com o link",
+  "shareAccessAnyoneWithLinkDescription": "Qualquer pessoa que tenha o link pode ver o arquivo.",
+  "shareLink": "Link",
+  "shareCopyLink": "Copiar link",
+  "shareLinkCopied": "Link copiado",
+  "done": "Concluído",
+  "sharedLinkUnavailable": "Este link não existe ou o proprietário parou de compartilhar o arquivo."
 }

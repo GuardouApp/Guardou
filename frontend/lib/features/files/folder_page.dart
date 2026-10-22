@@ -125,6 +125,7 @@ class _FolderPageState extends ConsumerState<FolderPage> {
     final l10n = AppLocalizations.of(context);
     const toolbarActions = [
       ItemAction.download,
+      ItemAction.share,
       ItemAction.move,
       ItemAction.copy,
       ItemAction.rename,

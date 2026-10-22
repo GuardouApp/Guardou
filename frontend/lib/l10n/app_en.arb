@@ -446,5 +446,24 @@
   "oidcPostLogoutRedirectUri": "post_logout_redirect_uri",
   "settingsReset": "Reset",
   "settingsRestoreDefaults": "Restore the default settings",
-  "externalUrlDescription": "The public address of Guardou, for example https://guardou.example.com."
+  "externalUrlDescription": "The public address of Guardou, for example https://guardou.example.com.",
+  "actionShare": "Share",
+  "shareTitle": "Share \"{name}\"",
+  "@shareTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shareGeneralAccess": "General access",
+  "shareAccessRestricted": "Restricted",
+  "shareAccessRestrictedDescription": "Only you can access the file.",
+  "shareAccessAnyoneWithLink": "Anyone with the link",
+  "shareAccessAnyoneWithLinkDescription": "Anyone who has the link can view the file.",
+  "shareLink": "Link",
+  "shareCopyLink": "Copy link",
+  "shareLinkCopied": "Link copied",
+  "done": "Done",
+  "sharedLinkUnavailable": "This link does not exist, or the owner stopped sharing the file."
 }

@@ -10,6 +10,7 @@ import '../../core/browser/browser_files.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../core/status/operation_status.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../shares/share_dialog.dart';
 import '../trash/trash_controller.dart';
 import '../trash/trash_service.dart';
 import 'conflict_session.dart';
@@ -46,6 +47,7 @@ class FileActions {
   Future<void> perform(ItemAction action, List<ItemEntry> entries) => switch (action) {
     ItemAction.open => open(entries.single),
     ItemAction.download => download(entries),
+    ItemAction.share => showShareDialog(_context, entries.single),
     ItemAction.rename => rename(entries.single),
     ItemAction.move => transfer(entries, copy: false),
     ItemAction.copy => transfer(entries, copy: true),
@@ -60,8 +62,6 @@ class FileActions {
       _context.go(Routes.viewer(entry.id));
     }
   }
-
-  void openInNewTab(ItemEntry entry) => _browser.open(_files.viewUri(entry.id));
 
   Future<void> download(List<ItemEntry> entries) async => _browser.download(
     entries.length == 1
