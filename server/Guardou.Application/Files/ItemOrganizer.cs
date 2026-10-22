@@ -39,10 +39,10 @@ public sealed class ItemOrganizer
     {
         ItemPath parent = await _items.FindActiveFolderAsync(ownerId, parentId, cancellationToken);
         await _placement.ResolveNameAsync(parent.Item, ItemPlacement.ValidName(name), ConflictPolicy.Fail, null, cancellationToken);
-        Item folder = Item.CreateFolder(parent.Item, name, _time.GetUtcNow());
+        Item folder = Item.CreateFolder(parent.Item, name, ownerId, _time.GetUtcNow());
         _store.Add(folder);
         await _store.SaveAsync(cancellationToken);
-        return _entries.Create(folder);
+        return await _entries.CreateAsync(folder, cancellationToken);
     }
 
     public async Task<ItemEntry> RenameAsync(string ownerId, string id, string name, CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ public sealed class ItemOrganizer
             await _store.SaveAsync(cancellationToken);
         }
 
-        return _entries.Create(item);
+        return await _entries.CreateAsync(item, cancellationToken);
     }
 
     public async Task<ItemEntry?> MoveAsync(
@@ -77,7 +77,7 @@ public sealed class ItemOrganizer
 
         if (item.ParentId == destination.Item.Id)
         {
-            return _entries.Create(item);
+            return await _entries.CreateAsync(item, cancellationToken);
         }
 
         string? name = await _placement.ResolveNameAsync(destination.Item, item.Name, conflict, source, cancellationToken);
@@ -88,7 +88,7 @@ public sealed class ItemOrganizer
 
         item.MoveTo(destination.Item, name);
         await _store.SaveAsync(cancellationToken);
-        return _entries.Create(item);
+        return await _entries.CreateAsync(item, cancellationToken);
     }
 
     public async Task<ItemEntry?> CopyAsync(
@@ -111,25 +111,30 @@ public sealed class ItemOrganizer
             return null;
         }
 
-        Item copy = await CopyTreeAsync(source.Item, destination.Item, name, cancellationToken);
-        return _entries.Create(copy);
+        Item copy = await CopyTreeAsync(source.Item, destination.Item, name, ownerId, cancellationToken);
+        return await _entries.CreateAsync(copy, cancellationToken);
     }
 
-    private async Task<Item> CopyTreeAsync(Item source, Item destination, string name, CancellationToken cancellationToken)
+    private async Task<Item> CopyTreeAsync(
+        Item source,
+        Item destination,
+        string name,
+        string createdBy,
+        CancellationToken cancellationToken)
     {
-        DateTimeOffset now = _time.GetUtcNow();
         List<string> written = [];
+        CopyContext context = new(createdBy, _time.GetUtcNow(), written);
         List<Item> copies = [];
         try
         {
-            Item copy = await CopyItemAsync(source, destination, name, now, written, cancellationToken);
+            Item copy = await CopyItemAsync(source, destination, name, context, cancellationToken);
             copies.Add(copy);
             Queue<(Item Source, Item Copy)> folders = new([(source, copy)]);
             while (folders.TryDequeue(out (Item Source, Item Copy) folder))
             {
                 foreach (Item child in await _store.ChildrenAsync(folder.Source.Id, cancellationToken))
                 {
-                    Item childCopy = await CopyItemAsync(child, folder.Copy, child.Name, now, written, cancellationToken);
+                    Item childCopy = await CopyItemAsync(child, folder.Copy, child.Name, context, cancellationToken);
                     copies.Add(childCopy);
                     if (child.IsFolder)
                     {
@@ -154,13 +159,12 @@ public sealed class ItemOrganizer
         Item source,
         Item parent,
         string name,
-        DateTimeOffset now,
-        List<string> written,
+        CopyContext context,
         CancellationToken cancellationToken)
     {
         Item copy = source.StorageKey is { } sourceKey
-            ? Item.CreateFile(parent, await CopyBlobAsync(source, sourceKey, name, written, cancellationToken), now)
-            : Item.CreateFolder(parent, name, now);
+            ? Item.CreateFile(parent, await CopyBlobAsync(source, sourceKey, name, context.Written, cancellationToken), context.CreatedBy, context.Now)
+            : Item.CreateFolder(parent, name, context.CreatedBy, context.Now);
         _store.Add(copy);
         return copy;
     }
@@ -178,4 +182,6 @@ public sealed class ItemOrganizer
         written.Add(key);
         return new StoredFile(id, name, source.Size, key, source.Modified);
     }
+
+    private sealed record CopyContext(string CreatedBy, DateTimeOffset Now, List<string> Written);
 }
