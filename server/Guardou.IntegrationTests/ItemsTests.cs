@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using Guardou.Api.Models;
 using Guardou.Application.Files;
+using Guardou.Application.Users;
 using Guardou.Domain.Files;
 using Guardou.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +35,21 @@ public sealed class ItemsTests : SignedInTests
         Assert.Empty(root.Ancestors);
         Assert.Equal(0, usage?.UsedBytes);
         Assert.True(usage?.TotalBytes > 0);
+    }
+
+    [Fact]
+    public async Task EntriesGiveTheCreator()
+    {
+        ItemEntry folder = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        ItemEntry file = await Client.UploadEntryAsync(folder.Id, "a.txt", "a");
+        UserAccount admin = await Client.FindUserAsync(TestServerFactory.AdminUsername);
+        ItemCreator expected = new(admin.Id, TestServerFactory.AdminDisplayName, HasPicture: false);
+
+        ItemDetails details = await Client.GetItemAsync(folder.Id);
+
+        Assert.Equal(expected, folder.Creator);
+        Assert.Equal(expected, file.Creator);
+        Assert.All(details.Items ?? [], entry => Assert.Equal(expected, entry.Creator));
     }
 
     [Fact]

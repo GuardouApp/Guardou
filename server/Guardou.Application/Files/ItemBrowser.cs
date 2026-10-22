@@ -25,11 +25,15 @@ public sealed class ItemBrowser
         if (item.IsFolder)
         {
             IReadOnlyList<Item> children = await _store.ChildrenAsync(item.Id, cancellationToken);
-            return new ItemDetails(_entries.Create(item), ancestors, _entries.Create(children), Content: null);
+            return new ItemDetails(
+                await _entries.CreateAsync(item, cancellationToken),
+                ancestors,
+                await _entries.CreateAsync(children, cancellationToken),
+                Content: null);
         }
 
         string? content = request.Content ? await ReadTextAsync(item, cancellationToken) : null;
-        return new ItemDetails(_entries.Create(item), ancestors, Items: null, content);
+        return new ItemDetails(await _entries.CreateAsync(item, cancellationToken), ancestors, Items: null, content);
     }
 
     public async Task<IReadOnlyList<ItemEntry>> GetChildrenAsync(
@@ -40,7 +44,7 @@ public sealed class ItemBrowser
     {
         ItemPath folder = await _items.FindActiveFolderAsync(ownerId, id, cancellationToken);
         IReadOnlyList<Item> children = await _store.ChildrenAsync(folder.Item.Id, cancellationToken);
-        return _entries.Create(children.Where(child => Matches(child, only)));
+        return await _entries.CreateAsync(children.Where(child => Matches(child, only)), cancellationToken);
     }
 
     public async Task<StorageUsage> GetUsageAsync(string ownerId, CancellationToken cancellationToken)
