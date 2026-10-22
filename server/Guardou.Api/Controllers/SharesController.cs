@@ -11,7 +11,7 @@ namespace Guardou.Api.Controllers;
 
 [ApiController]
 [Authorize]
-public sealed class SharesController(ItemSharing sharing, SharedItems shared) : ControllerBase
+public sealed class SharesController(ItemSharing sharing, SharedItems shared, ItemDownloads downloads) : ControllerBase
 {
     private const string ItemShareRoute = "api/items/{id}/share";
     private const string SharedItemRoute = "api/shares/{token}/items/{id}";
@@ -57,13 +57,28 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared) : 
     }
 
     [AllowAnonymous]
+    [HttpGet(SharedItemRoute, Name = "GetSharedItemDetails")]
+    [ProducesResponseType<ItemDetails>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ItemDetails> GetSharedItemDetails(string token, string id, CancellationToken cancellationToken)
+    {
+        return shared.GetDetailsAsync(token, id, cancellationToken);
+    }
+
+    [AllowAnonymous]
     [HttpGet(SharedItemRoute + "/download", Name = "DownloadSharedItem")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadSharedItem(string token, string id, CancellationToken cancellationToken)
     {
-        return this.Download(await shared.OpenFileAsync(token, id, cancellationToken));
+        FileDownload? file = await shared.TryOpenFileAsync(token, id, cancellationToken);
+        if (file is null)
+        {
+            return new ArchiveResult(await shared.PrepareArchiveAsync(token, id, cancellationToken), downloads);
+        }
+
+        return this.Download(file);
     }
 
     [AllowAnonymous]
@@ -74,6 +89,16 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared) : 
     public async Task<IActionResult> ViewSharedItem(string token, string id, CancellationToken cancellationToken)
     {
         return this.View(await shared.OpenFileAsync(token, id, cancellationToken));
+    }
+
+    [AllowAnonymous]
+    [HttpGet(SharedItemRoute + "/creator/picture", Name = "GetSharedItemCreatorPicture")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSharedItemCreatorPicture(string token, string id, CancellationToken cancellationToken)
+    {
+        return this.Picture(await shared.OpenCreatorPictureAsync(token, id, cancellationToken));
     }
 
     [AllowAnonymous]

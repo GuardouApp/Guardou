@@ -24,19 +24,19 @@ public sealed class ItemSharing
 
     public async Task<ShareLink> GetAsync(string ownerId, string id, string requestOrigin, CancellationToken cancellationToken)
     {
-        Item file = await FindFileAsync(ownerId, id, cancellationToken);
-        Share share = await _shares.FindByItemAsync(file.Id, cancellationToken)
+        Item item = await FindShareableAsync(ownerId, id, cancellationToken);
+        Share share = await _shares.FindByItemAsync(item.Id, cancellationToken)
             ?? throw new ShareNotFoundException($"The item '{id}' is not shared.");
         return await LinkOfAsync(share, requestOrigin, cancellationToken);
     }
 
     public async Task<ShareLink> ShareAsync(string ownerId, string id, string requestOrigin, CancellationToken cancellationToken)
     {
-        Item file = await FindFileAsync(ownerId, id, cancellationToken);
-        Share? share = await _shares.FindByItemAsync(file.Id, cancellationToken);
+        Item item = await FindShareableAsync(ownerId, id, cancellationToken);
+        Share? share = await _shares.FindByItemAsync(item.Id, cancellationToken);
         if (share is null)
         {
-            share = Share.Create(file.Id, _time.GetUtcNow());
+            share = Share.Create(item.Id, _time.GetUtcNow());
             _shares.Add(share);
             await _shares.SaveAsync(cancellationToken);
         }
@@ -46,18 +46,18 @@ public sealed class ItemSharing
 
     public async Task StopSharingAsync(string ownerId, string id, CancellationToken cancellationToken)
     {
-        Item file = await FindFileAsync(ownerId, id, cancellationToken);
-        if (await _shares.FindByItemAsync(file.Id, cancellationToken) is { } share)
+        Item item = await FindShareableAsync(ownerId, id, cancellationToken);
+        if (await _shares.FindByItemAsync(item.Id, cancellationToken) is { } share)
         {
             _shares.Remove(share);
             await _shares.SaveAsync(cancellationToken);
         }
     }
 
-    private async Task<Item> FindFileAsync(string ownerId, string id, CancellationToken cancellationToken)
+    private async Task<Item> FindShareableAsync(string ownerId, string id, CancellationToken cancellationToken)
     {
         Item item = (await _items.FindActiveAsync(ownerId, id, cancellationToken)).Item;
-        return item.IsFolder ? throw new InvalidItemRequestException("Only files can be shared.") : item;
+        return item.IsRoot ? throw new InvalidItemRequestException("The root folder cannot be shared.") : item;
     }
 
     private async Task<ShareLink> LinkOfAsync(Share share, string requestOrigin, CancellationToken cancellationToken)

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Guardou.Application.Files;
 using Guardou.Application.Shares;
+using Guardou.Application.Users;
 using Guardou.Domain.Settings;
 
 namespace Guardou.IntegrationTests;
@@ -45,13 +46,79 @@ public sealed class SharesTests : SignedInTests
     }
 
     [Fact]
-    public async Task RefusesToShareAFolder()
+    public async Task RefusesToShareTheRootFolder()
     {
-        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
-
-        HttpResponseMessage response = await Client.PutAsync($"/api/items/{docs.Id}/share", null, CancellationToken);
+        HttpResponseMessage response = await Client.PutAsync($"/api/items/{ItemsApi.Root}/share", null, CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GivesAnonymousReadAccessToAFolderTree()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        ItemEntry inner = await Client.CreateFolderEntryAsync(docs.Id, "inner");
+        ItemEntry file = await Client.UploadEntryAsync(inner.Id, "a.txt", "a");
+        string token = TokenOf(await ShareAsync(docs.Id));
+        using HttpClient anonymous = Factory.CreateClient();
+
+        ItemDetails root = await GetSharedDetailsAsync(anonymous, token, docs.Id);
+        ItemDetails folder = await GetSharedDetailsAsync(anonymous, token, inner.Id);
+        HttpResponseMessage download = await anonymous.GetAsync($"/api/shares/{token}/items/{file.Id}/download", CancellationToken);
+
+        Assert.Null(root.Entry.ParentId);
+        Assert.Empty(root.Ancestors);
+        Assert.Equal(["inner"], root.Names());
+        Assert.Equal([docs.Id], folder.Ancestors.Select(crumb => crumb.Id));
+        Assert.Equal(docs.Id, folder.Entry.ParentId);
+        Assert.All(folder.Items ?? [], entry => Assert.False(entry.Permissions.CanModify));
+        Assert.Equal("a", await download.Content.ReadAsStringAsync(CancellationToken));
+    }
+
+    [Fact]
+    public async Task DownloadsASharedFolderAsAZip()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        await Client.UploadEntryAsync(docs.Id, "a.txt", "a");
+        string token = TokenOf(await ShareAsync(docs.Id));
+
+        HttpResponseMessage response = await Factory.CreateClient().GetAsync($"/api/shares/{token}/items/{docs.Id}/download", CancellationToken);
+
+        Assert.Equal("application/zip", response.Content.Headers.ContentType?.MediaType);
+        Assert.Equal("docs.zip", response.Content.Headers.ContentDisposition?.FileNameStar);
+    }
+
+    [Fact]
+    public async Task RefusesItemsOutsideTheSharedFolder()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        ItemEntry secret = await Client.UploadEntryAsync(ItemsApi.Root, "secret.txt", "b");
+        ItemDetails home = await Client.GetItemAsync(ItemsApi.Root);
+        string token = TokenOf(await ShareAsync(docs.Id));
+        using HttpClient anonymous = Factory.CreateClient();
+
+        HttpResponseMessage sibling = await anonymous.GetAsync($"/api/shares/{token}/items/{secret.Id}", CancellationToken);
+        HttpResponseMessage parent = await anonymous.GetAsync($"/api/shares/{token}/items/{home.Entry.Id}", CancellationToken);
+        HttpResponseMessage alias = await anonymous.GetAsync($"/api/shares/{token}/items/{ItemsApi.Root}", CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, sibling.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, parent.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, alias.StatusCode);
+    }
+
+    [Fact]
+    public async Task HidesATrashedSubfolderOfASharedFolder()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        ItemEntry inner = await Client.CreateFolderEntryAsync(docs.Id, "inner");
+        ItemEntry file = await Client.UploadEntryAsync(inner.Id, "a.txt", "a");
+        string token = TokenOf(await ShareAsync(docs.Id));
+
+        await Client.PostSelectionAsync("/api/items/trash", inner.Id);
+        using HttpClient anonymous = Factory.CreateClient();
+
+        Assert.Equal(HttpStatusCode.NotFound, (await anonymous.GetAsync($"/api/shares/{token}/items/{file.Id}/download", CancellationToken)).StatusCode);
+        Assert.Empty((await GetSharedDetailsAsync(anonymous, token, docs.Id)).Items ?? []);
     }
 
     [Fact]
@@ -162,6 +229,38 @@ public sealed class SharesTests : SignedInTests
         Assert.True(response.IsSuccessStatusCode);
     }
 
+    [Fact]
+    public async Task ShowsTheCreatorOfSharedItems()
+    {
+        ItemEntry file = await Client.UploadEntryAsync(ItemsApi.Root, "report.txt", "a");
+        UserAccount admin = await Client.FindUserAsync(TestServerFactory.AdminUsername);
+        string token = TokenOf(await ShareAsync(file.Id));
+        using HttpClient anonymous = Factory.CreateClient();
+        HttpResponseMessage missing = await anonymous.GetAsync($"/api/shares/{token}/items/{file.Id}/creator/picture", CancellationToken);
+
+        await Client.ReplacePictureAsync(admin.Id, PreviewsApi.Png(64, 64));
+        ItemEntry? shared = await anonymous.GetFromJsonAsync<ItemEntry>($"/api/shares/{token}", HttpClientExtensions.JsonOptions, CancellationToken);
+        HttpResponseMessage picture = await anonymous.GetAsync($"/api/shares/{token}/items/{file.Id}/creator/picture", CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        Assert.Equal(new ItemCreator(admin.Id, TestServerFactory.AdminDisplayName, HasPicture: true), shared?.Creator);
+        Assert.Equal("image/webp", picture.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task RefusesTheCreatorPictureOfAnItemOutsideTheShare()
+    {
+        ItemEntry file = await Client.UploadEntryAsync(ItemsApi.Root, "report.txt", "a");
+        ItemEntry other = await Client.UploadEntryAsync(ItemsApi.Root, "other.txt", "b");
+        UserAccount admin = await Client.FindUserAsync(TestServerFactory.AdminUsername);
+        await Client.ReplacePictureAsync(admin.Id, PreviewsApi.Png(64, 64));
+        string token = TokenOf(await ShareAsync(file.Id));
+
+        HttpResponseMessage response = await Factory.CreateClient().GetAsync($"/api/shares/{token}/items/{other.Id}/creator/picture", CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private static string TokenOf(ShareLink link)
     {
         return link.Url[(link.Url.LastIndexOf('/') + 1)..];
@@ -179,6 +278,12 @@ public sealed class SharesTests : SignedInTests
         HttpResponseMessage response = await Client.GetAsync($"/api/items/{id}/share", CancellationToken);
         response.EnsureSuccessStatusCode();
         return await ReadLinkAsync(response);
+    }
+
+    private static async Task<ItemDetails> GetSharedDetailsAsync(HttpClient client, string token, string id)
+    {
+        return await client.GetFromJsonAsync<ItemDetails>($"/api/shares/{token}/items/{id}", HttpClientExtensions.JsonOptions, CancellationToken)
+            ?? throw new InvalidOperationException("The shared item is missing.");
     }
 
     private static async Task<ShareLink> ReadLinkAsync(HttpResponseMessage response)
