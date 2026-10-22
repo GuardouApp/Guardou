@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Guardou.Application.Files;
+using Guardou.Application.Users;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -12,6 +13,7 @@ internal static class FileResponses
     private const string WebpMimeType = "image/webp";
     private const string PreviewCachePolicy = "private, max-age=31536000, immutable";
     private const string PreviewRetrySeconds = "2";
+    private const string PictureCachePolicy = "private, no-cache";
 
     public static IActionResult Download(this ControllerBase controller, FileDownload file)
     {
@@ -43,6 +45,18 @@ internal static class FileResponses
 
         controller.Response.Headers.CacheControl = PreviewCachePolicy;
         return controller.File(preview, WebpMimeType);
+    }
+
+    public static IActionResult Picture(this ControllerBase controller, ProfilePicture? picture)
+    {
+        if (picture is null)
+        {
+            return controller.Problem(statusCode: StatusCodes.Status404NotFound, title: "The user has no picture.");
+        }
+
+        controller.Response.Headers.CacheControl = PictureCachePolicy;
+        EntityTagHeaderValue entityTag = new($"\"{picture.Modified.UtcTicks}\"");
+        return controller.File(picture.Content, WebpMimeType, picture.Modified, entityTag);
     }
 
     private static EntityTagHeaderValue EntityTagOf(FileDownload file)
