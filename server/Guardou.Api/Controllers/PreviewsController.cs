@@ -1,3 +1,4 @@
+using Guardou.Api.ActionResults;
 using Guardou.Api.Authentication;
 using Guardou.Application.Previews;
 using Guardou.Domain.Previews;
@@ -11,10 +12,6 @@ namespace Guardou.Api.Controllers;
 [Route("api/items")]
 public sealed class PreviewsController(ItemPreviews previews) : ControllerBase
 {
-    private const string WebpMimeType = "image/webp";
-    private const string CachePolicy = "private, max-age=31536000, immutable";
-    private const string RetrySeconds = "2";
-
     [HttpGet("{id}/preview", Name = "GetItemPreview")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -23,14 +20,6 @@ public sealed class PreviewsController(ItemPreviews previews) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(string id, [FromQuery] PreviewSize size, CancellationToken cancellationToken)
     {
-        Stream? preview = await previews.OpenAsync(User.UserId(), id, size, cancellationToken);
-        if (preview is null)
-        {
-            Response.Headers.RetryAfter = RetrySeconds;
-            return Accepted();
-        }
-
-        Response.Headers.CacheControl = CachePolicy;
-        return File(preview, WebpMimeType);
+        return this.Preview(await previews.OpenAsync(User.UserId(), id, size, cancellationToken));
     }
 }
