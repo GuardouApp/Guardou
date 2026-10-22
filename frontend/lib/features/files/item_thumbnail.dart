@@ -3,25 +3,31 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/preview_size.dart';
-import 'files_service.dart';
+import 'file_source.dart';
 import 'preview_loader.dart';
 
-class ItemThumbnail extends ConsumerStatefulWidget {
-  const ItemThumbnail({super.key, required this.entry, required this.placeholder, this.fit = BoxFit.cover});
+class ItemThumbnail extends StatefulWidget {
+  const ItemThumbnail({
+    super.key,
+    required this.entry,
+    required this.source,
+    required this.placeholder,
+    this.fit = BoxFit.cover,
+  });
 
   final ItemEntry entry;
+  final FileSource source;
   final Widget placeholder;
   final BoxFit fit;
 
   @override
-  ConsumerState<ItemThumbnail> createState() => _ItemThumbnailState();
+  State<ItemThumbnail> createState() => _ItemThumbnailState();
 }
 
-class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
+class _ItemThumbnailState extends State<ItemThumbnail> {
   CancelToken _cancel = CancelToken();
   Uint8List? _bytes;
 
@@ -57,7 +63,7 @@ class _ItemThumbnailState extends ConsumerState<ItemThumbnail> {
   }
 
   Future<void> _load(String id, CancelToken cancel) async {
-    final bytes = await PreviewLoader.load(ref.read(filesServiceProvider), id, PreviewSize.thumbnail, cancel);
+    final bytes = await PreviewLoader.load(widget.source, id, PreviewSize.thumbnail, cancel);
     if (bytes != null && mounted && !cancel.isCancelled) {
       setState(() => _bytes = bytes);
     }

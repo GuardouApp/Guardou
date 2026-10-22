@@ -19,6 +19,7 @@ import 'file_drop_target.dart';
 import 'file_grid_view.dart';
 import 'file_list_view.dart';
 import 'file_view_settings.dart';
+import 'files_service.dart';
 import 'folder_controller.dart';
 import 'folder_header.dart';
 import 'folder_layouts.dart';
@@ -115,6 +116,7 @@ class _FolderPageState extends ConsumerState<FolderPage> {
       decorate: (entry, child) => entry.kind == ItemKind.folder
           ? FileDropTarget(folderId: entry.id, enabled: entry.permissions.canAddChildren, child: child)
           : child,
+      source: ref.read(filesServiceProvider),
     );
   }
 
