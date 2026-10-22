@@ -34,6 +34,12 @@ abstract final class Routes {
 
   static String viewer(String id) => '$view/${Uri.encodeComponent(id)}';
 
+  static String sharedRoot(String token) => '$sharedLink/${Uri.encodeComponent(token)}';
+
+  static String sharedFolder(String token, String id) => '${sharedRoot(token)}$folders/${Uri.encodeComponent(id)}';
+
+  static String sharedViewer(String token, String id) => '${sharedRoot(token)}$view/${Uri.encodeComponent(id)}';
+
   static bool isPublic(String path) => path.startsWith('$sharedLink/');
 
   static String? folderIdOf(String location) {

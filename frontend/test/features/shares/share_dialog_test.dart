@@ -41,7 +41,7 @@ void main() {
 
     expect(find.text('Share "report.txt"'), findsOneWidget);
     expect(find.text('Restricted'), findsOneWidget);
-    expect(find.text('Only you can access the file.'), findsOneWidget);
+    expect(find.text('Only you can open this item.'), findsOneWidget);
     expect(find.text('Copy link'), findsNothing);
   });
 
@@ -66,12 +66,13 @@ void main() {
     expect(find.text(link), findsNothing);
   });
 
-  test('enables sharing only for one file that the user can modify', () {
+  test('enables sharing only for one item that the user can modify', () {
     final folder = testEntry('docs', kind: ItemKind.folder);
     final readOnly = testEntry('a.txt', canModify: false);
 
     expect(ItemAction.share.isEnabledFor([file]), isTrue);
-    expect(ItemAction.share.isEnabledFor([folder]), isFalse);
+    expect(ItemAction.share.isEnabledFor([folder]), isTrue);
+    expect(ItemAction.share.isEnabledFor([testRoot]), isFalse);
     expect(ItemAction.share.isEnabledFor([readOnly]), isFalse);
     expect(ItemAction.share.isEnabledFor([file, testEntry('b.txt')]), isFalse);
   });

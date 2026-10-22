@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/api_client.dart';
+import '../../api/generated/models/item_details.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../core/api/api_providers.dart';
 import 'shared_file_source.dart';
@@ -35,6 +36,8 @@ class SharesService {
   Future<void> stopSharing(String id) => _api.shares.stopSharingItem(id: id);
 
   Future<ItemEntry> sharedItem(String token) => _api.shares.getSharedItem(token: token);
+
+  Future<ItemDetails> sharedDetails(String token, String id) => _api.shares.getSharedItemDetails(token: token, id: id);
 
   SharedFileSource files(String token) => SharedFileSource(_dio, _baseUri, token);
 }

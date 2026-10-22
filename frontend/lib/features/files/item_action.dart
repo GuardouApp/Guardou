@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
-import '../../api/generated/models/item_kind.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 enum ItemAction {
@@ -35,7 +34,7 @@ enum ItemAction {
     open || details => entries.length == 1,
     download => true,
     rename => entries.length == 1 && entries.single.permissions.canModify,
-    share => entries.length == 1 && entries.single.kind == ItemKind.file && entries.single.permissions.canModify,
+    share => entries.length == 1 && entries.single.permissions.canModify,
     move || copy || trash => entries.every((entry) => entry.permissions.canModify),
   };
 }

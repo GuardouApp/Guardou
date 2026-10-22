@@ -7,4 +7,7 @@ class SharedFileSource extends FileSource {
 
   @override
   List<String> itemPath(String id) => ['api', 'shares', _token, 'items', id];
+
+  @override
+  Uri creatorPictureUri(String id) => baseUri.replace(pathSegments: [...itemPath(id), 'creator', 'picture']);
 }

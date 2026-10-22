@@ -201,7 +201,8 @@
     }
   },
   "taskListEmpty": "Nenhuma tarefa",
-  "fileCreated": "Você criou · {date}",
+  "fileCreatedByYou": "Você criou · {date}",
+  "fileCreatedBy": "{name} criou · {date}",
   "@fileCreated": {
     "placeholders": {
       "date": {
@@ -260,12 +261,12 @@
   "shareTitle": "Compartilhar \"{name}\"",
   "shareGeneralAccess": "Acesso geral",
   "shareAccessRestricted": "Restrito",
-  "shareAccessRestrictedDescription": "Somente você pode acessar o arquivo.",
+  "shareAccessRestrictedDescription": "Somente você pode abrir este item.",
   "shareAccessAnyoneWithLink": "Qualquer pessoa com o link",
-  "shareAccessAnyoneWithLinkDescription": "Qualquer pessoa que tenha o link pode ver o arquivo.",
+  "shareAccessAnyoneWithLinkDescription": "Qualquer pessoa que tenha o link pode ver este item.",
   "shareLink": "Link",
   "shareCopyLink": "Copiar link",
   "shareLinkCopied": "Link copiado",
   "done": "Concluído",
-  "sharedLinkUnavailable": "Este link não existe ou o proprietário parou de compartilhar o arquivo."
+  "sharedLinkUnavailable": "Este link não existe ou o proprietário parou de compartilhá-lo."
 }
