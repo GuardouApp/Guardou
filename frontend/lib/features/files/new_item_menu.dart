@@ -38,7 +38,7 @@ Future<void> showNewItemMenu(BuildContext context, {required String folderId, re
       for (final kind in NewItemKind.values)
         PopupMenuItem(
           value: kind,
-          child: Row(children: [Icon(kind.icon, size: 18), const SizedBox(width: 12), Text(kind.label(l10n))]),
+          child: MenuItemLabel(icon: kind.icon, label: kind.label(l10n)),
         ),
     ],
   );

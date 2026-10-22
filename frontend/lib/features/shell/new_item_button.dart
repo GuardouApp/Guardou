@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons_600.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../files/file_actions.dart';
 import '../files/folder_controller.dart';
+import '../files/item_actions_menu.dart';
 import '../files/new_item_menu.dart';
 
 enum NewItemButtonStyle { floating, small, extended }
@@ -59,26 +60,20 @@ class NewItemButton extends ConsumerWidget {
         child: icon,
       );
     }
-    return MenuAnchor(
-      menuChildren: [
-        for (final kind in NewItemKind.values)
-          MenuItemButton(
-            leadingIcon: Icon(kind.icon, size: 18),
-            onPressed: () => _create(context, kind),
-            child: Text(kind.label(l10n)),
-          ),
-      ],
-      builder: (context, menu, _) {
-        final VoidCallback? toggle = canAdd ? () => menu.isOpen ? menu.close() : menu.open() : null;
+    return Builder(
+      builder: (anchor) {
+        final VoidCallback? open = canAdd
+            ? () => unawaited(showNewItemMenu(anchor, folderId: folderId, position: anchorPosition(anchor)))
+            : null;
         return switch (style) {
           NewItemButtonStyle.extended => FloatingActionButton.extended(
             heroTag: null,
             elevation: 1,
-            onPressed: toggle,
+            onPressed: open,
             icon: icon,
             label: Text(l10n.newItem),
           ),
-          _ => FloatingActionButton(heroTag: null, tooltip: l10n.newItem, elevation: 0, onPressed: toggle, child: icon),
+          _ => FloatingActionButton(heroTag: null, tooltip: l10n.newItem, elevation: 0, onPressed: open, child: icon),
         };
       },
     );

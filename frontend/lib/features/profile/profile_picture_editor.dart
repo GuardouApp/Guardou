@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../api/generated/models/current_user.dart';
 import '../../core/browser/browser_files.dart';
 import '../../core/widgets/user_avatar.dart';
+import '../files/item_actions_menu.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'profile_picture_controller.dart';
 import 'profile_picture_failure.dart';
@@ -56,6 +57,24 @@ class ProfilePictureEditor extends ConsumerWidget {
     }
   }
 
+  Future<void> _showMenu(BuildContext badgeContext, WidgetRef ref) {
+    final l10n = AppLocalizations.of(badgeContext);
+    return showMenu<void>(
+      context: badgeContext,
+      position: menuPositionAt(badgeContext, anchorPosition(badgeContext)),
+      items: [
+        PopupMenuItem(
+          onTap: () => unawaited(_replace(badgeContext, ref)),
+          child: MenuItemLabel(icon: LucideIcons.upload, label: l10n.profilePictureUpload),
+        ),
+        PopupMenuItem(
+          onTap: () => unawaited(_remove(badgeContext, ref)),
+          child: MenuItemLabel(icon: LucideIcons.trash2, label: l10n.profilePictureRemove),
+        ),
+      ],
+    );
+  }
+
   void _show(ScaffoldMessengerState messenger, String message) => messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
@@ -73,24 +92,12 @@ class ProfilePictureEditor extends ConsumerWidget {
         PositionedDirectional(
           end: 0,
           bottom: 0,
-          child: MenuAnchor(
-            menuChildren: [
-              MenuItemButton(
-                leadingIcon: const Icon(LucideIcons.upload, size: 18),
-                onPressed: () => unawaited(_replace(context, ref)),
-                child: Text(l10n.profilePictureUpload),
-              ),
-              MenuItemButton(
-                leadingIcon: const Icon(LucideIcons.trash2, size: 18),
-                onPressed: () => unawaited(_remove(context, ref)),
-                child: Text(l10n.profilePictureRemove),
-              ),
-            ],
-            builder: (context, menu, _) => _EditBadge(
+          child: Builder(
+            builder: (badgeContext) => _EditBadge(
               tooltip: l10n.profilePictureEdit,
               onPressed: switch ((busy, user.hasPicture)) {
                 (true, _) => null,
-                (false, true) => () => menu.isOpen ? menu.close() : menu.open(),
+                (false, true) => () => unawaited(_showMenu(badgeContext, ref)),
                 (false, false) => () => unawaited(_replace(context, ref)),
               },
             ),
