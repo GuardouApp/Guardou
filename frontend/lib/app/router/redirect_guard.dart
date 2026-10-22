@@ -20,8 +20,11 @@ String? resolveRedirect({
   required Uri location,
 }) {
   final path = location.path;
-  final target = _targetOf(location);
+  if (Routes.isPublic(path)) {
+    return null;
+  }
 
+  final target = _targetOf(location);
   if (configuration.hasError || session.hasError) {
     return path == Routes.serverError ? null : Routes.serverError;
   }

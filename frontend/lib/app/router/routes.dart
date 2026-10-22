@@ -8,6 +8,7 @@ abstract final class Routes {
   static const folders = '/folders';
   static const file = '/file';
   static const view = '/view';
+  static const sharedLink = '/s';
   static const starred = '/starred';
   static const shared = '/shared';
   static const trash = '/trash';
@@ -21,6 +22,7 @@ abstract final class Routes {
   static const redirectParameter = 'redirect';
   static const oidcErrorParameter = 'oidcError';
   static const idParameter = 'id';
+  static const tokenParameter = 'token';
   static const rootFolderId = 'root';
 
   static const entryPages = {loading, login, register};
@@ -31,6 +33,8 @@ abstract final class Routes {
   static String fileItem(String id) => '$file/${Uri.encodeComponent(id)}';
 
   static String viewer(String id) => '$view/${Uri.encodeComponent(id)}';
+
+  static bool isPublic(String path) => path.startsWith('$sharedLink/');
 
   static String? folderIdOf(String location) {
     final segments = Uri.parse(location).pathSegments.where((segment) => segment.isNotEmpty).toList();
