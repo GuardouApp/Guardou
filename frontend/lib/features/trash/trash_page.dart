@@ -15,6 +15,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../files/drag_select_area.dart';
 import '../files/file_actions.dart';
 import '../files/file_presentation.dart';
+import '../files/files_service.dart';
 import '../files/folder_states.dart';
 import '../files/item_actions_menu.dart';
 import '../files/item_interactions.dart';
@@ -136,6 +137,7 @@ class _TrashPageState extends ConsumerState<TrashPage> {
     onMore: (entry, anchor) => unawaited(_showActions(entry, anchorPosition(anchor))),
     keyFor: _keys.keyFor,
     decorate: (_, child) => child,
+    source: ref.read(filesServiceProvider),
   );
 
   Widget _header(List<TrashEntry> entries, Selection selection) {

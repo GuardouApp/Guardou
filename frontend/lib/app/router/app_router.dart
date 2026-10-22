@@ -12,7 +12,9 @@ import '../../features/errors/loading_page.dart';
 import '../../features/files/file_route_page.dart';
 import '../../features/files/folder_page.dart';
 import '../../features/settings/settings_page.dart';
-import '../../features/shares/shared_file_page.dart';
+import '../../features/shares/shared_folder_page.dart';
+import '../../features/shares/shared_link_page.dart';
+import '../../features/shares/shared_viewer_page.dart';
 import '../../features/shell/adaptive_shell.dart';
 import '../../features/shell/section_page.dart';
 import '../../features/shell/shell_destination.dart';
@@ -72,8 +74,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '${Routes.sharedLink}/:${Routes.tokenParameter}',
         builder: (_, state) {
           final token = state.pathParameters[Routes.tokenParameter] ?? '';
-          return SharedFilePage(key: ValueKey(token), token: token);
+          return SharedLinkPage(key: ValueKey(token), token: token);
         },
+        routes: [
+          GoRoute(
+            path: '${Routes.folders.substring(1)}/:${Routes.idParameter}',
+            builder: (_, state) {
+              final token = state.pathParameters[Routes.tokenParameter] ?? '';
+              final id = state.pathParameters[Routes.idParameter] ?? '';
+              return SharedFolderPage(key: ValueKey('$token/$id'), token: token, folderId: id);
+            },
+          ),
+          GoRoute(
+            path: '${Routes.view.substring(1)}/:${Routes.idParameter}',
+            builder: (_, state) {
+              final token = state.pathParameters[Routes.tokenParameter] ?? '';
+              final id = state.pathParameters[Routes.idParameter] ?? '';
+              return SharedViewerPage(key: ValueKey('$token/$id'), token: token, fileId: id);
+            },
+          ),
+        ],
       ),
       ShellRoute(
         builder: (context, state, child) => AdaptiveShell(location: state.uri.path, child: child),

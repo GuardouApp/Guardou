@@ -5,6 +5,7 @@ public sealed class Item
     private Item(
         Guid id,
         string ownerId,
+        string createdBy,
         Guid? parentId,
         string name,
         ItemKind kind,
@@ -16,6 +17,7 @@ public sealed class Item
     {
         Id = id;
         OwnerId = ownerId;
+        CreatedBy = createdBy;
         ParentId = parentId;
         Name = name;
         Kind = kind;
@@ -29,6 +31,8 @@ public sealed class Item
     public Guid Id { get; private set; }
 
     public string OwnerId { get; private set; }
+
+    public string CreatedBy { get; private set; }
 
     public Guid? ParentId { get; private set; }
 
@@ -52,17 +56,28 @@ public sealed class Item
 
     public static Item CreateRoot(string ownerId, DateTimeOffset now)
     {
-        return new Item(Guid.CreateVersion7(now), ownerId, null, string.Empty, ItemKind.Folder, 0, null, now, now, null);
+        return new Item(Guid.CreateVersion7(now), ownerId, ownerId, null, string.Empty, ItemKind.Folder, 0, null, now, now, null);
     }
 
-    public static Item CreateFolder(Item parent, string name, DateTimeOffset now)
+    public static Item CreateFolder(Item parent, string name, string createdBy, DateTimeOffset now)
     {
-        return new Item(Guid.CreateVersion7(now), parent.OwnerId, parent.Id, name, ItemKind.Folder, 0, null, now, now, null);
+        return new Item(Guid.CreateVersion7(now), parent.OwnerId, createdBy, parent.Id, name, ItemKind.Folder, 0, null, now, now, null);
     }
 
-    public static Item CreateFile(Item parent, StoredFile file, DateTimeOffset now)
+    public static Item CreateFile(Item parent, StoredFile file, string createdBy, DateTimeOffset now)
     {
-        return new Item(file.Id, parent.OwnerId, parent.Id, file.Name, ItemKind.File, file.Size, file.StorageKey, now, file.Modified, null);
+        return new Item(
+            file.Id,
+            parent.OwnerId,
+            createdBy,
+            parent.Id,
+            file.Name,
+            ItemKind.File,
+            file.Size,
+            file.StorageKey,
+            now,
+            file.Modified,
+            null);
     }
 
     public void Rename(string name, DateTimeOffset now)

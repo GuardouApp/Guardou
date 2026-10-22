@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:guardou/api/generated/models/authentication_method.dart';
 import 'package:guardou/api/generated/models/breadcrumb.dart';
 import 'package:guardou/api/generated/models/current_user.dart';
+import 'package:guardou/api/generated/models/item_creator.dart';
 import 'package:guardou/api/generated/models/item_details.dart';
 import 'package:guardou/api/generated/models/item_entry.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
@@ -113,6 +114,7 @@ ItemEntry testEntry(
     mimeType: kind == ItemKind.folder ? null : mimeType,
     modified: date,
     created: date,
+    creator: ItemCreator(id: testUser.id, displayName: testUser.displayName, hasPicture: testUser.hasPicture),
     hasPreview: hasPreview,
     permissions: ItemPermissions(canModify: canModify, canAddChildren: kind == ItemKind.folder),
   );

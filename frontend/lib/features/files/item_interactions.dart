@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'file_source.dart';
 import 'item_thumbnail.dart';
 import 'selection.dart';
 
@@ -20,6 +21,7 @@ class ItemInteractions {
     required this.onMore,
     required this.keyFor,
     required this.decorate,
+    required this.source,
   });
 
   final Selection selection;
@@ -31,6 +33,7 @@ class ItemInteractions {
   final void Function(ItemEntry entry, BuildContext anchor) onMore;
   final GlobalKey Function(String id) keyFor;
   final Widget Function(ItemEntry entry, Widget child) decorate;
+  final FileSource source;
 
   bool isSelected(ItemEntry entry) => selection.contains(entry.id);
 }
@@ -143,6 +146,7 @@ class ItemLeading extends StatelessWidget {
         child: ItemThumbnail(
           key: ValueKey(entry.id),
           entry: entry,
+          source: interactions.source,
           placeholder: Center(child: placeholder),
         ),
       ),

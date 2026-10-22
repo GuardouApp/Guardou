@@ -24,6 +24,7 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(item => item.Trashed).HasConversion<DateTimeOffsetToBinaryConverter>();
 
         builder.HasOne<ApplicationUser>().WithMany().HasForeignKey(item => item.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<ApplicationUser>().WithMany().HasForeignKey(item => item.CreatedBy).OnDelete(DeleteBehavior.NoAction);
         builder.HasOne<Item>().WithMany().HasForeignKey(item => item.ParentId).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(item => new { item.ParentId, item.Name }).IsUnique().HasFilter(ActiveFilter);

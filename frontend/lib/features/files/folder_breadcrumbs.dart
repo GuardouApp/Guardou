@@ -13,11 +13,13 @@ import 'file_presentation.dart';
 String crumbRoute(Breadcrumb crumb) => crumb.name.isEmpty ? Routes.files : Routes.folder(crumb.id);
 
 class FolderBreadcrumbs extends StatelessWidget {
-  const FolderBreadcrumbs({super.key, required this.folder});
+  const FolderBreadcrumbs({super.key, required this.folder, this.routeOf = crumbRoute, this.acceptsDrops = true});
 
   static const _compactVisibleAncestors = 1;
 
   final ItemDetails folder;
+  final String Function(Breadcrumb crumb) routeOf;
+  final bool acceptsDrops;
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +37,11 @@ class FolderBreadcrumbs extends StatelessWidget {
         reverse: true,
         child: Row(
           children: [
-            for (final ancestor in visible) ...[_Crumb(crumb: ancestor), const _Separator()],
-            if (collapsed.isNotEmpty) ...[_CollapsedCrumbs(crumbs: collapsed), const _Separator()],
+            for (final ancestor in visible) ...[
+              _Crumb(crumb: ancestor, route: routeOf(ancestor), acceptsDrops: acceptsDrops),
+              const _Separator(),
+            ],
+            if (collapsed.isNotEmpty) ...[_CollapsedCrumbs(crumbs: collapsed, routeOf: routeOf), const _Separator()],
             Text(folderLabel(folder.entry, AppLocalizations.of(context))),
           ],
         ),
@@ -46,31 +51,31 @@ class FolderBreadcrumbs extends StatelessWidget {
 }
 
 class _Crumb extends StatelessWidget {
-  const _Crumb({required this.crumb});
+  const _Crumb({required this.crumb, required this.route, required this.acceptsDrops});
 
   final Breadcrumb crumb;
+  final String route;
+  final bool acceptsDrops;
 
   @override
   Widget build(BuildContext context) {
-    return FileDropTarget(
-      folderId: crumb.id,
-      enabled: true,
-      child: InkWell(
-        onTap: () => context.go(crumbRoute(crumb)),
-        borderRadius: BorderRadius.circular(8),
-        child: Text(
-          breadcrumbLabel(crumb, AppLocalizations.of(context)),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
+    final link = InkWell(
+      onTap: () => context.go(route),
+      borderRadius: BorderRadius.circular(8),
+      child: Text(
+        breadcrumbLabel(crumb, AppLocalizations.of(context)),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
+    return acceptsDrops ? FileDropTarget(folderId: crumb.id, enabled: true, child: link) : link;
   }
 }
 
 class _CollapsedCrumbs extends StatelessWidget {
-  const _CollapsedCrumbs({required this.crumbs});
+  const _CollapsedCrumbs({required this.crumbs, required this.routeOf});
 
   final List<Breadcrumb> crumbs;
+  final String Function(Breadcrumb crumb) routeOf;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +89,7 @@ class _CollapsedCrumbs extends StatelessWidget {
         for (final crumb in crumbs)
           MenuItemButton(
             leadingIcon: const Icon(LucideIcons.folder),
-            onPressed: () => context.go(crumbRoute(crumb)),
+            onPressed: () => context.go(routeOf(crumb)),
             child: Text(breadcrumbLabel(crumb, AppLocalizations.of(context))),
           ),
       ],

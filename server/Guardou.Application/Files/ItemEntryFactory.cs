@@ -1,13 +1,78 @@
 using Guardou.Application.Previews;
+using Guardou.Application.Users;
 using Guardou.Domain.Files;
 
 namespace Guardou.Application.Files;
 
-internal sealed class ItemEntryFactory(IMimeTypeMap mimeTypes, IPreviewRenderer previews)
+internal sealed class ItemEntryFactory(
+    IMimeTypeMap mimeTypes,
+    IPreviewRenderer previews,
+    IUserNames users,
+    IProfilePictureStore pictures)
 {
     private static readonly ItemPermissions ReadOnly = new(CanModify: false, CanAddChildren: false);
 
-    public ItemEntry Create(Item item)
+    private readonly Dictionary<string, ItemCreator> _creators = [];
+
+    public async Task<ItemEntry> CreateAsync(Item item, CancellationToken cancellationToken)
+    {
+        return (await CreateAsync([item], cancellationToken)).Single();
+    }
+
+    public async Task<IReadOnlyList<ItemEntry>> CreateAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
+    {
+        List<Item> ordered = Ordered(items).ToList();
+        await LoadCreatorsAsync(ordered, cancellationToken);
+        return ordered.Select(Create).ToList();
+    }
+
+    public async Task<ItemEntry> CreateSharedAsync(Item item, Guid shareRootId, CancellationToken cancellationToken)
+    {
+        return (await CreateSharedAsync([item], shareRootId, cancellationToken)).Single();
+    }
+
+    public async Task<IReadOnlyList<ItemEntry>> CreateSharedAsync(
+        IEnumerable<Item> items,
+        Guid shareRootId,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<ItemEntry> entries = await CreateAsync(items, cancellationToken);
+        return entries
+            .Select(entry => entry with
+            {
+                ParentId = entry.Id == ItemId.Format(shareRootId) ? null : entry.ParentId,
+                Permissions = ReadOnly,
+            })
+            .ToList();
+    }
+
+    public static Breadcrumb Breadcrumb(Item item)
+    {
+        return new Breadcrumb(ItemId.Format(item.Id), item.Name);
+    }
+
+    private static IEnumerable<Item> Ordered(IEnumerable<Item> items)
+    {
+        return items
+            .OrderBy(item => item.Kind == ItemKind.File)
+            .ThenBy(item => item.Name, StringComparer.Ordinal);
+    }
+
+    private async Task LoadCreatorsAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
+    {
+        List<string> missing = items.Select(item => item.CreatedBy).Distinct().Where(id => !_creators.ContainsKey(id)).ToList();
+        if (missing.Count == 0)
+        {
+            return;
+        }
+
+        foreach ((string id, string displayName) in await users.DisplayNamesAsync(missing, cancellationToken))
+        {
+            _creators[id] = new ItemCreator(id, displayName, pictures.Contains(id));
+        }
+    }
+
+    private ItemEntry Create(Item item)
     {
         return new ItemEntry(
             ItemId.Format(item.Id),
@@ -18,27 +83,9 @@ internal sealed class ItemEntryFactory(IMimeTypeMap mimeTypes, IPreviewRenderer 
             item.IsFolder ? null : mimeTypes.MimeTypeOf(item.Name),
             item.Modified,
             item.Created,
+            _creators[item.CreatedBy],
             HasPreview(item),
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));
-    }
-
-    public ItemEntry CreateShared(Item item)
-    {
-        return Create(item) with { ParentId = null, Permissions = ReadOnly };
-    }
-
-    public IReadOnlyList<ItemEntry> Create(IEnumerable<Item> items)
-    {
-        return items
-            .OrderBy(item => item.Kind == ItemKind.File)
-            .ThenBy(item => item.Name, StringComparer.Ordinal)
-            .Select(Create)
-            .ToList();
-    }
-
-    public static Breadcrumb Breadcrumb(Item item)
-    {
-        return new Breadcrumb(ItemId.Format(item.Id), item.Name);
     }
 
     private bool HasPreview(Item item)

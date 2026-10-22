@@ -2528,6 +2528,64 @@
         }
       }
     },
+    "/api/shares/{token}/items/{id}": {
+      "get": {
+        "tags": [
+          "Shares"
+        ],
+        "operationId": "GetSharedItemDetails",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/shares/{token}/items/{id}/download": {
       "get": {
         "tags": [
@@ -2607,6 +2665,55 @@
           },
           "206": {
             "description": "Partial Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shares/{token}/items/{id}/creator/picture": {
+      "get": {
+        "tags": [
+          "Shares"
+        ],
+        "operationId": "GetSharedItemCreatorPicture",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "304": {
+            "description": "Not Modified"
           },
           "404": {
             "description": "Not Found",
@@ -4018,6 +4125,25 @@
           }
         }
       },
+      "ItemCreator": {
+        "required": [
+          "id",
+          "displayName",
+          "hasPicture"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "hasPicture": {
+            "type": "boolean"
+          }
+        }
+      },
       "ItemDetails": {
         "required": [
           "entry",
@@ -4059,6 +4185,7 @@
           "mimeType",
           "modified",
           "created",
+          "creator",
           "hasPreview",
           "permissions"
         ],
@@ -4092,6 +4219,9 @@
           "created": {
             "type": "string",
             "format": "date-time"
+          },
+          "creator": {
+            "$ref": "#/components/schemas/ItemCreator"
           },
           "hasPreview": {
             "type": "boolean"

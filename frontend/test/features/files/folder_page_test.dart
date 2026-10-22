@@ -324,7 +324,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(Image), findsOneWidget);
-    expect(find.text('Created · Mar 5'), findsOneWidget);
+    expect(find.text('You created · Mar 5'), findsOneWidget);
     final card = tester.getSize(find.byType(SelectableItem).first);
     final preview = tester.getSize(find.byType(AspectRatio).first);
     expect(card.width, greaterThanOrEqualTo(250));

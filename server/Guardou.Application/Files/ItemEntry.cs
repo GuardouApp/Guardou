@@ -11,5 +11,6 @@ public sealed record ItemEntry(
     string? MimeType,
     DateTimeOffset Modified,
     DateTimeOffset Created,
+    ItemCreator Creator,
     bool HasPreview,
     ItemPermissions Permissions);

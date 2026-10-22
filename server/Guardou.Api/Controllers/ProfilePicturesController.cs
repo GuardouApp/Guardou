@@ -1,11 +1,11 @@
 using System.Net.Mime;
+using Guardou.Api.ActionResults;
 using Guardou.Api.Authentication;
 using Guardou.Api.Models;
 using Guardou.Application.Users;
 using Guardou.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 
 namespace Guardou.Api.Controllers;
 
@@ -14,8 +14,6 @@ namespace Guardou.Api.Controllers;
 [Route("api/users/{id}/picture")]
 public sealed class ProfilePicturesController(IProfilePictureStore store, ProfilePictures pictures) : ControllerBase
 {
-    private const string WebpMimeType = "image/webp";
-    private const string CachePolicy = "private, no-cache";
     private const long MultipartOverheadBytes = 64 * 1024;
 
     [HttpGet(Name = "GetUserPicture")]
@@ -25,14 +23,7 @@ public sealed class ProfilePicturesController(IProfilePictureStore store, Profil
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public IActionResult Get(string id)
     {
-        if (store.TryOpen(id) is not { } picture)
-        {
-            return Problem(statusCode: StatusCodes.Status404NotFound, title: "The user has no picture.");
-        }
-
-        Response.Headers.CacheControl = CachePolicy;
-        EntityTagHeaderValue entityTag = new($"\"{picture.Modified.UtcTicks}\"");
-        return File(picture.Content, WebpMimeType, picture.Modified, entityTag);
+        return this.Picture(store.TryOpen(id));
     }
 
     [HttpPut(Name = "ReplaceUserPicture")]

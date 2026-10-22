@@ -26,6 +26,10 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.Property<long>("Created")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -55,6 +59,8 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("OwnerId")
                         .IsUnique()
@@ -363,6 +369,12 @@ namespace Guardou.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Guardou.Domain.Files.Item", b =>
                 {
+                    b.HasOne("Guardou.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Guardou.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("OwnerId")

@@ -38,7 +38,7 @@ public sealed class FileUploader
     {
         string name = ItemPlacement.ValidName(request.FileName);
         ItemPath target = await _items.FindActiveFolderAsync(ownerId, request.FolderId, cancellationToken);
-        Item folder = await EnsureFoldersAsync(target.Item, FolderNames(request.RelativePath), cancellationToken);
+        Item folder = await EnsureFoldersAsync(target.Item, FolderNames(request.RelativePath), ownerId, cancellationToken);
         string? placedName = await _placement.ResolveNameAsync(folder, name, request.Conflict, null, cancellationToken);
         if (placedName is null)
         {
@@ -47,7 +47,7 @@ public sealed class FileUploader
 
         DateTimeOffset now = _time.GetUtcNow();
         StoredFile file = await StoreAsync(folder.OwnerId, placedName, request.Modified ?? now, request.Content, cancellationToken);
-        Item item = Item.CreateFile(folder, file, now);
+        Item item = Item.CreateFile(folder, file, ownerId, now);
         _store.Add(item);
         try
         {
@@ -60,7 +60,7 @@ public sealed class FileUploader
         }
 
         await _previews.EnqueueAsync([item], TaskPriority.Normal, cancellationToken);
-        return _entries.Create(item);
+        return await _entries.CreateAsync(item, cancellationToken);
     }
 
     private static List<string> FolderNames(string? relativePath)
@@ -69,7 +69,11 @@ public sealed class FileUploader
         return segments.SkipLast(1).Select(ItemPlacement.ValidName).ToList();
     }
 
-    private async Task<Item> EnsureFoldersAsync(Item folder, IReadOnlyList<string> names, CancellationToken cancellationToken)
+    private async Task<Item> EnsureFoldersAsync(
+        Item folder,
+        IReadOnlyList<string> names,
+        string createdBy,
+        CancellationToken cancellationToken)
     {
         foreach (string name in names)
         {
@@ -81,7 +85,7 @@ public sealed class FileUploader
 
             if (existing is null)
             {
-                existing = Item.CreateFolder(folder, name, _time.GetUtcNow());
+                existing = Item.CreateFolder(folder, name, createdBy, _time.GetUtcNow());
                 _store.Add(existing);
                 await _store.SaveAsync(cancellationToken);
             }
