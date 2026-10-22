@@ -31,7 +31,7 @@ class FolderHeader extends ConsumerWidget {
               message: l10n.readOnlyFolder,
               child: Icon(LucideIcons.lock, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
-          if (current != null) _LayoutToggle(folderId: current.entry.id),
+          if (current != null) FolderLayoutToggle(folderId: current.entry.id),
           if (!compact)
             IconButton(
               tooltip: l10n.actionDetails,
@@ -45,8 +45,8 @@ class FolderHeader extends ConsumerWidget {
   }
 }
 
-class _LayoutToggle extends ConsumerWidget {
-  const _LayoutToggle({required this.folderId});
+class FolderLayoutToggle extends ConsumerWidget {
+  const FolderLayoutToggle({super.key, required this.folderId});
 
   final String folderId;
 
