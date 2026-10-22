@@ -40,7 +40,7 @@ Future<ItemAction?> showItemActions(
         PopupMenuItem(
           value: action,
           enabled: action.isEnabledFor(entries),
-          child: Row(children: [Icon(action.icon, size: 18), const SizedBox(width: 12), Text(action.label(l10n))]),
+          child: MenuItemLabel(icon: action.icon, label: action.label(l10n)),
         ),
     ],
   );
@@ -57,4 +57,20 @@ RelativeRect menuPositionAt(BuildContext context, Offset globalPosition) {
 Offset anchorPosition(BuildContext anchor) {
   final box = anchor.findRenderObject();
   return box is RenderBox ? box.localToGlobal(box.size.bottomLeft(Offset.zero)) : Offset.zero;
+}
+
+class MenuItemLabel extends StatelessWidget {
+  const MenuItemLabel({super.key, required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Icon(icon, size: 18),
+      const SizedBox(width: 12),
+      Flexible(child: Text(label)),
+    ],
+  );
 }
