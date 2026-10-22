@@ -3,6 +3,7 @@ using Guardou.Application.Files;
 using Guardou.Application.Persistence;
 using Guardou.Application.Previews;
 using Guardou.Application.Settings;
+using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
 using Guardou.Application.Users;
 using Guardou.Domain;
@@ -48,6 +49,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IItemStore, EfItemStore>();
+        services.AddScoped<IShareStore, EfShareStore>();
         services.AddSingleton<LocalBlobStore>();
         services.AddSingleton<IBlobStore>(provider => provider.GetRequiredService<LocalBlobStore>());
         services.AddSingleton<IMimeTypeMap, MimeTypeMap>();
