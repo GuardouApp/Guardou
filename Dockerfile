@@ -76,10 +76,10 @@ COPY --from=ffmpeg /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe /usr/local/bin
 WORKDIR /app
 COPY --from=server /app ./
 COPY --from=frontend /src/frontend/build/web ./wwwroot/
-ENV ASPNETCORE_HTTP_PORTS=8080
+ENV ASPNETCORE_HTTP_PORTS=2286
 VOLUME ["/data"]
-EXPOSE 8080
+EXPOSE 2286
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1
+    CMD wget -q -O /dev/null http://127.0.0.1:2286/health || exit 1
 ENTRYPOINT ["entrypoint"]
 CMD ["run"]

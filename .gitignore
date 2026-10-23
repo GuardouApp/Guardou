@@ -18,3 +18,4 @@ server/Guardou.Api/wwwroot/
 *.key
 
 .claude/settings.local.json
+.DS_Store

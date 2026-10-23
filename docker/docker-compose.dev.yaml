@@ -8,7 +8,7 @@ services:
     image: guardou:latest
     container_name: guardou
     ports:
-      - "8080:8080"
+      - "2286:2286"
     volumes:
       - data:/data
     restart: unless-stopped

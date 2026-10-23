@@ -4,15 +4,10 @@ services:
   guardou:
     image: ghcr.io/guardouapp/guardou:latest
     container_name: guardou
+    env_file:
+      - .env
     ports:
-      - "8080:8080"
+      - "2286:2286"
     volumes:
-      - data:/data
-    # environment:
-    #   PUID: 1000
-    #   PGID: 1000
-    #   TZ: America/Sao_Paulo
+      - ${DATA_PATH}:/data
     restart: unless-stopped
-
-volumes:
-  data:
