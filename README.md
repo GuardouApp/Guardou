@@ -1,7 +1,7 @@
 <h1 align="center">Guardou!</h1>
 <br/>
 <p align="center">
-  <img src="design/screenshot.webp" width="720" title="Main Screenshot" alt="Main Screenshot">
+  <img src="docs/static/img/screenshot.webp" width="720" title="Main Screenshot" alt="Main Screenshot">
 </p>
 <br/>
 
@@ -12,6 +12,7 @@ Guardou is a self-hosted file storage solution. Designed to be a simple alternat
 **Core Features:**
 - Multiple users
 - SSO Support
+- URL sharing
 
 No telemetry. No tracking. No ads. 100% Free.
 
@@ -20,8 +21,10 @@ No telemetry. No tracking. No ads. 100% Free.
 | Feature                    | Status |
 |----------------------------|--------|
 | Multiple users             | Yes    | 
-| File/Folder Sharing        | WIP    |
+| File/Folder Sharing        | Yes*   |
 | OIDC-based SSO             | Yes    |
+
+_* URL only, direct user sharing is in progress._ 
 
 ## Getting Started
 
@@ -49,6 +52,6 @@ AI is writing **only the code**. Documentation, architecture, features, UI/UX, a
 
 I'm personally not a fan of AI generated stuff, that's why the server is on C# and not Rust 😅 I'm using something I actually understand, trying my best to keep track of everything, writing small, focused PR's, and following best practices.
 
-That said, I still consider Guardou a **vibe-coded app**. For this reason, I don't recommended it for production use. **Use it at your own risk.**
+This don't change the fact that Guardou code is completelly built with AI. For this reason, I don't recommended it for production use. **Use it at your own risk.**
 
 Finally, if you decide to use it, please follow [3-2-1](https://www.backblaze.com/blog/the-3-2-1-backup-strategy/) backup strategy.

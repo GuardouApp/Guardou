@@ -1,0 +1,57 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Colors follow the Guardou app theme (frontend/lib/app/theme/app_theme.dart). */
+:root {
+  --ifm-color-primary: #00639b;
+  --ifm-color-primary-dark: #00598b;
+  --ifm-color-primary-darker: #005484;
+  --ifm-color-primary-darkest: #00456c;
+  --ifm-color-primary-light: #006daa;
+  --ifm-color-primary-lighter: #0072b2;
+  --ifm-color-primary-lightest: #0081ca;
+  --ifm-font-family-base: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ifm-heading-font-weight: 500;
+  --ifm-button-border-radius: 999px;
+  --ifm-background-color: #ffffff;
+  --ifm-navbar-background-color: #f8fafd;
+  --ifm-footer-background-color: #f0f4f9;
+  --ifm-menu-color-background-active: #c2e7ff;
+  --guardou-surface-container: #f0f4f9;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #93ccff;
+  --ifm-color-primary-dark: #6cbaff;
+  --ifm-color-primary-darker: #58b1ff;
+  --ifm-color-primary-darkest: #1e96ff;
+  --ifm-color-primary-light: #aed8ff;
+  --ifm-color-primary-lighter: #bde0ff;
+  --ifm-color-primary-lightest: #dceeff;
+  --ifm-background-color: #131314;
+  --ifm-navbar-background-color: #1b1b1c;
+  --ifm-footer-background-color: #1b1b1c;
+  --ifm-menu-color-background-active: #004a77;
+  --guardou-surface-container: #1f1f20;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .menu__link--active {
+  color: #c2e7ff;
+}
+
+.button--primary {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .button--primary {
+  color: #003354;
+}
