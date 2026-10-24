@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:guardou/core/widgets/labeled_text_field.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
 import 'package:guardou/api/generated/models/user_summary.dart';
 import 'package:guardou/features/files/item_action.dart';
@@ -60,7 +61,7 @@ void main() {
     when(() => shares.addRecipient(file.id, bob.id)).thenAnswer((_) async => [bob]);
 
     await pumpDialog(tester);
-    await tester.enterText(find.widgetWithText(TextField, 'Add people'), 'bo');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Add people'), 'bo');
     await tester.pumpAndSettle();
     await tester.tap(find.text('bob@example.com'));
     await tester.pumpAndSettle();
@@ -89,7 +90,7 @@ void main() {
     when(() => shares.searchUsers('bo')).thenAnswer((_) async => [bob]);
 
     await pumpDialog(tester);
-    await tester.enterText(find.widgetWithText(TextField, 'Add people'), 'bo');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Add people'), 'bo');
     await tester.pumpAndSettle();
 
     expect(find.text('bob@example.com'), findsOneWidget);

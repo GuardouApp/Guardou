@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:guardou/core/widgets/labeled_text_field.dart';
 import 'package:guardou/api/generated/models/current_user.dart';
 import 'package:guardou/api/generated/models/user_account.dart';
 import 'package:guardou/api/generated/models/user_request.dart';
@@ -120,10 +121,10 @@ void main() {
 
     await tester.tap(find.text('Create user'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'carol');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), ' Carol Doe ');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'carol@example.com');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'long-password');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Username'), 'carol');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Display name'), ' Carol Doe ');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Email'), 'carol@example.com');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Password'), 'long-password');
     await tester.tap(find.descendant(of: find.byType(SegmentedButton<bool>), matching: find.text('Administrator')));
     await tester.tap(find.widgetWithText(FilledButton, 'Create'));
     await tester.pumpAndSettle();
@@ -148,9 +149,9 @@ void main() {
 
     await tester.tap(find.text('Create user'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'carol');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), 'Carol');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'carol@example.com');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Username'), 'carol');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Display name'), 'Carol');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Email'), 'carol@example.com');
     await tester.tap(find.widgetWithText(FilledButton, 'Create'));
     await tester.pumpAndSettle();
 
@@ -166,7 +167,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Edit user'), findsOneWidget);
     expect(find.text('Leave empty to keep the current password.'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'robert');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Username'), 'robert');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 
@@ -211,7 +212,7 @@ void main() {
     await openMenu(tester, bob);
     await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'admin');
+    await tester.enterText(find.widgetWithText(LabeledTextField, 'Username'), 'admin');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 

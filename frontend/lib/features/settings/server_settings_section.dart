@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/server_settings.dart';
+import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'server_settings_controller.dart';
 import 'settings_section.dart';
@@ -65,7 +66,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SettingsTextField(
+          LabeledTextField(
             label: l10n.externalUrl,
             description: l10n.externalUrlDescription,
             controller: _externalUrl,

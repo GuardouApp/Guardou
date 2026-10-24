@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
+import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'share_access.dart';
 import 'share_controller.dart';
@@ -69,13 +70,14 @@ class ShareDialog extends ConsumerWidget {
                   _ => Center(child: CircularProgressIndicator(semanticsLabel: l10n.loading)),
                 },
               ),
-              if (link != null) ...[
-                SizedBox(height: spacing),
-                InputDecorator(
-                  decoration: InputDecoration(labelText: l10n.shareLink),
-                  child: SelectableText(link, maxLines: 1),
+              if (link != null)
+                LabeledField(
+                  label: l10n.shareLink,
+                  child: InputDecorator(
+                    decoration: filledInputDecoration(context),
+                    child: SelectableText(link, maxLines: 1),
+                  ),
                 ),
-              ],
             ],
           ),
         ),

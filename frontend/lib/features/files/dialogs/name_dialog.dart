@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../../core/widgets/labeled_text_field.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../item_name_rule.dart';
 
@@ -49,15 +51,12 @@ class _NameDialogState extends State<_NameDialog> {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(widget.title),
-      content: TextField(
+      content: LabeledTextField(
+        label: l10n.itemName,
         controller: _controller,
         autofocus: true,
-        maxLength: ItemNameRule.maximumLength,
-        decoration: InputDecoration(
-          labelText: l10n.itemName,
-          errorText: _invalid ? l10n.itemNameInvalid : null,
-          counterText: '',
-        ),
+        inputFormatters: [LengthLimitingTextInputFormatter(ItemNameRule.maximumLength)],
+        errorText: _invalid ? l10n.itemNameInvalid : null,
         onChanged: (_) => setState(() => _invalid = false),
         onSubmitted: (_) => _submit(),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_tokens.dart';
+import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../configuration/configuration_controller.dart';
 import 'auth_card.dart';
@@ -66,47 +67,43 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         _ => null,
       },
       children: [
-        TextFormField(
+        LabeledTextField(
+          label: l10n.loginUsername,
           controller: _username,
-          decoration: InputDecoration(labelText: l10n.loginUsername),
           autofillHints: const [AutofillHints.newUsername],
           textInputAction: TextInputAction.next,
           validator: (value) => validateUsername(l10n, value),
         ),
-        SizedBox(height: spacing),
-        TextFormField(
+        LabeledTextField(
+          label: l10n.displayName,
           controller: _displayName,
-          decoration: InputDecoration(labelText: l10n.displayName),
           autofillHints: const [AutofillHints.name],
           textInputAction: TextInputAction.next,
           validator: (value) => validateDisplayName(l10n, value),
         ),
-        SizedBox(height: spacing),
-        TextFormField(
+        LabeledTextField(
+          label: l10n.registerEmail,
           controller: _email,
-          decoration: InputDecoration(labelText: l10n.registerEmail),
           autofillHints: const [AutofillHints.email],
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
           validator: (value) => validateEmail(l10n, value),
         ),
-        SizedBox(height: spacing),
-        TextFormField(
+        LabeledTextField(
+          label: l10n.loginPassword,
           controller: _password,
-          decoration: InputDecoration(labelText: l10n.loginPassword, errorMaxLines: 5),
           autofillHints: const [AutofillHints.newPassword],
           obscureText: true,
           textInputAction: TextInputAction.next,
           autovalidateMode: AutovalidateMode.onUnfocus,
           validator: (value) => validatePassword(l10n, policy, value),
         ),
-        SizedBox(height: spacing),
-        TextFormField(
+        LabeledTextField(
+          label: l10n.registerConfirmPassword,
           controller: _confirmation,
-          decoration: InputDecoration(labelText: l10n.registerConfirmPassword),
           autofillHints: const [AutofillHints.newPassword],
           obscureText: true,
-          onFieldSubmitted: (_) => _submit(),
+          onSubmitted: (_) => _submit(),
           validator: _validateConfirmation,
         ),
         SizedBox(height: spacing * 1.5),

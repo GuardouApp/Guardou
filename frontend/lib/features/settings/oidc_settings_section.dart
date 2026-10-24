@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/oidc_settings_change.dart';
 import '../../api/generated/models/oidc_settings_view.dart';
+import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'oidc_settings_controller.dart';
 import 'settings_copy_field.dart';
@@ -107,22 +108,22 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SettingsTextField(
+          LabeledTextField(
             label: l10n.oidcIssuer,
             controller: _issuer,
             keyboardType: TextInputType.url,
             onChanged: (_) => setState(() {}),
             validator: (value) => validateHttpUrl(l10n, value) ?? _validateClient(l10n),
           ),
-          SettingsTextField(
+          LabeledTextField(
             label: l10n.oidcClientId,
             controller: _clientId,
             onChanged: (_) => setState(() {}),
             validator: (_) => _validateClient(l10n),
           ),
-          SettingsTextField(label: l10n.oidcClientSecret, controller: _clientSecret, obscureText: true),
-          SettingsTextField(label: l10n.oidcScopes, controller: _scopes),
-          SettingsTextField(
+          LabeledTextField(label: l10n.oidcClientSecret, controller: _clientSecret, obscureText: true),
+          LabeledTextField(label: l10n.oidcScopes, controller: _scopes),
+          LabeledTextField(
             label: l10n.oidcUserClaim,
             required: true,
             controller: _userClaim,
