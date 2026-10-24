@@ -25,7 +25,11 @@ class FolderHeader extends ConsumerWidget {
     return PageHeader(
       child: Row(
         children: [
-          Expanded(child: current == null ? const SizedBox.shrink() : FolderBreadcrumbs(folder: current)),
+          Expanded(
+            child: current == null
+                ? const SizedBox.shrink()
+                : FolderBreadcrumbs(folder: current, acceptsDrops: !current.shared, inSharedWithMe: current.shared),
+          ),
           if (readOnly)
             Tooltip(
               message: l10n.readOnlyFolder,

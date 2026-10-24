@@ -52,4 +52,6 @@ class SharesService {
       _api.directShares.removeItemRecipient(id: id, userId: userId);
 
   Future<List<UserSummary>> searchUsers(String query) => _api.userSearch.searchUsers(query: query);
+
+  Future<List<ItemEntry>> sharedWithMe() => _api.directShares.getSharedWithMe();
 }

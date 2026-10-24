@@ -130,4 +130,16 @@ void main() {
 
     expect(container.read(appRouterProvider).state.uri.path, '/file/${first.id}');
   });
+
+  testWidgets('closes a file shared with me to Shared with me without siblings', (tester) async {
+    final shared = testEntry('shared-clip.mp4', parentId: null, mimeType: 'video/mp4', canModify: false);
+    when(() => files.item(shared.id)).thenAnswer((_) async => testFolder(shared, const [], shared: true));
+    final container = await pumpViewer(tester, shared.id);
+
+    expect(find.byTooltip('Next file'), findsNothing);
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+
+    expect(container.read(appRouterProvider).state.uri.path, '/shared');
+  });
 }

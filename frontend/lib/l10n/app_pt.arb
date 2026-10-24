@@ -272,5 +272,7 @@
   "shareWithPeople": "Pessoas com acesso",
   "shareAddPeople": "Adicionar pessoas",
   "shareNoPeople": "Nenhum outro usuário tem acesso.",
-  "shareRemoveAccess": "Remover acesso"
+  "shareRemoveAccess": "Remover acesso",
+  "sharedWithMeEmptyTitle": "Nada foi compartilhado com você",
+  "sharedWithMeEmptyMessage": "Os itens que outros usuários compartilham com você aparecem aqui."
 }

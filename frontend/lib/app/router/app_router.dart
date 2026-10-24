@@ -15,6 +15,7 @@ import '../../features/settings/settings_page.dart';
 import '../../features/shares/shared_folder_page.dart';
 import '../../features/shares/shared_link_page.dart';
 import '../../features/shares/shared_viewer_page.dart';
+import '../../features/shares/shared_with_me_page.dart';
 import '../../features/shell/adaptive_shell.dart';
 import '../../features/shell/section_page.dart';
 import '../../features/shell/shell_destination.dart';
@@ -120,6 +121,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: Routes.shared,
+            pageBuilder: (_, _) => const NoTransitionPage(child: SharedWithMePage()),
+          ),
+          GoRoute(
             path: Routes.trash,
             pageBuilder: (_, _) => const NoTransitionPage(child: TrashPage()),
           ),
@@ -156,7 +161,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-const _dedicatedPages = {ShellDestination.files, ShellDestination.trash};
+const _dedicatedPages = {ShellDestination.files, ShellDestination.shared, ShellDestination.trash};
 
 Page<void> _folderPage(String folderId) => NoTransitionPage(
   child: FolderPage(key: ValueKey(folderId), folderId: folderId),
