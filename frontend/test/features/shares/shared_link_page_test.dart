@@ -122,4 +122,46 @@ void main() {
 
     expect(find.text('This link does not exist, or the owner stopped sharing it.'), findsOneWidget);
   });
+  Future<ProviderContainer> pumpSignedIn(WidgetTester tester, String location) {
+    final files = stubFiles(
+      folders: {
+        docs.id: testFolder(docs, [inner], shared: true),
+        first.id: testFolder(first, const [], ancestors: const [docsCrumb, innerCrumb], shared: true),
+      },
+    );
+    when(() => files.viewUri(any())).thenAnswer((invocation) => Uri.parse('/view/${invocation.positionalArguments.single}'));
+    return pumpRoutedApp(
+      tester,
+      location: location,
+      overrides: serviceOverrides(auth: MockAuthService(), shares: shares, browser: browser, files: files),
+    );
+  }
+
+  testWidgets('opens a shared folder link as a direct share when signed in', (tester) async {
+    when(() => shares.join(token)).thenAnswer((_) async => docs);
+
+    final container = await pumpSignedIn(tester, '/s/$token');
+
+    verify(() => shares.join(token)).called(1);
+    expect(container.read(appRouterProvider).state.uri.path, '/folders/${docs.id}');
+    expect(find.text('Shared with me'), findsWidgets);
+  });
+
+  testWidgets('opens a file inside a shared link in the own viewer when signed in', (tester) async {
+    when(() => shares.join(token)).thenAnswer((_) async => docs);
+
+    final container = await pumpSignedIn(tester, '/s/$token/view/${first.id}');
+
+    expect(container.read(appRouterProvider).state.uri.path, '/view/${first.id}');
+  });
+
+  testWidgets('shows the public page when the join fails', (tester) async {
+    when(() => shares.join(token)).thenThrow(testNotFound(token));
+    when(() => shares.sharedItem(token)).thenThrow(testNotFound(token));
+
+    final container = await pumpSignedIn(tester, '/s/$token');
+
+    expect(container.read(appRouterProvider).state.uri.path, '/s/$token');
+    expect(find.text('This link does not exist, or the owner stopped sharing it.'), findsOneWidget);
+  });
 }

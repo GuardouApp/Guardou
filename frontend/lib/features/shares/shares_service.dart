@@ -39,6 +39,8 @@ class SharesService {
 
   Future<ItemEntry> sharedItem(String token) => _api.shares.getSharedItem(token: token);
 
+  Future<ItemEntry> join(String token) => _api.shares.joinSharedItem(token: token);
+
   Future<ItemDetails> sharedDetails(String token, String id) => _api.shares.getSharedItemDetails(token: token, id: id);
 
   SharedFileSource files(String token) => SharedFileSource(_dio, _baseUri, token);
