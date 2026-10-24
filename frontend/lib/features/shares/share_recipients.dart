@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/user_summary.dart';
 import '../../app/theme/app_tokens.dart';
+import '../../core/widgets/labeled_text_field.dart';
 import '../../core/widgets/user_avatar.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'recipients_controller.dart';
@@ -115,11 +116,12 @@ class _RecipientSearchState extends ConsumerState<_RecipientSearch> {
         displayStringForOption: (user) => user.displayName,
         optionsBuilder: _options,
         onSelected: _select,
-        fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextField(
+        fieldViewBuilder: (context, controller, focusNode, onSubmitted) => LabeledTextField(
+          label: l10n.shareAddPeople,
           controller: controller,
           focusNode: focusNode,
           onSubmitted: (_) => onSubmitted(),
-          decoration: InputDecoration(labelText: l10n.shareAddPeople, prefixIcon: const Icon(LucideIcons.userPlus)),
+          prefixIcon: const Icon(LucideIcons.userPlus),
         ),
         optionsViewBuilder: (context, onSelected, options) => Align(
           alignment: AlignmentDirectional.topStart,

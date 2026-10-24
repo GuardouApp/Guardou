@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../api/generated/models/user_account.dart';
 import '../../api/generated/models/user_request.dart';
 import '../../app/theme/app_tokens.dart';
+import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/credential_validators.dart';
 import '../configuration/configuration_controller.dart';
@@ -99,36 +100,30 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
+              LabeledTextField(
+                label: l10n.loginUsername,
                 controller: _username,
                 autofocus: true,
-                decoration: InputDecoration(labelText: l10n.loginUsername),
                 textInputAction: TextInputAction.next,
                 validator: (value) => validateUsername(l10n, value),
               ),
-              SizedBox(height: spacing),
-              TextFormField(
+              LabeledTextField(
+                label: l10n.displayName,
                 controller: _displayName,
-                decoration: InputDecoration(labelText: l10n.displayName),
                 textInputAction: TextInputAction.next,
                 validator: (value) => validateDisplayName(l10n, value),
               ),
-              SizedBox(height: spacing),
-              TextFormField(
+              LabeledTextField(
+                label: l10n.registerEmail,
                 controller: _email,
-                decoration: InputDecoration(labelText: l10n.registerEmail),
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 validator: (value) => validateEmail(l10n, value),
               ),
-              SizedBox(height: spacing),
-              TextFormField(
+              LabeledTextField(
+                label: l10n.loginPassword,
                 controller: _password,
-                decoration: InputDecoration(
-                  labelText: l10n.loginPassword,
-                  helperText: _isNew ? null : l10n.userPasswordKeep,
-                  errorMaxLines: 5,
-                ),
+                helperText: _isNew ? null : l10n.userPasswordKeep,
                 autofillHints: const [AutofillHints.newPassword],
                 obscureText: true,
                 validator: (value) => _validatePassword(l10n, value),
