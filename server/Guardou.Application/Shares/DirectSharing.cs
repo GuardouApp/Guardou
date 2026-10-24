@@ -11,6 +11,7 @@ public sealed class DirectSharing
     private readonly IItemStore _store;
     private readonly OwnedItems _items;
     private readonly IUserDirectory _users;
+    private readonly SharedItems _links;
     private readonly ItemEntryFactory _entries;
     private readonly TimeProvider _time;
 
@@ -19,6 +20,7 @@ public sealed class DirectSharing
         IItemStore store,
         OwnedItems items,
         IUserDirectory users,
+        SharedItems links,
         ItemEntryFactory entries,
         TimeProvider time)
     {
@@ -26,6 +28,7 @@ public sealed class DirectSharing
         _store = store;
         _items = items;
         _users = users;
+        _links = links;
         _entries = entries;
         _time = time;
     }
@@ -53,13 +56,20 @@ public sealed class DirectSharing
             throw new UserNotFoundException(userId);
         }
 
-        if (await _shares.FindAsync(item.Id, userId, cancellationToken) is null)
+        await EnsureShareAsync(item, userId, cancellationToken);
+        return await RecipientsAsync(item, cancellationToken);
+    }
+
+    public async Task<ItemEntry> JoinLinkAsync(string userId, string token, CancellationToken cancellationToken)
+    {
+        Item item = await _links.FindRootAsync(token, cancellationToken);
+        if (item.OwnerId == userId)
         {
-            _shares.Add(DirectShare.Create(item.Id, userId, _time.GetUtcNow()));
-            await _shares.SaveAsync(cancellationToken);
+            return await _entries.CreateAsync(item, cancellationToken);
         }
 
-        return await RecipientsAsync(item, cancellationToken);
+        await EnsureShareAsync(item, userId, cancellationToken);
+        return (await _entries.CreateSharedRootsAsync([item], cancellationToken)).Single();
     }
 
     public async Task RemoveRecipientAsync(string ownerId, string id, string userId, CancellationToken cancellationToken)
@@ -85,6 +95,15 @@ public sealed class DirectSharing
         }
 
         return await _entries.CreateSharedRootsAsync(items, cancellationToken);
+    }
+
+    private async Task EnsureShareAsync(Item item, string userId, CancellationToken cancellationToken)
+    {
+        if (await _shares.FindAsync(item.Id, userId, cancellationToken) is null)
+        {
+            _shares.Add(DirectShare.Create(item.Id, userId, _time.GetUtcNow()));
+            await _shares.SaveAsync(cancellationToken);
+        }
     }
 
     private async Task<IReadOnlyList<UserSummary>> RecipientsAsync(Item item, CancellationToken cancellationToken)

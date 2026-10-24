@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Guardou.Application.Files;
+using Guardou.Application.Shares;
 using Guardou.Application.Users;
 
 namespace Guardou.IntegrationTests;
@@ -177,6 +178,70 @@ public sealed class DirectSharesTests : SignedInTests
         HttpResponseMessage response = await Client.PutAsync($"/api/items/{ItemsApi.Root}/recipients/{bobId}", null, CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ConvertsALinkShareIntoADirectShare()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        string token = await ShareLinkAsync(docs.Id);
+        UserAccount bobAccount = await Client.FindUserAsync(BobUsername);
+        using HttpClient bob = await SignInAsBobAsync();
+
+        ItemEntry joined = await JoinAsync(bob, token);
+        await JoinAsync(bob, token);
+        await Client.DeleteAsync($"/api/items/{docs.Id}/share", CancellationToken);
+
+        Assert.Equal(docs.Id, joined.Id);
+        Assert.Null(joined.ParentId);
+        Assert.False(joined.Permissions.CanModify);
+        Assert.Equal([bobAccount.Id], (await GetRecipientsAsync(docs.Id)).Select(user => user.Id));
+        Assert.Equal([docs.Id], (await GetSharedWithMeAsync(bob)).Select(entry => entry.Id));
+    }
+
+    [Fact]
+    public async Task KeepsTheOwnerOutOfTheRecipientsWhenTheOwnerJoins()
+    {
+        ItemEntry file = await Client.UploadEntryAsync(ItemsApi.Root, "report.txt", "a");
+        string token = await ShareLinkAsync(file.Id);
+
+        ItemEntry joined = await JoinAsync(Client, token);
+
+        Assert.Equal(file.Id, joined.Id);
+        Assert.Equal(file.ParentId, joined.ParentId);
+        Assert.True(joined.Permissions.CanModify);
+        Assert.Empty(await GetRecipientsAsync(file.Id));
+    }
+
+    [Fact]
+    public async Task RefusesToJoinWithoutASessionOrAValidToken()
+    {
+        ItemEntry file = await Client.UploadEntryAsync(ItemsApi.Root, "report.txt", "a");
+        string token = await ShareLinkAsync(file.Id);
+        using HttpClient anonymous = Factory.CreateClient();
+
+        HttpResponseMessage unauthorized = await anonymous.PostAsync($"/api/shares/{token}/join", null, CancellationToken);
+        HttpResponseMessage unknown = await Client.PostAsync("/api/shares/AAAAAAAAAAAAAAAAAAAAAA/join", null, CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, unauthorized.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+    }
+
+    private static async Task<ItemEntry> JoinAsync(HttpClient client, string token)
+    {
+        HttpResponseMessage response = await client.PostAsync($"/api/shares/{token}/join", null, CancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ItemEntry>(HttpClientExtensions.JsonOptions, CancellationToken)
+            ?? throw new InvalidOperationException("The shared item is missing.");
+    }
+
+    private async Task<string> ShareLinkAsync(string id)
+    {
+        HttpResponseMessage response = await Client.PutAsync($"/api/items/{id}/share", null, CancellationToken);
+        response.EnsureSuccessStatusCode();
+        ShareLink link = await response.Content.ReadFromJsonAsync<ShareLink>(HttpClientExtensions.JsonOptions, CancellationToken)
+            ?? throw new InvalidOperationException("The share link is missing.");
+        return link.Url[(link.Url.LastIndexOf('/') + 1)..];
     }
 
     private static async Task<IReadOnlyList<ItemEntry>> GetSharedWithMeAsync(HttpClient client)

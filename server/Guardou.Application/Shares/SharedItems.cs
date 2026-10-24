@@ -93,7 +93,7 @@ public sealed class SharedItems
         return path is not null && path.Contains(root.Id) ? new ItemAccess(path, root.Id) : throw NotFound();
     }
 
-    private async Task<Item> FindRootAsync(string token, CancellationToken cancellationToken)
+    internal async Task<Item> FindRootAsync(string token, CancellationToken cancellationToken)
     {
         Share share = (ShareToken.IsValid(token) ? await _shares.FindByTokenAsync(token, cancellationToken) : null) ?? throw NotFound();
         Item item = await _store.FindAnyAsync(share.ItemId, cancellationToken) ?? throw NotFound();
