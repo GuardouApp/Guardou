@@ -23,12 +23,14 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
         services.AddScoped<ProfilePictures>();
+        services.AddScoped<UserSearch>();
         services.AddScoped<Registration>();
         services.AddScoped<PasswordLogin>();
         services.AddScoped<ExternalSignIn>();
         services.AddScoped<OidcSettingsAdministration>();
         services.AddScoped<ServerSettingsAdministration>();
         services.AddScoped<OwnedItems>();
+        services.AddScoped<AccessibleItems>();
         services.AddScoped<ItemEntryFactory>();
         services.AddScoped<ItemPlacement>();
         services.AddScoped<ItemTree>();
@@ -44,6 +46,7 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<ItemPreviews>(services);
         AddScopedWithInternalConstructor<ItemSharing>(services);
         AddScopedWithInternalConstructor<SharedItems>(services);
+        AddScopedWithInternalConstructor<DirectSharing>(services);
         AddScopedWithInternalConstructor<TaskRunner>(services);
         AddScopedWithInternalConstructor<QueueSettings>(services);
         AddScopedWithInternalConstructor<TaskAdministration>(services);

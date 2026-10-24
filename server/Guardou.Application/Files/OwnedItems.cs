@@ -42,13 +42,19 @@ internal sealed class OwnedItems(IItemStore store)
     public async Task<ItemPath> FindActiveFolderAsync(string ownerId, string reference, CancellationToken cancellationToken)
     {
         ItemPath folder = await FindActiveAsync(ownerId, reference, cancellationToken);
-        return folder.Item.IsFolder ? folder : throw new InvalidItemRequestException("The item is not a folder.");
+        return folder.Item.IsFolder ? folder : throw NotAFolder();
     }
 
     public async Task<ItemPath> FindModifiableAsync(string ownerId, string reference, CancellationToken cancellationToken)
     {
         ItemPath path = await FindActiveAsync(ownerId, reference, cancellationToken);
         return path.Item.IsRoot ? throw new InvalidItemRequestException("The root folder cannot change.") : path;
+    }
+
+    public async Task<Item> FindShareableAsync(string ownerId, string reference, CancellationToken cancellationToken)
+    {
+        Item item = (await FindActiveAsync(ownerId, reference, cancellationToken)).Item;
+        return item.IsRoot ? throw new InvalidItemRequestException("The root folder cannot be shared.") : item;
     }
 
     public async Task<Item> FindTrashedAsync(string ownerId, string reference, CancellationToken cancellationToken)
@@ -62,14 +68,19 @@ internal sealed class OwnedItems(IItemStore store)
         return await store.FindAsync(ownerId, ParseId(reference), cancellationToken) ?? throw NotFound(reference);
     }
 
-    private static Guid ParseId(string reference)
+    public static Guid ParseId(string reference)
     {
         return ItemId.TryParse(reference, out Guid id)
             ? id
             : throw new InvalidItemRequestException($"The item id '{reference}' is not valid.");
     }
 
-    private static ItemNotFoundException NotFound(string reference)
+    public static InvalidItemRequestException NotAFolder()
+    {
+        return new InvalidItemRequestException("The item is not a folder.");
+    }
+
+    public static ItemNotFoundException NotFound(string reference)
     {
         return new ItemNotFoundException($"The item '{reference}' does not exist.");
     }

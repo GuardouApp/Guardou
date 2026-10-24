@@ -124,8 +124,12 @@ final testRoot = testEntry('', id: testRootId, parentId: null, kind: ItemKind.fo
 
 const testRootCrumb = Breadcrumb(id: testRootId, name: '');
 
-ItemDetails testFolder(ItemEntry entry, List<ItemEntry> items, {List<Breadcrumb> ancestors = const []}) =>
-    ItemDetails(entry: entry, ancestors: ancestors, items: items, content: null);
+ItemDetails testFolder(
+  ItemEntry entry,
+  List<ItemEntry> items, {
+  List<Breadcrumb> ancestors = const [],
+  bool shared = false,
+}) => ItemDetails(entry: entry, ancestors: ancestors, items: items, content: null, shared: shared);
 
 MockFilesService stubFiles({Map<String, ItemDetails>? folders}) {
   final known = folders ?? {Routes.rootFolderId: testFolder(testRoot, const [])};

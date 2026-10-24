@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/api_client.dart';
 import '../../api/generated/models/item_details.dart';
 import '../../api/generated/models/item_entry.dart';
+import '../../api/generated/models/user_summary.dart';
 import '../../core/api/api_providers.dart';
 import 'shared_file_source.dart';
 
 final sharesServiceProvider = Provider<SharesService>(
-  (ref) => SharesService(ref.watch(apiClientProvider), ref.watch(dioProvider), Uri.parse(ref.watch(apiBaseUrlProvider))),
+  (ref) =>
+      SharesService(ref.watch(apiClientProvider), ref.watch(dioProvider), Uri.parse(ref.watch(apiBaseUrlProvider))),
 );
 
 class SharesService {
@@ -37,7 +39,21 @@ class SharesService {
 
   Future<ItemEntry> sharedItem(String token) => _api.shares.getSharedItem(token: token);
 
+  Future<ItemEntry> join(String token) => _api.shares.joinSharedItem(token: token);
+
   Future<ItemDetails> sharedDetails(String token, String id) => _api.shares.getSharedItemDetails(token: token, id: id);
 
   SharedFileSource files(String token) => SharedFileSource(_dio, _baseUri, token);
+
+  Future<List<UserSummary>> recipients(String id) => _api.directShares.getItemRecipients(id: id);
+
+  Future<List<UserSummary>> addRecipient(String id, String userId) =>
+      _api.directShares.addItemRecipient(id: id, userId: userId);
+
+  Future<void> removeRecipient(String id, String userId) =>
+      _api.directShares.removeItemRecipient(id: id, userId: userId);
+
+  Future<List<UserSummary>> searchUsers(String query) => _api.userSearch.searchUsers(query: query);
+
+  Future<List<ItemEntry>> sharedWithMe() => _api.directShares.getSharedWithMe();
 }

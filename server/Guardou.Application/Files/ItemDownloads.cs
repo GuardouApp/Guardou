@@ -10,10 +10,10 @@ public sealed class ItemDownloads
 
     private readonly IBlobStore _blobs;
     private readonly IMimeTypeMap _mimeTypes;
-    private readonly OwnedItems _items;
+    private readonly AccessibleItems _items;
     private readonly ItemTree _tree;
 
-    internal ItemDownloads(IBlobStore blobs, IMimeTypeMap mimeTypes, OwnedItems items, ItemTree tree)
+    internal ItemDownloads(IBlobStore blobs, IMimeTypeMap mimeTypes, AccessibleItems items, ItemTree tree)
     {
         _blobs = blobs;
         _mimeTypes = mimeTypes;
@@ -21,21 +21,21 @@ public sealed class ItemDownloads
         _tree = tree;
     }
 
-    public async Task<FileDownload> OpenFileAsync(string ownerId, string id, CancellationToken cancellationToken)
+    public async Task<FileDownload> OpenFileAsync(string userId, string id, CancellationToken cancellationToken)
     {
-        return await TryOpenFileAsync(ownerId, id, cancellationToken)
+        return await TryOpenFileAsync(userId, id, cancellationToken)
             ?? throw new InvalidItemRequestException("A folder has no content.");
     }
 
-    public async Task<FileDownload?> TryOpenFileAsync(string ownerId, string id, CancellationToken cancellationToken)
+    public async Task<FileDownload?> TryOpenFileAsync(string userId, string id, CancellationToken cancellationToken)
     {
-        Item item = (await _items.FindActiveAsync(ownerId, id, cancellationToken)).Item;
+        Item item = (await _items.FindActiveAsync(userId, id, cancellationToken)).Item;
         return item.StorageKey is { } key
             ? new FileDownload(item.Name, _mimeTypes.MimeTypeOf(item.Name), item.Modified, _blobs.OpenRead(key))
             : null;
     }
 
-    public async Task<ItemArchive> PrepareArchiveAsync(string ownerId, IReadOnlyList<string> ids, CancellationToken cancellationToken)
+    public async Task<ItemArchive> PrepareArchiveAsync(string userId, IReadOnlyList<string> ids, CancellationToken cancellationToken)
     {
         if (ids.Count == 0)
         {
@@ -46,7 +46,7 @@ public sealed class ItemDownloads
         List<TreeNode> nodes = [];
         foreach (string id in ids)
         {
-            Item item = (await _items.FindActiveAsync(ownerId, id, cancellationToken)).Item;
+            Item item = (await _items.FindActiveAsync(userId, id, cancellationToken)).Item;
             string name = item.IsRoot ? DefaultArchiveName : item.Name;
             roots.Add(item);
             nodes.AddRange(await _tree.ActiveSubtreeAsync(item, name, cancellationToken));

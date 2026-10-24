@@ -8,13 +8,13 @@ namespace Guardou.Application.Previews;
 
 public sealed class ItemPreviews
 {
-    private readonly OwnedItems _items;
+    private readonly AccessibleItems _items;
     private readonly ITaskStore _tasks;
     private readonly IPreviewRenderer _renderer;
     private readonly IPreviewCache _cache;
     private readonly PreviewTasks _previewTasks;
 
-    internal ItemPreviews(OwnedItems items, ITaskStore tasks, IPreviewRenderer renderer, IPreviewCache cache, PreviewTasks previewTasks)
+    internal ItemPreviews(AccessibleItems items, ITaskStore tasks, IPreviewRenderer renderer, IPreviewCache cache, PreviewTasks previewTasks)
     {
         _items = items;
         _tasks = tasks;
@@ -23,9 +23,9 @@ public sealed class ItemPreviews
         _previewTasks = previewTasks;
     }
 
-    public async Task<Stream?> OpenAsync(string ownerId, string id, PreviewSize size, CancellationToken cancellationToken)
+    public async Task<Stream?> OpenAsync(string userId, string id, PreviewSize size, CancellationToken cancellationToken)
     {
-        Item item = await FindPreviewableAsync(ownerId, id, cancellationToken);
+        Item item = await FindPreviewableAsync(userId, id, cancellationToken);
         if (_cache.TryOpen(item.OwnerId, item.Id, size) is { } content)
         {
             return content;
@@ -40,9 +40,9 @@ public sealed class ItemPreviews
         return null;
     }
 
-    private async Task<Item> FindPreviewableAsync(string ownerId, string id, CancellationToken cancellationToken)
+    private async Task<Item> FindPreviewableAsync(string userId, string id, CancellationToken cancellationToken)
     {
-        Item item = (await _items.FindActiveAsync(ownerId, id, cancellationToken)).Item;
+        Item item = (await _items.FindActiveAsync(userId, id, cancellationToken)).Item;
         return item.IsFolder || !_renderer.Supports(item.Name)
             ? throw new ItemNotFoundException($"The item '{id}' has no preview.")
             : item;

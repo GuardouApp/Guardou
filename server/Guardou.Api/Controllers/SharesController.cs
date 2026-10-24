@@ -11,7 +11,8 @@ namespace Guardou.Api.Controllers;
 
 [ApiController]
 [Authorize]
-public sealed class SharesController(ItemSharing sharing, SharedItems shared, ItemDownloads downloads) : ControllerBase
+public sealed class SharesController(ItemSharing sharing, SharedItems shared, DirectSharing directSharing, ItemDownloads downloads)
+    : ControllerBase
 {
     private const string ItemShareRoute = "api/items/{id}/share";
     private const string SharedItemRoute = "api/shares/{token}/items/{id}";
@@ -54,6 +55,15 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared, It
     public Task<ItemEntry> GetSharedItem(string token, CancellationToken cancellationToken)
     {
         return shared.GetAsync(token, cancellationToken);
+    }
+
+    [HttpPost("api/shares/{token}/join", Name = "JoinSharedItem")]
+    [ProducesResponseType<ItemEntry>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public Task<ItemEntry> JoinSharedItem(string token, CancellationToken cancellationToken)
+    {
+        return directSharing.JoinLinkAsync(User.UserId(), token, cancellationToken);
     }
 
     [AllowAnonymous]

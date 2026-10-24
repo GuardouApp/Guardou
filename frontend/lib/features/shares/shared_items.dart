@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/models/item_details.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../core/providers/retry.dart';
+import '../auth/session_controller.dart';
 import 'shares_service.dart';
 
 typedef SharedItemKey = ({String token, String id});
@@ -16,3 +17,8 @@ final sharedDetailsProvider = FutureProvider.autoDispose.family<ItemDetails, Sha
   (ref, key) => ref.read(sharesServiceProvider).sharedDetails(key.token, key.id),
   retry: noRetry,
 );
+
+final joinedShareProvider = FutureProvider.autoDispose.family<ItemEntry?, String>((ref, token) async {
+  final user = await ref.watch(sessionControllerProvider.future);
+  return user == null ? null : ref.read(sharesServiceProvider).join(token);
+}, retry: noRetry);

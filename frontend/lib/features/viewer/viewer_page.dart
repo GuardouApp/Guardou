@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../api/generated/models/item_entry.dart';
 import '../../app/router/routes.dart';
 import '../../app/theme/app_theme.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -22,14 +23,7 @@ class ViewerPage extends ConsumerWidget {
     return Theme(
       data: AppTheme.dark(),
       child: switch (ref.watch(fileDetailsProvider(fileId))) {
-        AsyncValue(hasValue: true, :final value?) => MediaViewer(
-          entry: value.entry,
-          source: ref.watch(filesServiceProvider),
-          siblings: ref.watch(mediaSiblingsProvider(value.entry.parentId ?? Routes.rootFolderId)),
-          viewerRoute: Routes.viewer,
-          leading: ViewerCloseButton(location: Routes.fileItem(value.entry.id)),
-          closeLocation: Routes.fileItem(value.entry.id),
-        ),
+        AsyncValue(hasValue: true, :final value?) => _viewer(ref, value.entry),
         AsyncValue(:final error?) => Scaffold(
           appBar: AppBar(leading: const ViewerCloseButton(location: Routes.files)),
           body: FolderErrorView(
@@ -42,6 +36,19 @@ class ViewerPage extends ConsumerWidget {
           body: Center(child: CircularProgressIndicator(semanticsLabel: l10n.loading)),
         ),
       },
+    );
+  }
+
+  Widget _viewer(WidgetRef ref, ItemEntry entry) {
+    final parentId = entry.parentId;
+    final close = parentId == null ? Routes.shared : Routes.fileItem(entry.id);
+    return MediaViewer(
+      entry: entry,
+      source: ref.watch(filesServiceProvider),
+      siblings: parentId == null ? const [] : ref.watch(mediaSiblingsProvider(parentId)),
+      viewerRoute: Routes.viewer,
+      leading: ViewerCloseButton(location: close),
+      closeLocation: close,
     );
   }
 }

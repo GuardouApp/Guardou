@@ -36,19 +36,36 @@ internal sealed class ItemEntryFactory(
         Guid shareRootId,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<ItemEntry> entries = await CreateAsync(items, cancellationToken);
-        return entries
-            .Select(entry => entry with
-            {
-                ParentId = entry.Id == ItemId.Format(shareRootId) ? null : entry.ParentId,
-                Permissions = ReadOnly,
-            })
-            .ToList();
+        string rootId = ItemId.Format(shareRootId);
+        return ReadOnlyEntries(await CreateAsync(items, cancellationToken), entry => entry.Id == rootId);
+    }
+
+    public async Task<IReadOnlyList<ItemEntry>> CreateSharedRootsAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
+    {
+        return ReadOnlyEntries(await CreateAsync(items, cancellationToken), _ => true);
+    }
+
+    public Task<IReadOnlyList<ItemEntry>> CreateAsync(IEnumerable<Item> items, ItemAccess access, CancellationToken cancellationToken)
+    {
+        return access.ShareRootId is { } shareRootId
+            ? CreateSharedAsync(items, shareRootId, cancellationToken)
+            : CreateAsync(items, cancellationToken);
     }
 
     public static Breadcrumb Breadcrumb(Item item)
     {
         return new Breadcrumb(ItemId.Format(item.Id), item.Name);
+    }
+
+    private static List<ItemEntry> ReadOnlyEntries(IEnumerable<ItemEntry> entries, Func<ItemEntry, bool> isShareRoot)
+    {
+        return entries
+            .Select(entry => entry with
+            {
+                ParentId = isShareRoot(entry) ? null : entry.ParentId,
+                Permissions = ReadOnly,
+            })
+            .ToList();
     }
 
     private static IEnumerable<Item> Ordered(IEnumerable<Item> items)

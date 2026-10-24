@@ -57,7 +57,7 @@ class FileActions {
 
   Future<void> open(ItemEntry entry) async {
     if (entry.kind == ItemKind.folder) {
-      _context.go(Routes.folder(entry.parentId == null ? Routes.rootFolderId : entry.id));
+      _context.go(Routes.folder(entry.name.isEmpty ? Routes.rootFolderId : entry.id));
     } else {
       _context.go(Routes.viewer(entry.id));
     }

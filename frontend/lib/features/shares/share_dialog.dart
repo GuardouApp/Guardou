@@ -8,6 +8,7 @@ import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'share_access.dart';
 import 'share_controller.dart';
+import 'share_recipients.dart';
 
 Future<void> showShareDialog(BuildContext context, ItemEntry entry) => showDialog<void>(
   context: context,
@@ -43,31 +44,40 @@ class ShareDialog extends ConsumerWidget {
       title: Text(l10n.shareTitle(entry.name), overflow: TextOverflow.ellipsis),
       content: SizedBox(
         width: _width,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.shareGeneralAccess, style: Theme.of(context).textTheme.titleSmall),
-            SizedBox(height: spacing / 2),
-            SizedBox(
-              height: _sectionHeight,
-              child: switch (state) {
-                AsyncData(:final value) => _AccessSelector(
-                  access: ShareAccess.of(value),
-                  onChanged: (access) => ref.read(provider.notifier).change(access),
-                ),
-                AsyncError() => _ErrorRow(onRetry: () => ref.invalidate(provider)),
-                _ => Center(child: CircularProgressIndicator(semanticsLabel: l10n.loading)),
-              },
-            ),
-            if (link != null) ...[
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.shareWithPeople, style: Theme.of(context).textTheme.titleSmall),
               SizedBox(height: spacing),
-              InputDecorator(
-                decoration: InputDecoration(labelText: l10n.shareLink),
-                child: SelectableText(link, maxLines: 1),
+              ShareRecipients(
+                itemId: entry.id,
+                onError: (onRetry) => _ErrorRow(onRetry: onRetry),
               ),
+              SizedBox(height: spacing),
+              Text(l10n.shareGeneralAccess, style: Theme.of(context).textTheme.titleSmall),
+              SizedBox(height: spacing / 2),
+              SizedBox(
+                height: _sectionHeight,
+                child: switch (state) {
+                  AsyncData(:final value) => _AccessSelector(
+                    access: ShareAccess.of(value),
+                    onChanged: (access) => ref.read(provider.notifier).change(access),
+                  ),
+                  AsyncError() => _ErrorRow(onRetry: () => ref.invalidate(provider)),
+                  _ => Center(child: CircularProgressIndicator(semanticsLabel: l10n.loading)),
+                },
+              ),
+              if (link != null) ...[
+                SizedBox(height: spacing),
+                InputDecorator(
+                  decoration: InputDecoration(labelText: l10n.shareLink),
+                  child: SelectableText(link, maxLines: 1),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
       actions: [

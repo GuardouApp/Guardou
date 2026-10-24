@@ -50,7 +50,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IItemStore, EfItemStore>();
         services.AddScoped<IShareStore, EfShareStore>();
+        services.AddScoped<IDirectShareStore, EfDirectShareStore>();
         services.AddScoped<IUserNames, EfUserNames>();
+        services.AddScoped<IUserDirectory, EfUserDirectory>();
         services.AddSingleton<LocalBlobStore>();
         services.AddSingleton<IBlobStore>(provider => provider.GetRequiredService<LocalBlobStore>());
         services.AddSingleton<IMimeTypeMap, MimeTypeMap>();

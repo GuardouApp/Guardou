@@ -13,13 +13,20 @@ import 'file_presentation.dart';
 String crumbRoute(Breadcrumb crumb) => crumb.name.isEmpty ? Routes.files : Routes.folder(crumb.id);
 
 class FolderBreadcrumbs extends StatelessWidget {
-  const FolderBreadcrumbs({super.key, required this.folder, this.routeOf = crumbRoute, this.acceptsDrops = true});
+  const FolderBreadcrumbs({
+    super.key,
+    required this.folder,
+    this.routeOf = crumbRoute,
+    this.acceptsDrops = true,
+    this.inSharedWithMe = false,
+  });
 
   static const _compactVisibleAncestors = 1;
 
   final ItemDetails folder;
   final String Function(Breadcrumb crumb) routeOf;
   final bool acceptsDrops;
+  final bool inSharedWithMe;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +44,7 @@ class FolderBreadcrumbs extends StatelessWidget {
         reverse: true,
         child: Row(
           children: [
+            if (inSharedWithMe) ...[const _SharedWithMeCrumb(), const _Separator()],
             for (final ancestor in visible) ...[
               _Crumb(crumb: ancestor, route: routeOf(ancestor), acceptsDrops: acceptsDrops),
               const _Separator(),
@@ -59,16 +67,31 @@ class _Crumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final link = InkWell(
-      onTap: () => context.go(route),
-      borderRadius: BorderRadius.circular(8),
-      child: Text(
-        breadcrumbLabel(crumb, AppLocalizations.of(context)),
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-      ),
-    );
+    final link = _CrumbLink(label: breadcrumbLabel(crumb, AppLocalizations.of(context)), route: route);
     return acceptsDrops ? FileDropTarget(folderId: crumb.id, enabled: true, child: link) : link;
   }
+}
+
+class _SharedWithMeCrumb extends StatelessWidget {
+  const _SharedWithMeCrumb();
+
+  @override
+  Widget build(BuildContext context) =>
+      _CrumbLink(label: AppLocalizations.of(context).navigationSharedWithMe, route: Routes.shared);
+}
+
+class _CrumbLink extends StatelessWidget {
+  const _CrumbLink({required this.label, required this.route});
+
+  final String label;
+  final String route;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: () => context.go(route),
+    borderRadius: BorderRadius.circular(8),
+    child: Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+  );
 }
 
 class _CollapsedCrumbs extends StatelessWidget {
