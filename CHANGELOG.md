@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/GuardouApp/Guardou/compare/v0.6.0...v0.7.0) (2026-10-24)
+
+
+### Features
+
+* direct share with users ([#28](https://github.com/GuardouApp/Guardou/issues/28)) ([c21eee5](https://github.com/GuardouApp/Guardou/commit/c21eee53e81d64f97f2691e5b90f79faec66e13d))
+
 ## [0.6.0](https://github.com/GuardouApp/Guardou/compare/v0.5.0...v0.6.0) (2026-10-24)
 
 
