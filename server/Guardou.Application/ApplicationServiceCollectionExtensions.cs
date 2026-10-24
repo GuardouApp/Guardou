@@ -23,6 +23,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
         services.AddScoped<ProfilePictures>();
+        services.AddScoped<UserSearch>();
         services.AddScoped<Registration>();
         services.AddScoped<PasswordLogin>();
         services.AddScoped<ExternalSignIn>();

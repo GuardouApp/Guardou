@@ -4048,6 +4048,61 @@
           }
         }
       }
+    },
+    "/api/users/search": {
+      "get": {
+        "tags": [
+          "UserSearch"
+        ],
+        "operationId": "SearchUsers",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSummary"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSummary"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4770,6 +4825,33 @@
           }
         }
       },
+      "UserSummary": {
+        "required": [
+          "id",
+          "username",
+          "displayName",
+          "email",
+          "hasPicture"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "hasPicture": {
+            "type": "boolean"
+          }
+        }
+      },
       "ValidationProblemDetails": {
         "type": "object",
         "properties": {
@@ -4840,6 +4922,9 @@
     },
     {
       "name": "Users"
+    },
+    {
+      "name": "UserSearch"
     }
   ]
 }
