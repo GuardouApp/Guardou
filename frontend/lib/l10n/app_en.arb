@@ -469,12 +469,16 @@
   },
   "shareGeneralAccess": "General access",
   "shareAccessRestricted": "Restricted",
-  "shareAccessRestrictedDescription": "Only you can open this item.",
+  "shareAccessRestrictedDescription": "Only people with access can open this item.",
   "shareAccessAnyoneWithLink": "Anyone with the link",
   "shareAccessAnyoneWithLinkDescription": "Anyone who has the link can view this item.",
   "shareLink": "Link",
   "shareCopyLink": "Copy link",
   "shareLinkCopied": "Link copied",
   "done": "Done",
-  "sharedLinkUnavailable": "This link does not exist, or the owner stopped sharing it."
+  "sharedLinkUnavailable": "This link does not exist, or the owner stopped sharing it.",
+  "shareWithPeople": "People with access",
+  "shareAddPeople": "Add people",
+  "shareNoPeople": "No other user has access.",
+  "shareRemoveAccess": "Remove access"
 }

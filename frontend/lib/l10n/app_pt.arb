@@ -261,12 +261,16 @@
   "shareTitle": "Compartilhar \"{name}\"",
   "shareGeneralAccess": "Acesso geral",
   "shareAccessRestricted": "Restrito",
-  "shareAccessRestrictedDescription": "Somente você pode abrir este item.",
+  "shareAccessRestrictedDescription": "Somente pessoas com acesso podem abrir este item.",
   "shareAccessAnyoneWithLink": "Qualquer pessoa com o link",
   "shareAccessAnyoneWithLinkDescription": "Qualquer pessoa que tenha o link pode ver este item.",
   "shareLink": "Link",
   "shareCopyLink": "Copiar link",
   "shareLinkCopied": "Link copiado",
   "done": "Concluído",
-  "sharedLinkUnavailable": "Este link não existe ou o proprietário parou de compartilhá-lo."
+  "sharedLinkUnavailable": "Este link não existe ou o proprietário parou de compartilhá-lo.",
+  "shareWithPeople": "Pessoas com acesso",
+  "shareAddPeople": "Adicionar pessoas",
+  "shareNoPeople": "Nenhum outro usuário tem acesso.",
+  "shareRemoveAccess": "Remover acesso"
 }
