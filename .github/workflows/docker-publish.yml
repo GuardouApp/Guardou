@@ -3,10 +3,18 @@ name: Docker publish
 on:
   push:
     tags: ['v*.*.*']
+  # Called by release.yml, since its tags don't trigger the push event.
+  workflow_call:
+    inputs:
+      tag:
+        description: The release tag to publish, such as v1.2.3
+        required: true
+        type: string
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: guardouapp/guardou
+  TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   publish:
@@ -20,21 +28,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
+          ref: ${{ env.TAG }}
           fetch-depth: 0
 
       - name: Require the tag on main
         run: |
           git fetch origin main
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-            echo "::error::The tag ${GITHUB_REF_NAME} does not point to a commit on main."
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::The tag ${TAG} does not point to a commit on main."
             exit 1
           fi
 
       - name: Require the tag to match the project version
         run: |
-          tag="${GITHUB_REF_NAME#v}"
+          tag="${TAG#v}"
           server=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' server/Directory.Build.props)
-          frontend=$(sed -n 's/^version: //p' frontend/pubspec.yaml)
+          frontend=$(sed -n 's/^version: *\([^ #]*\).*/\1/p' frontend/pubspec.yaml)
           if [ "$tag" != "$server" ] || [ "$tag" != "$frontend" ]; then
             echo "::error::Tag ${tag}, server ${server} and frontend ${frontend} must be equal."
             exit 1
@@ -62,8 +71,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},value=${{ env.TAG }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.TAG }}
             type=raw,value=latest
 
       - name: Build and push Docker image
