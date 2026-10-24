@@ -17,34 +17,36 @@ public sealed class ItemBrowser
         _entries = entries;
     }
 
-    public async Task<ItemDetails> GetAsync(string ownerId, ItemDetailsRequest request, CancellationToken cancellationToken)
+    public async Task<ItemDetails> GetAsync(string userId, ItemDetailsRequest request, CancellationToken cancellationToken)
     {
-        ItemPath path = await _items.FindActiveAsync(ownerId, request.Id, cancellationToken);
-        Item item = path.Item;
-        IReadOnlyList<Breadcrumb> ancestors = path.Ancestors.Select(ItemEntryFactory.Breadcrumb).ToList();
-        if (item.IsFolder)
-        {
-            IReadOnlyList<Item> children = await _store.ChildrenAsync(item.Id, cancellationToken);
-            return new ItemDetails(
-                await _entries.CreateAsync(item, cancellationToken),
-                ancestors,
-                await _entries.CreateAsync(children, cancellationToken),
-                Content: null);
-        }
-
-        string? content = request.Content ? await ReadTextAsync(item, cancellationToken) : null;
-        return new ItemDetails(await _entries.CreateAsync(item, cancellationToken), ancestors, Items: null, content);
+        ItemAccess access = ItemAccess.Owned(await _items.FindActiveAsync(userId, request.Id, cancellationToken));
+        return await DetailsAsync(access, request.Content, cancellationToken);
     }
 
     public async Task<IReadOnlyList<ItemEntry>> GetChildrenAsync(
-        string ownerId,
+        string userId,
         string id,
         ItemFilter? only,
         CancellationToken cancellationToken)
     {
-        ItemPath folder = await _items.FindActiveFolderAsync(ownerId, id, cancellationToken);
+        ItemAccess folder = ItemAccess.Owned(await _items.FindActiveFolderAsync(userId, id, cancellationToken));
         IReadOnlyList<Item> children = await _store.ChildrenAsync(folder.Item.Id, cancellationToken);
-        return await _entries.CreateAsync(children.Where(child => Matches(child, only)), cancellationToken);
+        return await _entries.CreateAsync(children.Where(child => Matches(child, only)), folder, cancellationToken);
+    }
+
+    internal async Task<ItemDetails> DetailsAsync(ItemAccess access, bool content, CancellationToken cancellationToken)
+    {
+        Item item = access.Item;
+        ItemEntry entry = (await _entries.CreateAsync([item], access, cancellationToken)).Single();
+        if (item.IsFolder)
+        {
+            IReadOnlyList<Item> children = await _store.ChildrenAsync(item.Id, cancellationToken);
+            IReadOnlyList<ItemEntry> entries = await _entries.CreateAsync(children, access, cancellationToken);
+            return new ItemDetails(entry, access.Breadcrumbs, entries, Content: null);
+        }
+
+        string? text = content ? await ReadTextAsync(item, cancellationToken) : null;
+        return new ItemDetails(entry, access.Breadcrumbs, Items: null, text);
     }
 
     public async Task<StorageUsage> GetUsageAsync(string ownerId, CancellationToken cancellationToken)

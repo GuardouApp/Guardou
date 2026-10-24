@@ -13,6 +13,7 @@ public sealed class SharedItems
     private readonly IItemStore _store;
     private readonly OwnedItems _items;
     private readonly ItemEntryFactory _entries;
+    private readonly ItemBrowser _browser;
     private readonly ItemDownloads _downloads;
     private readonly ItemPreviews _previews;
     private readonly IProfilePictureStore _pictures;
@@ -22,6 +23,7 @@ public sealed class SharedItems
         IItemStore store,
         OwnedItems items,
         ItemEntryFactory entries,
+        ItemBrowser browser,
         ItemDownloads downloads,
         ItemPreviews previews,
         IProfilePictureStore pictures)
@@ -30,6 +32,7 @@ public sealed class SharedItems
         _store = store;
         _items = items;
         _entries = entries;
+        _browser = browser;
         _downloads = downloads;
         _previews = previews;
         _pictures = pictures;
@@ -43,47 +46,37 @@ public sealed class SharedItems
 
     public async Task<ItemDetails> GetDetailsAsync(string token, string id, CancellationToken cancellationToken)
     {
-        SharedPath shared = await FindAsync(token, id, cancellationToken);
-        Item item = shared.Path.Item;
-        IReadOnlyList<Breadcrumb> ancestors = shared.Path.Ancestors
-            .SkipWhile(ancestor => ancestor.Id != shared.Root.Id)
-            .Select(ItemEntryFactory.Breadcrumb)
-            .ToList();
-        IReadOnlyList<ItemEntry>? children = item.IsFolder
-            ? await _entries.CreateSharedAsync(await _store.ChildrenAsync(item.Id, cancellationToken), shared.Root.Id, cancellationToken)
-            : null;
-        ItemEntry entry = await _entries.CreateSharedAsync(item, shared.Root.Id, cancellationToken);
-        return new ItemDetails(entry, ancestors, children, Content: null);
+        return await _browser.DetailsAsync(await FindAsync(token, id, cancellationToken), content: false, cancellationToken);
     }
 
     public async Task<FileDownload?> TryOpenFileAsync(string token, string id, CancellationToken cancellationToken)
     {
-        SharedPath shared = await FindAsync(token, id, cancellationToken);
-        return await _downloads.TryOpenFileAsync(shared.Root.OwnerId, id, cancellationToken);
+        ItemAccess shared = await FindAsync(token, id, cancellationToken);
+        return await _downloads.TryOpenFileAsync(shared.Item.OwnerId, id, cancellationToken);
     }
 
     public async Task<FileDownload> OpenFileAsync(string token, string id, CancellationToken cancellationToken)
     {
-        SharedPath shared = await FindAsync(token, id, cancellationToken);
-        return await _downloads.OpenFileAsync(shared.Root.OwnerId, id, cancellationToken);
+        ItemAccess shared = await FindAsync(token, id, cancellationToken);
+        return await _downloads.OpenFileAsync(shared.Item.OwnerId, id, cancellationToken);
     }
 
     public async Task<ItemArchive> PrepareArchiveAsync(string token, string id, CancellationToken cancellationToken)
     {
-        SharedPath shared = await FindAsync(token, id, cancellationToken);
-        return await _downloads.PrepareArchiveAsync(shared.Root.OwnerId, [id], cancellationToken);
+        ItemAccess shared = await FindAsync(token, id, cancellationToken);
+        return await _downloads.PrepareArchiveAsync(shared.Item.OwnerId, [id], cancellationToken);
     }
 
     public async Task<Stream?> OpenPreviewAsync(string token, string id, PreviewSize size, CancellationToken cancellationToken)
     {
-        SharedPath shared = await FindAsync(token, id, cancellationToken);
-        return await _previews.OpenAsync(shared.Root.OwnerId, id, size, cancellationToken);
+        ItemAccess shared = await FindAsync(token, id, cancellationToken);
+        return await _previews.OpenAsync(shared.Item.OwnerId, id, size, cancellationToken);
     }
 
     public async Task<ProfilePicture?> OpenCreatorPictureAsync(string token, string id, CancellationToken cancellationToken)
     {
-        SharedPath shared = await FindAsync(token, id, cancellationToken);
-        return _pictures.TryOpen(shared.Path.Item.CreatedBy);
+        ItemAccess shared = await FindAsync(token, id, cancellationToken);
+        return _pictures.TryOpen(shared.Item.CreatedBy);
     }
 
     private static ShareNotFoundException NotFound()
@@ -91,13 +84,13 @@ public sealed class SharedItems
         return new ShareNotFoundException("The share does not exist.");
     }
 
-    private async Task<SharedPath> FindAsync(string token, string id, CancellationToken cancellationToken)
+    private async Task<ItemAccess> FindAsync(string token, string id, CancellationToken cancellationToken)
     {
         Item root = await FindRootAsync(token, cancellationToken);
         ItemPath? path = ItemId.TryParse(id, out Guid itemId)
             ? await _items.TryFindActiveAsync(root.OwnerId, itemId, cancellationToken)
             : null;
-        return path is not null && path.Contains(root.Id) ? new SharedPath(root, path) : throw NotFound();
+        return path is not null && path.Contains(root.Id) ? new ItemAccess(path, root.Id) : throw NotFound();
     }
 
     private async Task<Item> FindRootAsync(string token, CancellationToken cancellationToken)
@@ -107,6 +100,4 @@ public sealed class SharedItems
         ItemPath? path = await _items.TryFindActiveAsync(item.OwnerId, item.Id, cancellationToken);
         return path?.Item ?? throw NotFound();
     }
-
-    private sealed record SharedPath(Item Root, ItemPath Path);
 }
