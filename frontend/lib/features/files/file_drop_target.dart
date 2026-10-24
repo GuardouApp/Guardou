@@ -121,7 +121,7 @@ class FileDropTarget extends ConsumerStatefulWidget {
 
 class _FileDropTargetState extends ConsumerState<FileDropTarget> {
   final _key = GlobalKey();
-  late final FileDropController _controller = ref.read(fileDropControllerProvider.notifier);
+  late final FileDropController _controller;
   late final _registration = DropTargetRegistration(_key, _drop);
 
   void _drop(List<LocalFile> files) {
@@ -133,6 +133,7 @@ class _FileDropTargetState extends ConsumerState<FileDropTarget> {
   @override
   void initState() {
     super.initState();
+    _controller = ref.read(fileDropControllerProvider.notifier);
     if (widget.enabled) {
       _controller.register(_registration);
     }
