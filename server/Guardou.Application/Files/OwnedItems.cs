@@ -68,19 +68,19 @@ internal sealed class OwnedItems(IItemStore store)
         return await store.FindAsync(ownerId, ParseId(reference), cancellationToken) ?? throw NotFound(reference);
     }
 
-    private static Guid ParseId(string reference)
+    public static Guid ParseId(string reference)
     {
         return ItemId.TryParse(reference, out Guid id)
             ? id
             : throw new InvalidItemRequestException($"The item id '{reference}' is not valid.");
     }
 
-    private static InvalidItemRequestException NotAFolder()
+    public static InvalidItemRequestException NotAFolder()
     {
         return new InvalidItemRequestException("The item is not a folder.");
     }
 
-    private static ItemNotFoundException NotFound(string reference)
+    public static ItemNotFoundException NotFound(string reference)
     {
         return new ItemNotFoundException($"The item '{reference}' does not exist.");
     }

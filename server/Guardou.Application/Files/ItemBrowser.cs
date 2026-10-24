@@ -6,10 +6,10 @@ public sealed class ItemBrowser
 {
     private readonly IItemStore _store;
     private readonly IBlobStore _blobs;
-    private readonly OwnedItems _items;
+    private readonly AccessibleItems _items;
     private readonly ItemEntryFactory _entries;
 
-    internal ItemBrowser(IItemStore store, IBlobStore blobs, OwnedItems items, ItemEntryFactory entries)
+    internal ItemBrowser(IItemStore store, IBlobStore blobs, AccessibleItems items, ItemEntryFactory entries)
     {
         _store = store;
         _blobs = blobs;
@@ -19,7 +19,7 @@ public sealed class ItemBrowser
 
     public async Task<ItemDetails> GetAsync(string userId, ItemDetailsRequest request, CancellationToken cancellationToken)
     {
-        ItemAccess access = ItemAccess.Owned(await _items.FindActiveAsync(userId, request.Id, cancellationToken));
+        ItemAccess access = await _items.FindActiveAsync(userId, request.Id, cancellationToken);
         return await DetailsAsync(access, request.Content, cancellationToken);
     }
 
@@ -29,7 +29,7 @@ public sealed class ItemBrowser
         ItemFilter? only,
         CancellationToken cancellationToken)
     {
-        ItemAccess folder = ItemAccess.Owned(await _items.FindActiveFolderAsync(userId, id, cancellationToken));
+        ItemAccess folder = await _items.FindActiveFolderAsync(userId, id, cancellationToken);
         IReadOnlyList<Item> children = await _store.ChildrenAsync(folder.Item.Id, cancellationToken);
         return await _entries.CreateAsync(children.Where(child => Matches(child, only)), folder, cancellationToken);
     }
@@ -38,15 +38,16 @@ public sealed class ItemBrowser
     {
         Item item = access.Item;
         ItemEntry entry = (await _entries.CreateAsync([item], access, cancellationToken)).Single();
+        bool shared = access.ShareRootId is not null;
         if (item.IsFolder)
         {
             IReadOnlyList<Item> children = await _store.ChildrenAsync(item.Id, cancellationToken);
             IReadOnlyList<ItemEntry> entries = await _entries.CreateAsync(children, access, cancellationToken);
-            return new ItemDetails(entry, access.Breadcrumbs, entries, Content: null);
+            return new ItemDetails(entry, access.Breadcrumbs, entries, Content: null, shared);
         }
 
         string? text = content ? await ReadTextAsync(item, cancellationToken) : null;
-        return new ItemDetails(entry, access.Breadcrumbs, Items: null, text);
+        return new ItemDetails(entry, access.Breadcrumbs, Items: null, text, shared);
     }
 
     public async Task<StorageUsage> GetUsageAsync(string ownerId, CancellationToken cancellationToken)

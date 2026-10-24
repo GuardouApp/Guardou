@@ -40,6 +40,11 @@ internal sealed class ItemEntryFactory(
         return ReadOnlyEntries(await CreateAsync(items, cancellationToken), entry => entry.Id == rootId);
     }
 
+    public async Task<IReadOnlyList<ItemEntry>> CreateSharedRootsAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
+    {
+        return ReadOnlyEntries(await CreateAsync(items, cancellationToken), _ => true);
+    }
+
     public Task<IReadOnlyList<ItemEntry>> CreateAsync(IEnumerable<Item> items, ItemAccess access, CancellationToken cancellationToken)
     {
         return access.ShareRootId is { } shareRootId
