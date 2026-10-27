@@ -241,6 +241,18 @@ void main() {
     verifyNever(() => settings.changeOidcSettings(any()));
   });
 
+  testWidgets('requires an HTTPS issuer', (tester) async {
+    await pumpSettings(tester);
+    await expand(tester, 'Single sign-on (OIDC)');
+
+    await tester.enterText(field('issuer_url'), 'http://id.example.com');
+    await tester.enterText(field('client_id'), 'guardou');
+    await tapVisible(tester, button('Save').hitTestable());
+
+    expect(find.text('Enter an HTTPS URL.'), findsOneWidget);
+    verifyNever(() => settings.changeOidcSettings(any()));
+  });
+
   testWidgets('works in portrait', (tester) async {
     await pumpSettings(tester, size: compact);
     await expand(tester, 'Single sign-on (OIDC)');

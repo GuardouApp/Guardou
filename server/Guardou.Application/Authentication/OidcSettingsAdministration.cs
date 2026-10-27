@@ -63,7 +63,7 @@ public sealed class OidcSettingsAdministration(
 
     private static OidcSettings Validate(OidcSettingsChange change, string? currentSecret)
     {
-        string? issuer = SettingsUrl.Normalize(change.Issuer, "issuer");
+        string? issuer = SettingsUrl.NormalizeHttps(change.Issuer, "issuer");
         string? clientId = Text(change.ClientId);
         if ((issuer is null) != (clientId is null))
         {

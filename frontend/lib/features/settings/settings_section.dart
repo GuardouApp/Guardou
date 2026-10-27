@@ -307,14 +307,20 @@ class SettingsSwitch extends StatelessWidget {
   }
 }
 
-String? validateHttpUrl(AppLocalizations l10n, String? value) {
+String? validateHttpUrl(AppLocalizations l10n, String? value) =>
+    _validateUrl(value, const {'http', 'https'}, l10n.settingsUrlInvalid);
+
+String? validateHttpsUrl(AppLocalizations l10n, String? value) =>
+    _validateUrl(value, const {'https'}, l10n.settingsHttpsUrlInvalid);
+
+String? _validateUrl(String? value, Set<String> schemes, String error) {
   final text = value?.trim() ?? '';
   if (text.isEmpty) {
     return null;
   }
   final uri = Uri.tryParse(text);
-  final valid = uri != null && uri.hasAuthority && (uri.scheme == 'http' || uri.scheme == 'https');
-  return valid ? null : l10n.settingsUrlInvalid;
+  final valid = uri != null && uri.hasAuthority && schemes.contains(uri.scheme);
+  return valid ? null : error;
 }
 
 String? trimmedOrNull(String value) {

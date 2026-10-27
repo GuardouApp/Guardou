@@ -55,7 +55,7 @@ internal sealed class OidcOptionsSetup(OidcSettingsSnapshot snapshot) : IConfigu
     private static void ConfigureClient(OpenIdConnectOptions options, OidcSettings settings, string issuer, string clientId)
     {
         options.Authority = issuer;
-        options.RequireHttpsMetadata = new Uri(issuer).Scheme == Uri.UriSchemeHttps;
+        options.RequireHttpsMetadata = true;
         options.ClientId = clientId;
         options.ClientSecret = settings.ClientSecret;
         options.Scope.Clear();

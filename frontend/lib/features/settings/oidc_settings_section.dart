@@ -112,7 +112,7 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
             controller: _issuer,
             keyboardType: TextInputType.url,
             onChanged: (_) => setState(() {}),
-            validator: (value) => validateHttpUrl(l10n, value) ?? _validateClient(l10n),
+            validator: (value) => validateHttpsUrl(l10n, value) ?? _validateClient(l10n),
           ),
           SettingsTextField(
             label: l10n.oidcClientId,

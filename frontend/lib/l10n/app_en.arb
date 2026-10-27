@@ -447,6 +447,7 @@
   "userOidcUnlink": "Unlink",
   "settingsInvalid": "The settings are not valid.",
   "settingsUrlInvalid": "Enter an HTTP or HTTPS URL.",
+  "settingsHttpsUrlInvalid": "Enter an HTTPS URL.",
   "copy": "Copy",
   "copied": "Copied",
   "serverSettings": "Server",
