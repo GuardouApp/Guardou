@@ -62,6 +62,8 @@ void main() {
     final container = await pumpShared(tester);
 
     await tester.tap(find.text('project'));
+    await tester.pump(kDoubleTapMinTime);
+    await tester.tap(find.text('project'));
     await tester.pumpAndSettle();
 
     expect(container.read(appRouterProvider).state.uri.path, '/folders/project');

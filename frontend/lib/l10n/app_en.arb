@@ -489,5 +489,7 @@
   "shareNoPeople": "No other user has access.",
   "shareRemoveAccess": "Remove access",
   "sharedWithMeEmptyTitle": "Nothing is shared with you",
-  "sharedWithMeEmptyMessage": "Items that other users share with you appear here."
+  "sharedWithMeEmptyMessage": "Items that other users share with you appear here.",
+  "recentEmptyTitle": "No recent items",
+  "recentEmptyMessage": "Folders and files that you add or open appear here."
 }
