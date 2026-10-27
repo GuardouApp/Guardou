@@ -1,4 +1,5 @@
 using Guardou.Application.Previews;
+using Guardou.Application.Search;
 using Guardou.Application.Users;
 using Guardou.Domain.Files;
 
@@ -9,7 +10,8 @@ internal sealed class ItemEntryFactory(
     IPreviewRenderer previews,
     IUserNames users,
     IProfilePictureStore pictures,
-    IItemOpenStore opens)
+    IItemOpenStore opens,
+    IItemIndex index)
 {
     private static readonly ItemPermissions ReadOnly = new(CanModify: false, CanAddChildren: false);
 
@@ -53,7 +55,19 @@ internal sealed class ItemEntryFactory(
         List<Item> ordered = Ordered(items).ToList();
         await LoadCreatorsAsync(ordered, cancellationToken);
         IReadOnlyDictionary<Guid, DateTimeOffset> opened = await OpenedAsync(ordered, viewerId, cancellationToken);
-        return ordered.Select(item => Create(item, opened.TryGetValue(item.Id, out DateTimeOffset time) ? time : null)).ToList();
+        IReadOnlyDictionary<Guid, long> sizes = await FolderSizesAsync(ordered, cancellationToken);
+        return ordered
+            .Select(item => Create(
+                item,
+                sizes.GetValueOrDefault(item.Id, item.Size),
+                opened.TryGetValue(item.Id, out DateTimeOffset time) ? time : null))
+            .ToList();
+    }
+
+    private async Task<IReadOnlyDictionary<Guid, long>> FolderSizesAsync(List<Item> items, CancellationToken cancellationToken)
+    {
+        List<Guid> folders = items.Where(item => item.IsFolder).Select(item => item.Id).ToList();
+        return folders.Count == 0 ? new Dictionary<Guid, long>() : await index.FolderSizesAsync(folders, cancellationToken);
     }
 
     private async Task<IReadOnlyList<ItemEntry>> CreateSharedAsync(
@@ -108,14 +122,15 @@ internal sealed class ItemEntryFactory(
             : await opens.OpenedAsync(viewerId, items.Select(item => item.Id).ToList(), cancellationToken);
     }
 
-    private ItemEntry Create(Item item, DateTimeOffset? opened)
+    private ItemEntry Create(Item item, long size, DateTimeOffset? opened)
     {
         return new ItemEntry(
             ItemId.Format(item.Id),
             item.ParentId is { } parentId ? ItemId.Format(parentId) : null,
             item.Name,
             item.Kind,
-            item.Size,
+            ItemTypes.Of(item, mimeTypes),
+            size,
             item.IsFolder ? null : mimeTypes.MimeTypeOf(item.Name),
             item.Modified,
             item.Created,

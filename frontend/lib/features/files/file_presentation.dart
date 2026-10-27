@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/breadcrumb.dart';
 import '../../api/generated/models/item_entry.dart';
@@ -11,48 +9,6 @@ import '../../l10n/generated/app_localizations.dart';
 import 'file_arrangement.dart';
 
 const _sizeUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-const _codeExtensions = {
-  'cs',
-  'dart',
-  'js',
-  'ts',
-  'py',
-  'go',
-  'java',
-  'c',
-  'cpp',
-  'h',
-  'html',
-  'css',
-  'json',
-  'xml',
-  'yaml',
-  'yml',
-  'sh',
-};
-const _archiveExtensions = {'zip', 'tar', 'gz', 'tgz', '7z', 'rar', 'bz2', 'xz'};
-const _spreadsheetExtensions = {'csv', 'xls', 'xlsx', 'ods'};
-const _torrentExtension = 'torrent';
-
-IconData iconFor(ItemEntry entry) {
-  if (entry.kind == ItemKind.folder) {
-    return LucideIcons.folder;
-  }
-  final mimeType = entry.mimeType ?? '';
-  final extension = extensionOf(entry);
-  return switch (mimeType.split('/').first) {
-    'image' => LucideIcons.fileImage,
-    'video' => LucideIcons.fileVideo,
-    'audio' => LucideIcons.fileAudio,
-    _ when extension == _torrentExtension => LucideIcons.magnet,
-    _ when _codeExtensions.contains(extension) => LucideIcons.fileCode,
-    _ when _archiveExtensions.contains(extension) => LucideIcons.fileArchive,
-    _ when _spreadsheetExtensions.contains(extension) => LucideIcons.fileSpreadsheet,
-    'text' => LucideIcons.fileText,
-    _ when extension == 'pdf' => LucideIcons.fileText,
-    _ => LucideIcons.file,
-  };
-}
 
 String formatSize(int bytes, String locale) {
   final exponent = bytes <= 0 ? 0 : min(log(bytes) ~/ log(1024), _sizeUnits.length - 1);

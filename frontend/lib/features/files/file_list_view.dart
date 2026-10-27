@@ -192,7 +192,7 @@ class _WideRow extends StatelessWidget {
           padding: EdgeInsets.only(left: spacing),
           child: Row(
             children: [
-              ItemLeading(entry: entry, interactions: interactions, icon: iconFor(entry)),
+              ItemLeading(entry: entry, interactions: interactions),
               SizedBox(width: spacing),
               Expanded(child: _ItemName(entry: entry)),
               for (final field in columns)
@@ -230,7 +230,7 @@ class _CompactRow extends StatelessWidget {
       entry: entry,
       interactions: interactions,
       child: ListTile(
-        leading: ItemLeading(entry: entry, interactions: interactions, icon: iconFor(entry), size: 24),
+        leading: ItemLeading(entry: entry, interactions: interactions, size: 24),
         title: _ItemName(entry: entry),
         subtitle: Text(entry.kind == ItemKind.folder ? modified : l10n.fileSummary(modified, sizeLabel(entry, l10n))),
         trailing: ItemMoreButton(entry: entry, interactions: interactions),

@@ -1,10 +1,11 @@
 using Guardou.Application.Files;
 using Guardou.Domain.Files;
+using Guardou.Infrastructure.Indexing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Guardou.Infrastructure.Persistence;
 
-internal sealed class EfItemStore(AppDbContext context) : IItemStore
+internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index) : IItemStore
 {
     private DbSet<Item> Items => context.Set<Item>();
 
@@ -108,6 +109,6 @@ internal sealed class EfItemStore(AppDbContext context) : IItemStore
 
     public Task SaveAsync(CancellationToken cancellationToken)
     {
-        return context.SaveChangesAsync(cancellationToken);
+        return index.SaveAsync(cancellationToken);
     }
 }

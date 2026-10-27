@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/browser/browser_embeds.dart';
-import '../files/file_presentation.dart';
 import '../files/file_source.dart';
 import 'image_viewer.dart';
 import 'unsupported_viewer.dart';
 import 'viewer_kind.dart';
+import '../files/item_type_presentation.dart';
 
 class ViewerContent extends ConsumerWidget {
   const ViewerContent({super.key, required this.entry, required this.source});
@@ -42,7 +42,7 @@ class ViewerContent extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(iconFor(entry), size: _audioIconSize),
+            ItemTypeIcon(entry.type, size: _audioIconSize),
             SizedBox(height: spacing * 2),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: _audioWidth),
