@@ -10,6 +10,8 @@ public interface IItemStore
 
     Task<Item?> FindRootAsync(string ownerId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Guid>> RootIdsAsync(CancellationToken cancellationToken);
+
     Task<Item?> FindChildAsync(Guid parentId, string name, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Item>> ChildrenAsync(Guid parentId, CancellationToken cancellationToken);

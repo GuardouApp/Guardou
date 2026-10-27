@@ -24,6 +24,11 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index) :
         return Items.SingleOrDefaultAsync(item => item.OwnerId == ownerId && item.ParentId == null, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Guid>> RootIdsAsync(CancellationToken cancellationToken)
+    {
+        return await Items.Where(item => item.ParentId == null).Select(item => item.Id).ToListAsync(cancellationToken);
+    }
+
     public Task<Item?> FindChildAsync(Guid parentId, string name, CancellationToken cancellationToken)
     {
         return Items.SingleOrDefaultAsync(

@@ -22,7 +22,7 @@ public sealed class TasksTests : SignedInTests
         Assert.Equal(TestServerFactory.AdminUsername, task.Owner);
         Assert.NotNull(task.Error);
         Assert.Equal([task.Id], failed.Select(entry => entry.Id));
-        Assert.Equal([new TaskQueueSummary(TaskKind.Preview, 0, 0, 1)], queues);
+        Assert.Equal([new TaskQueueSummary(TaskKind.Preview, 0, 0, 1), new TaskQueueSummary(TaskKind.SearchIndex, 0, 0, 0)], queues);
     }
 
     [Fact]
@@ -89,7 +89,9 @@ public sealed class TasksTests : SignedInTests
     [Fact]
     public async Task ListsAllQueues()
     {
-        Assert.Equal([new TaskQueueSummary(TaskKind.Preview, 0, 0, 0)], await Client.ListQueuesAsync());
+        Assert.Equal(
+            [new TaskQueueSummary(TaskKind.Preview, 0, 0, 0), new TaskQueueSummary(TaskKind.SearchIndex, 0, 0, 0)],
+            await Client.ListQueuesAsync());
     }
 
     [Fact]

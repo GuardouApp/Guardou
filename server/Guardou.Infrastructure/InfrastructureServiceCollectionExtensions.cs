@@ -54,6 +54,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IItemStore, EfItemStore>();
         services.AddScoped<ItemIndexWriter>();
+        services.AddScoped<IItemIndexRebuilder>(provider => provider.GetRequiredService<ItemIndexWriter>());
         services.AddScoped<IItemIndex, EfItemIndex>();
         services.AddScoped<IShareStore, EfShareStore>();
         services.AddScoped<IDirectShareStore, EfDirectShareStore>();

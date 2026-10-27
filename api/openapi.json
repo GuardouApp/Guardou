@@ -5290,7 +5290,8 @@
       },
       "TaskKind": {
         "enum": [
-          "preview"
+          "preview",
+          "searchIndex"
         ],
         "type": "string"
       },
