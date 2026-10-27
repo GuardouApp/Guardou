@@ -3,6 +3,7 @@ using Guardou.Application.Authentication;
 using Guardou.Application.Configuration;
 using Guardou.Application.Files;
 using Guardou.Application.Previews;
+using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
@@ -43,6 +44,7 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<ItemDownloads>(services);
         AddScopedWithInternalConstructor<ItemOpenRecorder>(services);
         AddScopedWithInternalConstructor<RecentItems>(services);
+        AddScopedWithInternalConstructor<ItemSearch>(services);
         AddScopedWithInternalConstructor<PreviewTasks>(services);
         services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<PreviewTasks>());
         AddScopedWithInternalConstructor<ItemPreviews>(services);

@@ -7,6 +7,7 @@ public sealed record ItemEntry(
     string? ParentId,
     string Name,
     ItemKind Kind,
+    ItemType Type,
     long Size,
     string? MimeType,
     DateTimeOffset Modified,

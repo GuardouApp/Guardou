@@ -1,6 +1,7 @@
 using Guardou.Application.Users;
 using Guardou.Domain.Files;
 using Guardou.Domain.Users;
+using Guardou.Infrastructure.Indexing;
 using Guardou.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace Guardou.Infrastructure.Identity;
 internal sealed class IdentityUserAccountStore(
     UserManager<ApplicationUser> userManager,
     AppDbContext context,
+    ItemIndexWriter index,
     IProfilePictureStore pictures,
     TimeProvider time)
     : IUserAccountStore
@@ -108,6 +110,7 @@ internal sealed class IdentityUserAccountStore(
         if (await userManager.FindByIdAsync(id) is { } user)
         {
             await userManager.DeleteAsync(user);
+            await index.RemoveOwnerAsync(id, CancellationToken.None);
         }
     }
 
@@ -132,7 +135,7 @@ internal sealed class IdentityUserAccountStore(
         }
 
         context.Set<Item>().Add(Item.CreateRoot(user.Id, time.GetUtcNow()));
-        await context.SaveChangesAsync();
+        await index.SaveAsync(CancellationToken.None);
         await transaction.CommitAsync();
         return result;
     }

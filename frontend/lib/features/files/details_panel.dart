@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
-import '../../api/generated/models/item_kind.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'file_presentation.dart';
+import 'item_type_presentation.dart';
 
 class DetailsPanel extends StatelessWidget {
   const DetailsPanel({super.key, required this.entry, required this.selectedCount, this.onClose});
@@ -26,7 +26,7 @@ class DetailsPanel extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(item == null ? LucideIcons.files : iconFor(item)),
+            item == null ? const Icon(LucideIcons.files) : ItemTypeIcon(item.type),
             SizedBox(width: spacing / 2),
             Expanded(
               child: Text(
@@ -42,7 +42,7 @@ class DetailsPanel extends StatelessWidget {
         if (item != null) ...[
           SizedBox(height: spacing),
           _Property(label: l10n.columnKind, value: kindLabel(item, l10n)),
-          if (item.kind == ItemKind.file) _Property(label: l10n.columnSize, value: sizeLabel(item, l10n)),
+          _Property(label: l10n.columnSize, value: formatSize(item.size, l10n.localeName)),
           _Property(label: l10n.columnModified, value: _formatDateTime(item.modified, l10n.localeName)),
           _Property(label: l10n.columnCreated, value: _formatDateTime(item.created, l10n.localeName)),
           if (!item.permissions.canModify) _Property(label: l10n.access, value: l10n.readOnly),

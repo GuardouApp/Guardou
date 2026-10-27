@@ -7,16 +7,18 @@ import '../../core/layout/window_size_class.dart';
 import '../../core/widgets/brand_mark.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../configuration/configuration_controller.dart';
+import '../search/shell_search.dart';
 import 'account_menu.dart';
 
 class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
-  const ShellTopBar({super.key, this.showMenuButton = false});
+  const ShellTopBar({super.key, this.showMenuButton = false, this.currentFolderId});
 
   static const _searchMaxWidth = 720.0;
   static const _searchHeight = 44.0;
   static const _brandSpacing = 32.0;
 
   final bool showMenuButton;
+  final String? currentFolderId;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -28,7 +30,6 @@ class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
     final applicationName = ref.watch(configurationControllerProvider).value?.applicationName ?? '';
     final expanded = WindowSizeClass.of(context) == WindowSizeClass.expanded;
     final brand = _Brand(applicationName: applicationName);
-    final searchColor = Theme.of(context).colorScheme.onPrimaryContainer;
 
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -64,13 +65,7 @@ class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: _searchMaxWidth, maxHeight: _searchHeight),
-                  child: SearchBar(
-                    enabled: false,
-                    elevation: const WidgetStatePropertyAll(0),
-                    leading: Icon(LucideIcons.search, color: searchColor),
-                    hintText: l10n.searchHint,
-                    hintStyle: WidgetStatePropertyAll(TextStyle(color: searchColor)),
-                  ),
+                  child: ShellSearch(fullScreen: false, folderId: currentFolderId),
                 ),
               ),
             ),
@@ -78,7 +73,7 @@ class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        if (showMenuButton) IconButton(tooltip: l10n.search, onPressed: null, icon: const Icon(LucideIcons.search)),
+        if (showMenuButton) ShellSearch(fullScreen: true, folderId: currentFolderId),
         const AccountMenu(),
         const SizedBox(width: 8),
       ],

@@ -251,7 +251,7 @@ class _TrashRow extends StatelessWidget {
       entry: item,
       interactions: interactions,
       child: ListTile(
-        leading: ItemLeading(entry: item, interactions: interactions, icon: iconFor(item), size: 24),
+        leading: ItemLeading(entry: item, interactions: interactions, size: 24),
         title: Text(item.name, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           l10n.trashedSummary(formatDate(entry.trashed, l10n.localeName), formatDate(entry.expires, l10n.localeName)),

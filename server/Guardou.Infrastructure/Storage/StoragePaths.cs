@@ -10,6 +10,8 @@ internal sealed class StoragePaths(string root)
 
     public string DatabaseFile => Path.Combine(DatabaseDirectory, "app.db");
 
+    public string IndexDatabaseFile => Path.Combine(DatabaseDirectory, "index.db");
+
     public string ProfileDirectory { get; } = Path.Combine(Path.GetFullPath(root), "profile");
 
     public string ThumbsDirectory { get; } = Path.Combine(Path.GetFullPath(root), "thumbs");

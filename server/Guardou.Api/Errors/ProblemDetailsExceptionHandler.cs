@@ -1,4 +1,5 @@
 using Guardou.Application.Files;
+using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
@@ -49,6 +50,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(
         {
             BadHttpRequestException badRequest => badRequest.StatusCode,
             InvalidItemRequestException => StatusCodes.Status400BadRequest,
+            InvalidSearchQueryException => StatusCodes.Status400BadRequest,
             ItemNotFoundException => StatusCodes.Status404NotFound,
             ItemConflictException => StatusCodes.Status409Conflict,
             ShareNotFoundException => StatusCodes.Status404NotFound,

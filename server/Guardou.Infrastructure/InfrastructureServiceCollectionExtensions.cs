@@ -2,6 +2,7 @@ using Guardou.Application.Authentication;
 using Guardou.Application.Files;
 using Guardou.Application.Persistence;
 using Guardou.Application.Previews;
+using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
@@ -12,6 +13,7 @@ using Guardou.Domain.Users;
 using Guardou.Infrastructure.Files;
 using Guardou.Infrastructure.Identity;
 using Guardou.Infrastructure.Identity.Oidc;
+using Guardou.Infrastructure.Indexing;
 using Guardou.Infrastructure.Persistence;
 using Guardou.Infrastructure.Previews;
 using Guardou.Infrastructure.Profiles;
@@ -33,7 +35,9 @@ public static class InfrastructureServiceCollectionExtensions
     {
         services.AddSingleton(new StoragePaths(StoragePaths.DefaultRoot));
         services.AddDbContext<AppDbContext>((provider, options) =>
-            options.UseSqlite(ConnectionString(provider.GetRequiredService<StoragePaths>())));
+            options.UseSqlite(ConnectionString(provider.GetRequiredService<StoragePaths>().DatabaseFile)));
+        services.AddDbContext<IndexDbContext>((provider, options) =>
+            options.UseSqlite(ConnectionString(provider.GetRequiredService<StoragePaths>().IndexDatabaseFile)));
 
         services.AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole>()
@@ -49,6 +53,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IItemStore, EfItemStore>();
+        services.AddScoped<ItemIndexWriter>();
+        services.AddScoped<IItemIndex, EfItemIndex>();
         services.AddScoped<IShareStore, EfShareStore>();
         services.AddScoped<IDirectShareStore, EfDirectShareStore>();
         services.AddScoped<IItemOpenStore, EfItemOpenStore>();
@@ -89,14 +95,14 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddDataProtection().SetApplicationName(Product.Name).PersistKeysToDbContext<AppDbContext>();
 
-        services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+        services.AddHealthChecks().AddDbContextCheck<AppDbContext>().AddDbContextCheck<IndexDbContext>();
         services.AddScoped<ISessionService, IdentitySessionService>();
         return services;
     }
 
-    private static string ConnectionString(StoragePaths paths)
+    private static string ConnectionString(string databaseFile)
     {
-        return new SqliteConnectionStringBuilder { DataSource = paths.DatabaseFile }.ToString();
+        return new SqliteConnectionStringBuilder { DataSource = databaseFile }.ToString();
     }
 
     private static void ApplyPasswordPolicy(PasswordOptions password, PasswordPolicy policy)

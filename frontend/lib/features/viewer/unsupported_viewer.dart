@@ -6,8 +6,8 @@ import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/browser/browser_files.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../files/file_presentation.dart';
 import '../files/file_source.dart';
+import '../files/item_type_presentation.dart';
 
 class UnsupportedViewer extends ConsumerWidget {
   const UnsupportedViewer({super.key, required this.entry, required this.source});
@@ -29,7 +29,7 @@ class UnsupportedViewer extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(iconFor(entry), size: _iconSize),
+            ItemTypeIcon(entry.type, size: _iconSize),
             SizedBox(height: spacing),
             Text(l10n.viewerUnsupported, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
             SizedBox(height: spacing),

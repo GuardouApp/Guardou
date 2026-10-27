@@ -68,7 +68,7 @@ class _CompactShell extends StatelessWidget {
     final barIndex = ShellDestination.indexIn(ShellDestination.compactBar, selected);
 
     return Scaffold(
-      appBar: const ShellTopBar(showMenuButton: true),
+      appBar: ShellTopBar(showMenuButton: true, currentFolderId: currentFolderId),
       drawer: ShellNavigationDrawer(
         selected: selected,
         onSelected: (destination) {
@@ -119,7 +119,7 @@ class _MediumShell extends StatelessWidget {
     final index = ShellDestination.indexIn(ShellDestination.navigation, selected);
 
     return Scaffold(
-      appBar: const ShellTopBar(),
+      appBar: ShellTopBar(currentFolderId: currentFolderId),
       body: Row(
         children: [
           NavigationRail(
@@ -160,7 +160,7 @@ class _ExpandedShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ShellTopBar(),
+      appBar: ShellTopBar(currentFolderId: currentFolderId),
       body: Row(
         children: [
           SizedBox(
