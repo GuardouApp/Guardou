@@ -65,11 +65,11 @@ public sealed class DirectSharing
         Item item = await _links.FindRootAsync(token, cancellationToken);
         if (item.OwnerId == userId)
         {
-            return await _entries.CreateAsync(item, cancellationToken);
+            return await _entries.CreateAsync(item, userId, cancellationToken);
         }
 
         await EnsureShareAsync(item, userId, cancellationToken);
-        return (await _entries.CreateSharedRootsAsync([item], cancellationToken)).Single();
+        return (await _entries.CreateSharedRootsAsync([item], userId, cancellationToken)).Single();
     }
 
     public async Task RemoveRecipientAsync(string ownerId, string id, string userId, CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ public sealed class DirectSharing
             }
         }
 
-        return await _entries.CreateSharedRootsAsync(items, cancellationToken);
+        return await _entries.CreateSharedRootsAsync(items, userId, cancellationToken);
     }
 
     private async Task EnsureShareAsync(Item item, string userId, CancellationToken cancellationToken)

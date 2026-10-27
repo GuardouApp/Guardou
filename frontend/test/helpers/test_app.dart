@@ -100,6 +100,7 @@ ItemEntry testEntry(
   ItemKind kind = ItemKind.file,
   int size = 0,
   DateTime? modified,
+  DateTime? opened,
   bool canModify = true,
   bool hasPreview = false,
   String mimeType = 'text/plain',
@@ -114,6 +115,7 @@ ItemEntry testEntry(
     mimeType: kind == ItemKind.folder ? null : mimeType,
     modified: date,
     created: date,
+    opened: opened,
     creator: ItemCreator(id: testUser.id, displayName: testUser.displayName, hasPicture: testUser.hasPicture),
     hasPreview: hasPreview,
     permissions: ItemPermissions(canModify: canModify, canAddChildren: kind == ItemKind.folder),
@@ -143,6 +145,7 @@ MockFilesService stubFiles({Map<String, ItemDetails>? folders}) {
     final id = invocation.positionalArguments.single as String;
     return [...?known[id]?.items];
   });
+  when(() => files.recordOpen(any())).thenAnswer((_) async {});
   return files;
 }
 

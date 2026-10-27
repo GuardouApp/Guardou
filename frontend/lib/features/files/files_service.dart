@@ -48,6 +48,8 @@ class FilesService extends FileSource {
     body: TransferRequest(destinationId: destinationId, conflict: conflict),
   );
 
+  Future<void> recordOpen(String id) => _api.itemOpens.recordItemOpen(id: id);
+
   Future<void> trash(List<String> ids) => _api.items.moveItemsToTrash(body: ItemSelection(ids: ids));
 
   Future<ItemEntry> upload(

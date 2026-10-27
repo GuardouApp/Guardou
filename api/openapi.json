@@ -778,6 +778,74 @@
         }
       }
     },
+    "/api/items/{id}/opened": {
+      "put": {
+        "tags": [
+          "ItemOpens"
+        ],
+        "operationId": "RecordItemOpen",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/items/{id}": {
       "get": {
         "tags": [
@@ -4609,6 +4677,7 @@
           "mimeType",
           "modified",
           "created",
+          "opened",
           "creator",
           "hasPreview",
           "permissions"
@@ -4643,6 +4712,11 @@
           "created": {
             "type": "string",
             "format": "date-time"
+          },
+          "opened": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "creator": {
             "$ref": "#/components/schemas/ItemCreator"
@@ -5270,6 +5344,9 @@
     },
     {
       "name": "Downloads"
+    },
+    {
+      "name": "ItemOpens"
     },
     {
       "name": "Items"

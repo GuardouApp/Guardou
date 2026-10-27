@@ -9,13 +9,13 @@ internal sealed class AccessibleItems(IItemStore store, OwnedItems owned, IDirec
     {
         if (reference == OwnedItems.RootAlias)
         {
-            return ItemAccess.Owned(await owned.FindActiveAsync(userId, reference, cancellationToken));
+            return ItemAccess.Owned(await owned.FindActiveAsync(userId, reference, cancellationToken), userId);
         }
 
         Guid id = OwnedItems.ParseId(reference);
         ItemPath? path = await owned.TryFindActiveAsync(userId, id, cancellationToken);
         return path is not null
-            ? ItemAccess.Owned(path)
+            ? ItemAccess.Owned(path, userId)
             : await TryFindSharedAsync(userId, id, cancellationToken) ?? throw OwnedItems.NotFound(reference);
     }
 
@@ -36,6 +36,6 @@ internal sealed class AccessibleItems(IItemStore store, OwnedItems owned, IDirec
 
         HashSet<Guid> shared = (await shares.OfUserAsync(userId, cancellationToken)).Select(share => share.ItemId).ToHashSet();
         Item? root = path.Ancestors.Append(path.Item).FirstOrDefault(candidate => shared.Contains(candidate.Id));
-        return root is null ? null : new ItemAccess(path, root.Id);
+        return root is null ? null : new ItemAccess(path, root.Id, userId);
     }
 }

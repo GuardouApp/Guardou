@@ -201,6 +201,7 @@
   },
   "taskListEmpty": "Nenhuma tarefa",
   "fileCreatedByYou": "Você criou · {date}",
+  "fileOpenedByYou": "Você abriu · {date}",
   "fileCreatedBy": "{name} criou · {date}",
   "@fileCreated": {
     "placeholders": {

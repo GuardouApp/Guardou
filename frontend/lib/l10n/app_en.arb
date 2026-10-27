@@ -392,6 +392,14 @@
       }
     }
   },
+  "fileOpenedByYou": "You opened · {date}",
+  "@fileOpenedByYou": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "fileCreatedBy": "{name} created · {date}",
   "@fileCreatedBy": {
     "placeholders": {

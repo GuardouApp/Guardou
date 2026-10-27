@@ -34,6 +34,12 @@ void main() {
     hasPreview: true,
     modified: DateTime(DateTime.now().year, 3, 5),
   );
+  final opened = testEntry(
+    'opened.txt',
+    parentId: 'photos',
+    modified: DateTime(DateTime.now().year, 3, 5),
+    opened: DateTime(DateTime.now().year, 3, 7),
+  );
   final many = testEntry('many', kind: ItemKind.folder);
   final manyFiles = [for (var index = 0; index < 60; index++) testEntry('file-$index.txt', parentId: 'many')];
   final pixel = base64Decode(
@@ -46,7 +52,7 @@ void main() {
     'docs': testFolder(docs, [reports, small, big], ancestors: [testRootCrumb]),
     'reports': testFolder(reports, [year], ancestors: [testRootCrumb, docsCrumb]),
     '2026': testFolder(year, const [], ancestors: [testRootCrumb, docsCrumb, reportsCrumb]),
-    'photos': testFolder(photos, [photo], ancestors: [testRootCrumb]),
+    'photos': testFolder(photos, [photo, opened], ancestors: [testRootCrumb]),
     'many': testFolder(many, manyFiles, ancestors: [testRootCrumb]),
   };
 
@@ -325,6 +331,7 @@ void main() {
 
     expect(find.byType(Image), findsOneWidget);
     expect(find.text('You created · Mar 5'), findsOneWidget);
+    expect(find.text('You opened · Mar 7'), findsOneWidget);
     final card = tester.getSize(find.byType(SelectableItem).first);
     final preview = tester.getSize(find.byType(AspectRatio).first);
     expect(card.width, greaterThanOrEqualTo(250));

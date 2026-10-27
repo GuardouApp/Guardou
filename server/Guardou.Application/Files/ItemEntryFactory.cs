@@ -8,53 +8,62 @@ internal sealed class ItemEntryFactory(
     IMimeTypeMap mimeTypes,
     IPreviewRenderer previews,
     IUserNames users,
-    IProfilePictureStore pictures)
+    IProfilePictureStore pictures,
+    IItemOpenStore opens)
 {
     private static readonly ItemPermissions ReadOnly = new(CanModify: false, CanAddChildren: false);
 
     private readonly Dictionary<string, ItemCreator> _creators = [];
 
-    public async Task<ItemEntry> CreateAsync(Item item, CancellationToken cancellationToken)
+    public async Task<ItemEntry> CreateAsync(Item item, string viewerId, CancellationToken cancellationToken)
     {
-        return (await CreateAsync([item], cancellationToken)).Single();
-    }
-
-    public async Task<IReadOnlyList<ItemEntry>> CreateAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
-    {
-        List<Item> ordered = Ordered(items).ToList();
-        await LoadCreatorsAsync(ordered, cancellationToken);
-        return ordered.Select(Create).ToList();
+        return (await CreateAsync([item], viewerId, cancellationToken)).Single();
     }
 
     public async Task<ItemEntry> CreateSharedAsync(Item item, Guid shareRootId, CancellationToken cancellationToken)
     {
-        return (await CreateSharedAsync([item], shareRootId, cancellationToken)).Single();
+        return (await CreateSharedAsync([item], shareRootId, viewerId: null, cancellationToken)).Single();
     }
 
-    public async Task<IReadOnlyList<ItemEntry>> CreateSharedAsync(
+    public async Task<IReadOnlyList<ItemEntry>> CreateSharedRootsAsync(
         IEnumerable<Item> items,
-        Guid shareRootId,
+        string viewerId,
         CancellationToken cancellationToken)
     {
-        string rootId = ItemId.Format(shareRootId);
-        return ReadOnlyEntries(await CreateAsync(items, cancellationToken), entry => entry.Id == rootId);
-    }
-
-    public async Task<IReadOnlyList<ItemEntry>> CreateSharedRootsAsync(IEnumerable<Item> items, CancellationToken cancellationToken)
-    {
-        return ReadOnlyEntries(await CreateAsync(items, cancellationToken), _ => true);
+        return ReadOnlyEntries(await CreateAsync(items, viewerId, cancellationToken), _ => true);
     }
 
     public Task<IReadOnlyList<ItemEntry>> CreateAsync(IEnumerable<Item> items, ItemAccess access, CancellationToken cancellationToken)
     {
         return access.ShareRootId is { } shareRootId
-            ? CreateSharedAsync(items, shareRootId, cancellationToken)
-            : CreateAsync(items, cancellationToken);
+            ? CreateSharedAsync(items, shareRootId, access.ViewerId, cancellationToken)
+            : CreateAsync(items, access.ViewerId, cancellationToken);
     }
 
     public static Breadcrumb Breadcrumb(Item item)
     {
         return new Breadcrumb(ItemId.Format(item.Id), item.Name);
+    }
+
+    private async Task<IReadOnlyList<ItemEntry>> CreateAsync(
+        IEnumerable<Item> items,
+        string? viewerId,
+        CancellationToken cancellationToken)
+    {
+        List<Item> ordered = Ordered(items).ToList();
+        await LoadCreatorsAsync(ordered, cancellationToken);
+        IReadOnlyDictionary<Guid, DateTimeOffset> opened = await OpenedAsync(ordered, viewerId, cancellationToken);
+        return ordered.Select(item => Create(item, opened.TryGetValue(item.Id, out DateTimeOffset time) ? time : null)).ToList();
+    }
+
+    private async Task<IReadOnlyList<ItemEntry>> CreateSharedAsync(
+        IEnumerable<Item> items,
+        Guid shareRootId,
+        string? viewerId,
+        CancellationToken cancellationToken)
+    {
+        string rootId = ItemId.Format(shareRootId);
+        return ReadOnlyEntries(await CreateAsync(items, viewerId, cancellationToken), entry => entry.Id == rootId);
     }
 
     private static List<ItemEntry> ReadOnlyEntries(IEnumerable<ItemEntry> entries, Func<ItemEntry, bool> isShareRoot)
@@ -89,7 +98,17 @@ internal sealed class ItemEntryFactory(
         }
     }
 
-    private ItemEntry Create(Item item)
+    private async Task<IReadOnlyDictionary<Guid, DateTimeOffset>> OpenedAsync(
+        List<Item> items,
+        string? viewerId,
+        CancellationToken cancellationToken)
+    {
+        return viewerId is null || items.Count == 0
+            ? new Dictionary<Guid, DateTimeOffset>()
+            : await opens.OpenedAsync(viewerId, items.Select(item => item.Id).ToList(), cancellationToken);
+    }
+
+    private ItemEntry Create(Item item, DateTimeOffset? opened)
     {
         return new ItemEntry(
             ItemId.Format(item.Id),
@@ -100,6 +119,7 @@ internal sealed class ItemEntryFactory(
             item.IsFolder ? null : mimeTypes.MimeTypeOf(item.Name),
             item.Modified,
             item.Created,
+            opened,
             _creators[item.CreatedBy],
             HasPreview(item),
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));

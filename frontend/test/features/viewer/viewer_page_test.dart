@@ -66,6 +66,7 @@ void main() {
     expect(find.byType(ViewerPage), findsOneWidget);
     expect(find.text(first.name), findsOneWidget);
     expect(find.text('video /view/${first.id}'), findsOneWidget);
+    verify(() => files.recordOpen(first.id)).called(1);
   });
 
   testWidgets('shows a PDF in a document frame in portrait', (tester) async {
