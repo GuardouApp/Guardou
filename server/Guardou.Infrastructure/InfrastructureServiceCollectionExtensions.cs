@@ -67,6 +67,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITaskStore, EfTaskStore>();
         services.AddScoped<ITaskQueueSettingsStore, EfTaskQueueSettingsStore>();
         services.AddScoped<ISettingsStore, EfSettingsStore>();
+        services.AddOptions<SettingsOverrides>().BindConfiguration(SettingsOverrides.Section);
         services.AddSingleton<OidcSettingsSnapshot>();
         services.AddSingleton<IOidcSettingsObserver>(provider => provider.GetRequiredService<OidcSettingsSnapshot>());
         services.AddSingleton<IImageSource, VipsImageSource>();

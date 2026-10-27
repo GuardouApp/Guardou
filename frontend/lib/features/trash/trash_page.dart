@@ -9,6 +9,7 @@ import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/trash_entry.dart';
 import '../../app/router/routes.dart';
 import '../../app/theme/app_tokens.dart';
+import '../configuration/configuration_controller.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../core/widgets/page_header.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -181,10 +182,11 @@ class _TrashPageState extends ConsumerState<TrashPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing, vertical: spacing / 2),
-          child: Text(l10n.trashRetention, style: Theme.of(context).textTheme.bodySmall),
-        ),
+        if (ref.watch(configurationControllerProvider).value?.trashRetentionDays case final days?)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: spacing, vertical: spacing / 2),
+            child: Text(l10n.trashRetention(days), style: Theme.of(context).textTheme.bodySmall),
+          ),
         Expanded(
           child: CallbackShortcuts(
             bindings: {

@@ -21,7 +21,7 @@ public sealed class TrashTests : SignedInTests
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Empty((await Client.GetItemAsync(ItemsApi.Root)).Items ?? []);
         Assert.Equal(["b.txt", "docs"], trash.Select(entry => entry.Entry.Name).Order());
-        Assert.All(trash, entry => Assert.Equal(entry.Trashed + TrashPolicy.Retention, entry.Expires));
+        Assert.All(trash, entry => Assert.Equal(entry.Trashed + TimeSpan.FromDays(TrashPolicy.DefaultRetentionDays), entry.Expires));
         Assert.Equal(HttpStatusCode.NotFound, (await Client.GetAsync($"/api/items/{inner.Id}", CancellationToken)).StatusCode);
         Assert.Equal(2, BlobFiles().Count);
     }
@@ -101,7 +101,7 @@ public sealed class TrashTests : SignedInTests
     {
         ItemEntry old = await Client.UploadEntryAsync(ItemsApi.Root, "old.txt", "a");
         await Client.PostSelectionAsync("/api/items/trash", old.Id);
-        Factory.Time.Advance(TrashPolicy.Retention - TimeSpan.FromDays(1));
+        Factory.Time.Advance(TimeSpan.FromDays(TrashPolicy.DefaultRetentionDays - 1));
         await RenewSessionAsync();
         ItemEntry recent = await Client.UploadEntryAsync(ItemsApi.Root, "recent.txt", "b");
         await Client.PostSelectionAsync("/api/items/trash", recent.Id);

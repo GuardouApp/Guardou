@@ -8,8 +8,11 @@ using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
 using Guardou.Application.Users;
+using Guardou.Domain.Authentication;
+using Guardou.Domain.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Guardou.Application;
 
@@ -21,7 +24,12 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<TaskSignal>();
         services.AddScoped<ITaskHandler, PreviewTaskHandler>();
         services.AddScoped<ITaskHandler, IndexTaskHandler>();
+        AddSettings(services, new ServerSettingsSchema());
+        AddSettings(services, new OidcSettingsSchema());
+        services.AddSingleton<IValidateOptions<SettingsOverrides>, SettingsOverridesValidation>();
+        services.AddOptions<SettingsOverrides>().ValidateOnStart();
         services.AddScoped<RuntimeConfigurationQuery>();
+        services.AddScoped<EffectiveConfigurationQuery>();
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
         services.AddScoped<ProfilePictures>();
@@ -58,6 +66,16 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<QueueSettings>(services);
         AddScopedWithInternalConstructor<TaskAdministration>(services);
         return services;
+    }
+
+    private static void AddSettings<TSettings>(IServiceCollection services, ISettingsSchema<TSettings> schema)
+        where TSettings : class, ISettings<TSettings>
+    {
+        services.AddSingleton(schema);
+        services.AddScoped(provider => new EffectiveSettings<TSettings>(
+            provider.GetRequiredService<ISettingsStore>(),
+            schema,
+            provider.GetRequiredService<IOptions<SettingsOverrides>>()));
     }
 
     private static void AddScopedWithInternalConstructor<TService>(IServiceCollection services)

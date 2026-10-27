@@ -4,7 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../api/generated/models/locked_setting.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/api/api_problem.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -234,6 +236,7 @@ class SettingsTextField extends StatelessWidget {
     this.keyboardType,
     this.obscureText = false,
     this.inputFormatters,
+    this.lockedBy,
   });
 
   final String label;
@@ -245,24 +248,38 @@ class SettingsTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
   final List<TextInputFormatter>? inputFormatters;
+  final String? lockedBy;
 
   @override
-  Widget build(BuildContext context) => SettingsField(
-    label: label,
-    description: description,
-    required: required,
-    child: TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      inputFormatters: inputFormatters,
-      autofillHints: obscureText ? const [] : null,
-      decoration: settingsInputDecoration(context),
-      onChanged: onChanged,
-      validator: validator,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final variable = lockedBy;
+    final reason = variable == null ? null : AppLocalizations.of(context).settingsLocked(variable);
+
+    return SettingsField(
+      label: label,
+      description: description,
+      required: required,
+      child: TextFormField(
+        controller: controller,
+        readOnly: reason != null,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        inputFormatters: inputFormatters,
+        autofillHints: obscureText ? const [] : null,
+        decoration: settingsInputDecoration(context).copyWith(
+          helperText: reason,
+          helperMaxLines: 3,
+          suffixIcon: reason == null ? null : Tooltip(message: reason, child: const Icon(LucideIcons.lock, size: 18)),
+        ),
+        onChanged: onChanged,
+        validator: validator,
+      ),
+    );
+  }
 }
+
+String? lockedVariable(List<LockedSetting> locked, String field) =>
+    locked.where((setting) => setting.field == field).firstOrNull?.variable;
 
 InputDecoration settingsInputDecoration(BuildContext context) {
   final colors = Theme.of(context).colorScheme;

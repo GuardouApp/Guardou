@@ -26,11 +26,18 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
 
     internal Action<IServiceCollection> TestServices { get; init; } = _ => { };
 
+    internal IReadOnlyDictionary<string, string> Settings { get; init; } = new Dictionary<string, string>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         string webRoot = Directory.CreateDirectory(Path.Combine(_dataDir, "wwwroot")).FullName;
         File.WriteAllText(Path.Combine(webRoot, "index.html"), "<!doctype html>");
         builder.UseWebRoot(webRoot);
+        foreach ((string key, string value) in Settings)
+        {
+            builder.UseSetting(key, value);
+        }
+
         builder.ConfigureServices(services =>
         {
             services.Replace(ServiceDescriptor.Singleton(new StoragePaths(_dataDir)));

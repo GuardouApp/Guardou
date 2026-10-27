@@ -149,6 +149,6 @@ public sealed class ExternalSignInTests
 
     private Task<ExternalSignInStatus> SignInAsync()
     {
-        return new ExternalSignIn(_settings, _store, _pictures, _sessions).SignInAsync(CancellationToken);
+        return new ExternalSignIn(TestSettings.Oidc(_settings), _store, _pictures, _sessions).SignInAsync(CancellationToken);
     }
 }
