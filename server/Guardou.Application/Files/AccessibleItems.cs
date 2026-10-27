@@ -12,11 +12,14 @@ internal sealed class AccessibleItems(IItemStore store, OwnedItems owned, IDirec
             return ItemAccess.Owned(await owned.FindActiveAsync(userId, reference, cancellationToken), userId);
         }
 
-        Guid id = OwnedItems.ParseId(reference);
+        return await TryFindActiveAsync(userId, OwnedItems.ParseId(reference), cancellationToken)
+            ?? throw OwnedItems.NotFound(reference);
+    }
+
+    public async Task<ItemAccess?> TryFindActiveAsync(string userId, Guid id, CancellationToken cancellationToken)
+    {
         ItemPath? path = await owned.TryFindActiveAsync(userId, id, cancellationToken);
-        return path is not null
-            ? ItemAccess.Owned(path, userId)
-            : await TryFindSharedAsync(userId, id, cancellationToken) ?? throw OwnedItems.NotFound(reference);
+        return path is not null ? ItemAccess.Owned(path, userId) : await TryFindSharedAsync(userId, id, cancellationToken);
     }
 
     public async Task<ItemAccess> FindActiveFolderAsync(string userId, string reference, CancellationToken cancellationToken)

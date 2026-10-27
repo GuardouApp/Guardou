@@ -274,5 +274,7 @@
   "shareNoPeople": "Nenhum outro usuário tem acesso.",
   "shareRemoveAccess": "Remover acesso",
   "sharedWithMeEmptyTitle": "Nada foi compartilhado com você",
-  "sharedWithMeEmptyMessage": "Os itens que outros usuários compartilham com você aparecem aqui."
+  "sharedWithMeEmptyMessage": "Os itens que outros usuários compartilham com você aparecem aqui.",
+  "recentEmptyTitle": "Nenhum arquivo recente",
+  "recentEmptyMessage": "Os arquivos que você envia ou abre aparecem aqui."
 }

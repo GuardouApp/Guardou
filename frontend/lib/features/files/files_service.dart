@@ -26,6 +26,8 @@ class FilesService extends FileSource {
 
   Future<List<ItemEntry>> children(String id) => _api.items.getItemChildren(id: id);
 
+  Future<List<ItemEntry>> recent() => _api.recentItems.getRecentItems();
+
   Future<StorageUsage> usage() => _api.items.getStorageUsage();
 
   Future<ItemEntry> createFolder(String parentId, String name) => _api.items.createFolder(

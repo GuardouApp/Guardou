@@ -2019,6 +2019,52 @@
         }
       }
     },
+    "/api/items/recent": {
+      "get": {
+        "tags": [
+          "RecentItems"
+        ],
+        "operationId": "GetRecentItems",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemEntry"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settings/tasks": {
       "get": {
         "tags": [
@@ -5356,6 +5402,9 @@
     },
     {
       "name": "ProfilePictures"
+    },
+    {
+      "name": "RecentItems"
     },
     {
       "name": "Settings"

@@ -11,6 +11,7 @@ import '../../features/errors/error_page.dart';
 import '../../features/errors/loading_page.dart';
 import '../../features/files/file_route_page.dart';
 import '../../features/files/folder_page.dart';
+import '../../features/home/home_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shares/shared_folder_page.dart';
 import '../../features/shares/shared_link_gate.dart';
@@ -137,6 +138,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: Routes.home,
+            pageBuilder: (_, _) => const NoTransitionPage(child: HomePage()),
+          ),
+          GoRoute(
             path: Routes.shared,
             pageBuilder: (_, _) => const NoTransitionPage(child: SharedWithMePage()),
           ),
@@ -177,7 +182,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-const _dedicatedPages = {ShellDestination.files, ShellDestination.shared, ShellDestination.trash};
+const _dedicatedPages = {ShellDestination.home, ShellDestination.files, ShellDestination.shared, ShellDestination.trash};
 
 Page<void> _folderPage(String folderId) => NoTransitionPage(
   child: FolderPage(key: ValueKey(folderId), folderId: folderId),

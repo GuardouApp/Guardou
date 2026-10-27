@@ -60,6 +60,26 @@ internal sealed class EfItemStore(AppDbContext context) : IItemStore
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Item>> RecentFilesAsync(string userId, int skip, int take, CancellationToken cancellationToken)
+    {
+        IQueryable<ItemOpen> opens = context.Set<ItemOpen>().Where(open => open.UserId == userId);
+        return await Items
+            .AsNoTracking()
+            .Where(item => item.Kind == ItemKind.File && item.Trashed == null)
+            .Select(item => new
+            {
+                Item = item,
+                Opened = opens.Where(open => open.ItemId == item.Id).Select(open => (DateTimeOffset?)open.Opened).FirstOrDefault(),
+            })
+            .Where(candidate => candidate.Item.CreatedBy == userId || candidate.Opened != null)
+            .OrderByDescending(candidate => candidate.Opened > candidate.Item.Created ? candidate.Opened : candidate.Item.Created)
+            .ThenByDescending(candidate => candidate.Item.Id)
+            .Skip(skip)
+            .Take(take)
+            .Select(candidate => candidate.Item)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<long> UsedBytesAsync(string ownerId, CancellationToken cancellationToken)
     {
         return Items.Where(item => item.OwnerId == ownerId).SumAsync(item => item.Size, cancellationToken);

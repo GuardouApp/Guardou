@@ -146,6 +146,7 @@ MockFilesService stubFiles({Map<String, ItemDetails>? folders}) {
     return [...?known[id]?.items];
   });
   when(() => files.recordOpen(any())).thenAnswer((_) async {});
+  when(files.recent).thenAnswer((_) async => []);
   return files;
 }
 
