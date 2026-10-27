@@ -302,7 +302,14 @@
   "trashEmptied": "The trash is empty",
   "trashEmptyTitle": "The trash is empty",
   "trashEmptyMessage": "Items that you move to the trash show here.",
-  "trashRetention": "Items in the trash are deleted forever after 30 days.",
+  "trashRetention": "Items in the trash are deleted forever after {days} days.",
+  "@trashRetention": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "trashedSummary": "Deleted {trashed} · Removed on {expires}",
   "@trashedSummary": {
     "placeholders": {
@@ -451,7 +458,7 @@
   "copy": "Copy",
   "copied": "Copied",
   "serverSettings": "Server",
-  "serverSettingsDescription": "Set the public address of Guardou",
+  "serverSettingsDescription": "Set the public address of Guardou and the trash retention",
   "oidcSettings": "Single sign-on (OIDC)",
   "oidcSettingsDescription": "Sign in with an OpenID Connect provider",
   "oidcClientRequired": "Set the issuer URL and the client ID together.",
@@ -468,6 +475,16 @@
   "settingsReset": "Reset",
   "settingsRestoreDefaults": "Restore the default settings",
   "externalUrlDescription": "The public address of Guardou, for example https://guardou.example.com.",
+  "settingsLocked": "Set by the environment variable {variable}. To change it, change the variable and restart Guardou.",
+  "@settingsLocked": {
+    "placeholders": {
+      "variable": {
+        "type": "String"
+      }
+    }
+  },
+  "trashRetentionDays": "Trash retention (days)",
+  "trashRetentionDescription": "Guardou deletes the items in the trash permanently after this number of days.",
   "actionShare": "Share",
   "shareTitle": "Share \"{name}\"",
   "@shareTitle": {

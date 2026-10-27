@@ -79,6 +79,7 @@ const testConfiguration = RuntimeConfiguration(
     requireUppercase: false,
     requireNonAlphanumeric: false,
   ),
+  trashRetentionDays: 30,
 );
 
 const testUser = CurrentUser(

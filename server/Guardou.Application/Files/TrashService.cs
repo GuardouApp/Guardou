@@ -1,5 +1,7 @@
+using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Domain.Files;
+using Guardou.Domain.Settings;
 
 namespace Guardou.Application.Files;
 
@@ -11,6 +13,7 @@ public sealed class TrashService
     private readonly ItemRemover _remover;
     private readonly ShareCleanup _shares;
     private readonly ItemEntryFactory _entries;
+    private readonly EffectiveSettings<ServerSettings> _settings;
     private readonly TimeProvider _time;
 
     internal TrashService(
@@ -20,6 +23,7 @@ public sealed class TrashService
         ItemRemover remover,
         ShareCleanup shares,
         ItemEntryFactory entries,
+        EffectiveSettings<ServerSettings> settings,
         TimeProvider time)
     {
         _store = store;
@@ -28,6 +32,7 @@ public sealed class TrashService
         _remover = remover;
         _shares = shares;
         _entries = entries;
+        _settings = settings;
         _time = time;
     }
 
@@ -47,10 +52,11 @@ public sealed class TrashService
     public async Task<IReadOnlyList<TrashEntry>> ListAsync(string ownerId, CancellationToken cancellationToken)
     {
         IReadOnlyList<Item> items = await _store.TrashedAsync(ownerId, cancellationToken);
+        TrashPolicy policy = await PolicyAsync(cancellationToken);
         List<TrashEntry> entries = [];
         foreach (Item item in items.OrderByDescending(item => item.Trashed))
         {
-            entries.Add(await ToEntryAsync(item, ownerId, cancellationToken));
+            entries.Add(await ToEntryAsync(item, ownerId, policy, cancellationToken));
         }
 
         return entries;
@@ -93,14 +99,19 @@ public sealed class TrashService
 
     public async Task PurgeExpiredAsync(CancellationToken cancellationToken)
     {
-        DateTimeOffset cutoff = _time.GetUtcNow() - TrashPolicy.Retention;
+        DateTimeOffset cutoff = (await PolicyAsync(cancellationToken)).Cutoff(_time.GetUtcNow());
         await _remover.RemoveAsync(await _store.TrashedBeforeAsync(cutoff, cancellationToken), cancellationToken);
     }
 
-    private async Task<TrashEntry> ToEntryAsync(Item item, string ownerId, CancellationToken cancellationToken)
+    private async Task<TrashPolicy> PolicyAsync(CancellationToken cancellationToken)
+    {
+        return (await _settings.GetAsync(cancellationToken)).Trash();
+    }
+
+    private async Task<TrashEntry> ToEntryAsync(Item item, string ownerId, TrashPolicy policy, CancellationToken cancellationToken)
     {
         DateTimeOffset trashed = item.Trashed.GetValueOrDefault();
-        return new TrashEntry(await _entries.CreateAsync(item, ownerId, cancellationToken), trashed, TrashPolicy.ExpiresAt(trashed));
+        return new TrashEntry(await _entries.CreateAsync(item, ownerId, cancellationToken), trashed, policy.ExpiresAt(trashed));
     }
 
     private async Task<Item> RestoreParentAsync(Item item, CancellationToken cancellationToken)

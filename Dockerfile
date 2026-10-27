@@ -65,7 +65,7 @@ RUN ./configure \
     && make install
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
-RUN apk add --no-cache shadow su-exec tzdata libdav1d zlib poppler-utils fontconfig ttf-liberation libheif-tools \
+RUN apk add --no-cache shadow su-exec libdav1d zlib poppler-utils fontconfig ttf-liberation libheif-tools \
     && addgroup -g 1000 guardou \
     && adduser -D -u 1000 -G guardou -h /home/guardou guardou \
     && mkdir -p /data \

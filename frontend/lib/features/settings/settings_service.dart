@@ -4,6 +4,7 @@ import '../../api/generated/api_client.dart';
 import '../../api/generated/models/oidc_settings_change.dart';
 import '../../api/generated/models/oidc_settings_view.dart';
 import '../../api/generated/models/server_settings.dart';
+import '../../api/generated/models/server_settings_view.dart';
 import '../../api/generated/models/task_concurrency.dart';
 import '../../core/api/api_providers.dart';
 
@@ -28,10 +29,10 @@ class SettingsService {
   Future<OidcSettingsView> changeOidcSettings(OidcSettingsChange settings) =>
       _api.settings.changeOidcSettings(body: settings);
 
-  Future<ServerSettings> serverSettings() => _api.settings.getServerSettings();
+  Future<ServerSettingsView> serverSettings() => _api.settings.getServerSettings();
 
-  Future<ServerSettings> serverSettingsDefaults() => _api.settings.getServerSettingsDefaults();
+  Future<ServerSettingsView> serverSettingsDefaults() => _api.settings.getServerSettingsDefaults();
 
-  Future<ServerSettings> changeServerSettings(ServerSettings settings) =>
+  Future<ServerSettingsView> changeServerSettings(ServerSettings settings) =>
       _api.settings.changeServerSettings(body: settings);
 }

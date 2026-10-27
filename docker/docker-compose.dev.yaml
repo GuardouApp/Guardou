@@ -11,6 +11,7 @@ services:
       - "2286:2286"
     volumes:
       - data:/data
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
 
 volumes:

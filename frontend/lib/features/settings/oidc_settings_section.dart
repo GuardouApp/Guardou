@@ -101,6 +101,7 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    String? locked(String field) => lockedVariable(widget.settings.locked, field);
 
     return Form(
       key: formKey,
@@ -111,21 +112,29 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
             label: l10n.oidcIssuer,
             controller: _issuer,
             keyboardType: TextInputType.url,
+            lockedBy: locked('issuer'),
             onChanged: (_) => setState(() {}),
             validator: (value) => validateHttpsUrl(l10n, value) ?? _validateClient(l10n),
           ),
           SettingsTextField(
             label: l10n.oidcClientId,
             controller: _clientId,
+            lockedBy: locked('clientId'),
             onChanged: (_) => setState(() {}),
             validator: (_) => _validateClient(l10n),
           ),
-          SettingsTextField(label: l10n.oidcClientSecret, controller: _clientSecret, obscureText: true),
-          SettingsTextField(label: l10n.oidcScopes, controller: _scopes),
+          SettingsTextField(
+            label: l10n.oidcClientSecret,
+            controller: _clientSecret,
+            obscureText: true,
+            lockedBy: locked('clientSecret'),
+          ),
+          SettingsTextField(label: l10n.oidcScopes, controller: _scopes, lockedBy: locked('scopes')),
           SettingsTextField(
             label: l10n.oidcUserClaim,
             required: true,
             controller: _userClaim,
+            lockedBy: locked('userClaim'),
             validator: (value) => (value?.trim() ?? '').isEmpty ? l10n.loginValueRequired : null,
           ),
           SettingsSwitch(

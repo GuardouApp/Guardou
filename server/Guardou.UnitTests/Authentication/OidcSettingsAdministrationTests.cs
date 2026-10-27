@@ -106,6 +106,19 @@ public sealed class OidcSettingsAdministrationTests : IOidcSettingsObserver
     }
 
     [Fact]
+    public async Task ValidatesTheClientWithTheEnvironmentIssuer()
+    {
+        OidcSettingsAdministration administration = Administration(new SettingsOverrides { OidcIssuer = "https://env.example.com" });
+
+        OidcSettingsView view = await administration.ChangeAsync(Change with { Issuer = null }, RequestOrigin, CancellationToken);
+
+        Assert.Equal("https://env.example.com", view.Issuer);
+        Assert.Equal("https://env.example.com", _observed?.Issuer);
+        Assert.Equal([new LockedSetting("issuer", SettingsVariables.OidcIssuer)], view.Locked);
+        Assert.Null((await _store.GetAsync<OidcSettings>(CancellationToken)).Issuer);
+    }
+
+    [Fact]
     public async Task EnablesThePasswordLoginAgain()
     {
         await Administration().ChangeAsync(Change with { PasswordLogin = false }, RequestOrigin, CancellationToken);
@@ -117,6 +130,14 @@ public sealed class OidcSettingsAdministrationTests : IOidcSettingsObserver
 
     private OidcSettingsAdministration Administration()
     {
-        return new OidcSettingsAdministration(_store, new ServerSettingsAdministration(_store), this);
+        return Administration(new SettingsOverrides());
+    }
+
+    private OidcSettingsAdministration Administration(SettingsOverrides overrides)
+    {
+        return new OidcSettingsAdministration(
+            TestSettings.Oidc(_store, overrides),
+            new ServerSettingsAdministration(TestSettings.Server(_store, overrides)),
+            this);
     }
 }

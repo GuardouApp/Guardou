@@ -10,4 +10,5 @@ services:
       - "2286:2286"
     volumes:
       - ${DATA_PATH}:/data
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped

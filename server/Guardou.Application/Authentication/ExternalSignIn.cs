@@ -6,19 +6,19 @@ using Guardou.Domain.Users;
 namespace Guardou.Application.Authentication;
 
 public sealed class ExternalSignIn(
-    ISettingsStore settings,
+    EffectiveSettings<OidcSettings> settings,
     IUserAccountStore store,
     IProfilePictureStore pictures,
     ISessionService sessions)
 {
     public async Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
     {
-        return (await settings.GetAsync<OidcSettings>(cancellationToken)).IsConfigured;
+        return (await settings.GetAsync(cancellationToken)).IsConfigured;
     }
 
     public async Task<ExternalSignInStatus> SignInAsync(CancellationToken cancellationToken)
     {
-        OidcSettings oidc = await settings.GetAsync<OidcSettings>(cancellationToken);
+        OidcSettings oidc = await settings.GetAsync(cancellationToken);
         ExternalLogin? login = await sessions.ReadExternalLoginAsync();
         ExternalIdentity? identity = login is null ? null : ExternalIdentity.From(login.Claims, oidc);
         if (!oidc.IsConfigured || login is null || identity is null)

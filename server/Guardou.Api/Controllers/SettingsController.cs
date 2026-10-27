@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Guardou.Api.Authorization;
 using Guardou.Application.Authentication;
+using Guardou.Application.Configuration;
 using Guardou.Application.Settings;
 using Guardou.Application.Tasks;
 using Guardou.Domain.Settings;
@@ -16,7 +17,8 @@ namespace Guardou.Api.Controllers;
 public sealed class SettingsController(
     QueueSettings queues,
     OidcSettingsAdministration oidc,
-    ServerSettingsAdministration server) : ControllerBase
+    ServerSettingsAdministration server,
+    EffectiveConfigurationQuery effective) : ControllerBase
 {
     [HttpGet("tasks", Name = "GetTaskSettings")]
     [ProducesResponseType<IReadOnlyList<TaskConcurrency>>(StatusCodes.Status200OK)]
@@ -80,31 +82,40 @@ public sealed class SettingsController(
     }
 
     [HttpGet("server", Name = "GetServerSettings")]
-    [ProducesResponseType<ServerSettings>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ServerSettingsView>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public Task<ServerSettings> GetServer(CancellationToken cancellationToken)
+    public Task<ServerSettingsView> GetServer(CancellationToken cancellationToken)
     {
         return server.GetAsync(cancellationToken);
     }
 
     [HttpGet("server/defaults", Name = "GetServerSettingsDefaults")]
-    [ProducesResponseType<ServerSettings>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ServerSettingsView>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public ServerSettings GetServerDefaults()
+    public ServerSettingsView GetServerDefaults()
     {
-        return ServerSettings.Initial;
+        return server.Defaults();
     }
 
     [HttpPut("server", Name = "ChangeServerSettings")]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType<ServerSettings>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ServerSettingsView>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
-    public Task<ServerSettings> ChangeServer(ServerSettings settings, CancellationToken cancellationToken)
+    public Task<ServerSettingsView> ChangeServer(ServerSettings settings, CancellationToken cancellationToken)
     {
         return server.ChangeAsync(settings, cancellationToken);
+    }
+
+    [HttpGet("effective", Name = "GetEffectiveConfiguration")]
+    [ProducesResponseType<IReadOnlyList<EffectiveSetting>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    public Task<IReadOnlyList<EffectiveSetting>> GetEffective(CancellationToken cancellationToken)
+    {
+        return effective.GetAsync(cancellationToken);
     }
 }

@@ -1,3 +1,5 @@
+using Guardou.Application.Settings;
+
 namespace Guardou.Application.Authentication;
 
 public sealed record OidcSettingsView(
@@ -9,4 +11,5 @@ public sealed record OidcSettingsView(
     bool AutoCreateUsers,
     bool PasswordLogin,
     string RedirectUri,
-    string PostLogoutRedirectUri);
+    string PostLogoutRedirectUri,
+    IReadOnlyList<LockedSetting> Locked);

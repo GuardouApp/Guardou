@@ -2590,12 +2590,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerSettings"
+                  "$ref": "#/components/schemas/ServerSettingsView"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerSettings"
+                  "$ref": "#/components/schemas/ServerSettingsView"
                 }
               }
             }
@@ -2658,12 +2658,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerSettings"
+                  "$ref": "#/components/schemas/ServerSettingsView"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerSettings"
+                  "$ref": "#/components/schemas/ServerSettingsView"
                 }
               }
             }
@@ -2728,12 +2728,73 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerSettings"
+                  "$ref": "#/components/schemas/ServerSettingsView"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServerSettings"
+                  "$ref": "#/components/schemas/ServerSettingsView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings/effective": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "operationId": "GetEffectiveConfiguration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EffectiveSetting"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EffectiveSetting"
+                  }
                 }
               }
             }
@@ -4762,6 +4823,35 @@
           }
         }
       },
+      "EffectiveSetting": {
+        "required": [
+          "key",
+          "value",
+          "secret",
+          "source",
+          "variable"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "secret": {
+            "type": "boolean"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SettingSource"
+          },
+          "variable": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ItemCreator": {
         "required": [
           "id",
@@ -4941,6 +5031,21 @@
         ],
         "type": "string"
       },
+      "LockedSetting": {
+        "required": [
+          "field",
+          "variable"
+        ],
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "variable": {
+            "type": "string"
+          }
+        }
+      },
       "LoginRequest": {
         "required": [
           "username",
@@ -5034,7 +5139,8 @@
           "autoCreateUsers",
           "passwordLogin",
           "redirectUri",
-          "postLogoutRedirectUri"
+          "postLogoutRedirectUri",
+          "locked"
         ],
         "type": "object",
         "properties": {
@@ -5069,6 +5175,12 @@
           },
           "postLogoutRedirectUri": {
             "type": "string"
+          },
+          "locked": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LockedSetting"
+            }
           }
         }
       },
@@ -5161,7 +5273,8 @@
           "applicationName",
           "authenticationMethods",
           "registrationOpen",
-          "passwordPolicy"
+          "passwordPolicy",
+          "trashRetentionDays"
         ],
         "type": "object",
         "properties": {
@@ -5179,6 +5292,10 @@
           },
           "passwordPolicy": {
             "$ref": "#/components/schemas/PasswordPolicy"
+          },
+          "trashRetentionDays": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5191,8 +5308,45 @@
           "externalUrl": {
             "type": "string",
             "nullable": true
+          },
+          "trashRetentionDays": {
+            "type": "integer",
+            "format": "int32",
+            "default": 30
           }
         }
+      },
+      "ServerSettingsView": {
+        "required": [
+          "externalUrl",
+          "trashRetentionDays",
+          "locked"
+        ],
+        "type": "object",
+        "properties": {
+          "externalUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "trashRetentionDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "locked": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LockedSetting"
+            }
+          }
+        }
+      },
+      "SettingSource": {
+        "enum": [
+          "default",
+          "database",
+          "environment"
+        ],
+        "type": "string"
       },
       "ShareLink": {
         "required": [

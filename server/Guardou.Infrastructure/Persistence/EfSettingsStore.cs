@@ -11,14 +11,12 @@ internal sealed class EfSettingsStore(AppDbContext context) : ISettingsStore
 
     private DbSet<StoredSetting> Settings => context.Set<StoredSetting>();
 
-    public async Task<TSettings> GetAsync<TSettings>(CancellationToken cancellationToken)
+    public async Task<TSettings?> FindAsync<TSettings>(CancellationToken cancellationToken)
         where TSettings : class, ISettings<TSettings>
     {
         string key = TSettings.Key;
         StoredSetting? stored = await Settings.AsNoTracking().SingleOrDefaultAsync(setting => setting.Key == key, cancellationToken);
-        return stored is null
-            ? TSettings.Initial
-            : JsonSerializer.Deserialize<TSettings>(stored.Value, JsonOptions) ?? TSettings.Initial;
+        return stored is null ? null : JsonSerializer.Deserialize<TSettings>(stored.Value, JsonOptions);
     }
 
     public async Task SaveAsync<TSettings>(TSettings settings, CancellationToken cancellationToken)

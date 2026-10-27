@@ -9,7 +9,9 @@ public abstract class SignedInTests : IAsyncLifetime
     protected const string BobDisplayName = "Bob Jones";
     protected const string BobPassword = "Second-user-pass1";
 
-    internal TestServerFactory Factory { get; } = new();
+    private TestServerFactory? _factory;
+
+    internal TestServerFactory Factory => _factory ??= CreateFactory();
 
     protected HttpClient Client { get; private set; } = new();
 
@@ -49,6 +51,11 @@ public abstract class SignedInTests : IAsyncLifetime
                 .Select(path => Path.GetRelativePath(Factory.FilesDirectory, path).Replace(Path.DirectorySeparatorChar, '/'))
                 .ToList()
             : [];
+    }
+
+    private protected virtual TestServerFactory CreateFactory()
+    {
+        return new TestServerFactory();
     }
 
     private async Task<HttpClient> SignInAsync(string username, string password)

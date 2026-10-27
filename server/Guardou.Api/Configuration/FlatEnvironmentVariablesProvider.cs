@@ -6,7 +6,7 @@ internal sealed class FlatEnvironmentVariablesProvider(IReadOnlyDictionary<strin
     {
         Data = keys
             .Select(pair => (pair.Value, Value: Environment.GetEnvironmentVariable(pair.Key)))
-            .Where(pair => pair.Value is not null)
+            .Where(pair => !string.IsNullOrEmpty(pair.Value))
             .ToDictionary(pair => pair.Item1, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
     }
 }

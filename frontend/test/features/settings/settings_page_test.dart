@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:guardou/api/generated/models/locked_setting.dart';
 import 'package:guardou/api/generated/models/oidc_settings_change.dart';
 import 'package:guardou/api/generated/models/oidc_settings_view.dart';
 import 'package:guardou/api/generated/models/server_settings.dart';
+import 'package:guardou/api/generated/models/server_settings_view.dart';
 import 'package:guardou/api/generated/models/task_concurrency.dart';
 import 'package:guardou/api/generated/models/task_kind.dart';
 import 'package:guardou/app/router/app_router.dart';
@@ -27,7 +29,9 @@ void main() {
     passwordLogin: true,
     redirectUri: 'http://localhost/api/auth/oidc/callback',
     postLogoutRedirectUri: 'http://localhost/login',
+    locked: [],
   );
+  const server = ServerSettingsView(externalUrl: null, trashRetentionDays: 30, locked: []);
   const concurrencyLabel = 'Generate previews: tasks at the same time';
 
   late MockSettingsService settings;
@@ -51,7 +55,7 @@ void main() {
     settings = MockSettingsService();
     when(settings.taskSettings).thenAnswer((_) async => [previews]);
     when(settings.oidcSettings).thenAnswer((_) async => oidc);
-    when(settings.serverSettings).thenAnswer((_) async => const ServerSettings(externalUrl: null));
+    when(settings.serverSettings).thenAnswer((_) async => server);
   });
 
   Future<ProviderContainer> pumpSettings(WidgetTester tester, {Size size = const Size(1280, 800)}) => pumpRoutedApp(
@@ -157,18 +161,54 @@ void main() {
   });
 
   testWidgets('saves the external URL', (tester) async {
-    when(
-      () => settings.changeServerSettings(any()),
-    ).thenAnswer((invocation) async => invocation.positionalArguments.single as ServerSettings);
+    when(() => settings.changeServerSettings(any())).thenAnswer((_) async => server);
     await pumpSettings(tester);
     await expand(tester, 'Server');
 
     await tester.enterText(field('External URL'), ' https://files.example.com ');
+    await tester.enterText(field('Trash retention (days)'), '7');
     await tapVisible(tester, button('Save').hitTestable());
 
     verify(
-      () => settings.changeServerSettings(const ServerSettings(externalUrl: 'https://files.example.com')),
+      () => settings.changeServerSettings(
+        const ServerSettings(externalUrl: 'https://files.example.com', trashRetentionDays: 7),
+      ),
     ).called(1);
+  });
+
+  testWidgets('refuses a trash retention out of range', (tester) async {
+    await pumpSettings(tester);
+    await expand(tester, 'Server');
+
+    await tester.enterText(field('Trash retention (days)'), '0');
+    await tapVisible(tester, button('Save').hitTestable());
+
+    expect(find.text('Enter a number from 1 to 3650.'), findsOneWidget);
+    verifyNever(() => settings.changeServerSettings(any()));
+  });
+
+  testWidgets('shows a locked field as read-only with the reason', (tester) async {
+    when(settings.serverSettings).thenAnswer(
+      (_) async => server.copyWith(
+        externalUrl: 'https://env.example.com',
+        locked: const [LockedSetting(field: 'externalUrl', variable: 'EXTERNAL_URL')],
+      ),
+    );
+    await pumpSettings(tester);
+    await expand(tester, 'Server');
+
+    final externalUrl = tester.widget<TextField>(
+      find.descendant(of: field('External URL'), matching: find.byType(TextField)),
+    );
+    expect(externalUrl.readOnly, isTrue);
+    expect(
+      find.text('Set by the environment variable EXTERNAL_URL. To change it, change the variable and restart Guardou.'),
+      findsOneWidget,
+    );
+    final retention = tester.widget<TextField>(
+      find.descendant(of: field('Trash retention (days)'), matching: find.byType(TextField)),
+    );
+    expect(retention.readOnly, isFalse);
   });
 
   testWidgets('refuses an external URL that is not HTTP', (tester) async {
