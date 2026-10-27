@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
@@ -28,12 +28,26 @@ void main() {
     overrides: serviceOverrides(auth: MockAuthService(), files: files),
   );
 
-  testWidgets('lists the recent folders and files in the server order', (tester) async {
+  testWidgets('sorts the recent folders and files like a folder', (tester) async {
     await pumpHome(tester);
 
     expect(find.text('Home'), findsWidgets);
-    expect(tester.getTopLeft(find.text('photos')).dy, lessThan(tester.getTopLeft(find.text('zeta.txt')).dy));
-    expect(tester.getTopLeft(find.text('zeta.txt')).dy, lessThan(tester.getTopLeft(find.text('alpha.txt')).dy));
+    expect(tester.getTopLeft(find.text('photos')).dy, lessThan(tester.getTopLeft(find.text('alpha.txt')).dy));
+    expect(tester.getTopLeft(find.text('alpha.txt')).dy, lessThan(tester.getTopLeft(find.text('zeta.txt')).dy));
+  });
+
+  testWidgets('selects more than one item', (tester) async {
+    await pumpHome(tester);
+
+    await tester.tap(find.text('alpha.txt'));
+    await tester.pumpAndSettle();
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.tap(find.text('zeta.txt'));
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pumpAndSettle();
+
+    expect(find.text('2 selected'), findsOneWidget);
+    expect(find.byTooltip('Rename'), findsOneWidget);
   });
 
   testWidgets('shows an empty state in portrait', (tester) async {

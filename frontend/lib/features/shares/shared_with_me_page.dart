@@ -4,10 +4,10 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/router/routes.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../files/file_arrangement.dart';
-import '../files/file_view_settings.dart';
+import '../files/folder_header.dart';
 import '../files/folder_states.dart';
-import '../files/item_collection_page.dart';
+import '../files/item_action.dart';
+import '../files/item_browser.dart';
 import 'shared_with_me.dart';
 
 class SharedWithMePage extends ConsumerWidget {
@@ -18,18 +18,23 @@ class SharedWithMePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final settings = ref.watch(fileViewSettingsProvider);
-    return ItemCollectionPage(
-      title: l10n.navigationSharedWithMe,
+    return ItemBrowser(
+      scope: layoutKey,
       layoutKey: layoutKey,
-      items: ref.watch(sharedWithMeProvider),
-      arrange: (items) => arrangeEntries(items, settings),
-      onRetry: () => ref.invalidate(sharedWithMeProvider),
+      items: sharedWithMeProvider,
+      header: ItemsHeader(title: Text(l10n.navigationSharedWithMe), layoutKey: layoutKey),
       empty: FolderMessage(
         icon: LucideIcons.users,
         title: l10n.sharedWithMeEmptyTitle,
         message: l10n.sharedWithMeEmptyMessage,
       ),
+      errorView: (error) => FolderErrorView(
+        isRoot: true,
+        error: error,
+        onRetry: () => ref.invalidate(sharedWithMeProvider),
+      ),
+      menuActions: const [ItemAction.open, ItemAction.download],
+      toolbarActions: const [ItemAction.download, ItemAction.details],
     );
   }
 }

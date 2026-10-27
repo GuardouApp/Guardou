@@ -10,32 +10,47 @@ import 'details_panel_controller.dart';
 import 'folder_breadcrumbs.dart';
 import 'folder_layouts.dart';
 
-class FolderHeader extends ConsumerWidget {
+class FolderHeader extends StatelessWidget {
   const FolderHeader({super.key, required this.folder});
 
   final ItemDetails? folder;
 
   @override
+  Widget build(BuildContext context) {
+    final current = folder;
+    return ItemsHeader(
+      title: current == null
+          ? const SizedBox.shrink()
+          : FolderBreadcrumbs(folder: current, acceptsDrops: !current.shared, inSharedWithMe: current.shared),
+      layoutKey: current?.entry.id,
+      readOnly: current != null && !current.entry.permissions.canAddChildren,
+    );
+  }
+}
+
+class ItemsHeader extends ConsumerWidget {
+  const ItemsHeader({super.key, required this.title, required this.layoutKey, this.readOnly = false});
+
+  final Widget title;
+  final String? layoutKey;
+  final bool readOnly;
+
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final compact = WindowSizeClass.of(context) == WindowSizeClass.compact;
-    final current = folder;
-    final readOnly = current != null && !current.entry.permissions.canAddChildren;
+    final key = layoutKey;
 
     return PageHeader(
       child: Row(
         children: [
-          Expanded(
-            child: current == null
-                ? const SizedBox.shrink()
-                : FolderBreadcrumbs(folder: current, acceptsDrops: !current.shared, inSharedWithMe: current.shared),
-          ),
+          Expanded(child: title),
           if (readOnly)
             Tooltip(
               message: l10n.readOnlyFolder,
               child: Icon(LucideIcons.lock, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
-          if (current != null) FolderLayoutToggle(folderId: current.entry.id),
+          if (key != null) FolderLayoutToggle(folderId: key),
           if (!compact)
             IconButton(
               tooltip: l10n.actionDetails,

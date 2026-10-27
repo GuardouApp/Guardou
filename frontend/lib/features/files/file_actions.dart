@@ -23,6 +23,7 @@ import 'dialogs/name_dialog.dart';
 import 'files_service.dart';
 import 'folder_controller.dart';
 import 'item_action.dart';
+import 'recent_items.dart';
 import 'storage_usage_controller.dart';
 
 class FileActions {
@@ -225,6 +226,7 @@ class FileActions {
     _container
       ..invalidate(folderControllerProvider)
       ..invalidate(childrenControllerProvider)
+      ..invalidate(recentItemsProvider)
       ..invalidate(storageUsageControllerProvider)
       ..invalidate(trashControllerProvider);
   }
