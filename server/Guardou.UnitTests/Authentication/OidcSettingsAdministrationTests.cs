@@ -87,6 +87,7 @@ public sealed class OidcSettingsAdministrationTests : IOidcSettingsObserver
 
     [Theory]
     [InlineData("ftp://id.example.com", "guardou")]
+    [InlineData("http://id.example.com", "guardou")]
     [InlineData("https://id.example.com?realm=home", "guardou")]
     [InlineData("https://id.example.com", " ")]
     [InlineData(null, "guardou")]

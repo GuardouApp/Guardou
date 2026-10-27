@@ -246,6 +246,7 @@
   "userOidcUnlink": "Desvincular",
   "settingsInvalid": "As configurações não são válidas.",
   "settingsUrlInvalid": "Informe uma URL HTTP ou HTTPS.",
+  "settingsHttpsUrlInvalid": "Informe uma URL HTTPS.",
   "copy": "Copiar",
   "copied": "Copiado",
   "serverSettings": "Servidor",
