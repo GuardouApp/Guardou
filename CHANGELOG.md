@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.8.0](https://github.com/GuardouApp/Guardou/compare/v0.7.0...v0.8.0) (2026-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* add environment overrides, trash retention, and the host time zone ([#40](https://github.com/GuardouApp/Guardou/issues/40))
+
+### Features
+
+* add environment overrides, trash retention, and the host time zone ([#40](https://github.com/GuardouApp/Guardou/issues/40)) ([56ede4d](https://github.com/GuardouApp/Guardou/commit/56ede4d612f466547fe86fb22afc05317bf63ac7))
+* add search with a live search bar, filters, and folder sizes ([#34](https://github.com/GuardouApp/Guardou/issues/34)) ([eda4775](https://github.com/GuardouApp/Guardou/commit/eda477568243c472c7a5d89bd709790fdfcbca54))
+* rebuild the search index from the task queue ([#38](https://github.com/GuardouApp/Guardou/issues/38)) ([6ccc8aa](https://github.com/GuardouApp/Guardou/commit/6ccc8aa6796bddef0d3693a9da0ab0a21a7d4af2))
+
+
+### Bug Fixes
+
+* **frontend:** load CanvasKit from the app, not from the CDN ([#37](https://github.com/GuardouApp/Guardou/issues/37)) ([3bd5a19](https://github.com/GuardouApp/Guardou/commit/3bd5a19c395a3fe15cee52979a2b64ab1eeed1f9))
+* **frontend:** load the full CanvasKit variant ([#36](https://github.com/GuardouApp/Guardou/issues/36)) ([e8db66c](https://github.com/GuardouApp/Guardou/commit/e8db66c9cd16ff9f0d73b1bc91d4bb47578e3dfe))
+* require an HTTPS issuer for OIDC ([#39](https://github.com/GuardouApp/Guardou/issues/39)) ([74d8db0](https://github.com/GuardouApp/Guardou/commit/74d8db0a4dce7f50b938cc76642b5ac6552c404f))
+
 ## [0.7.0](https://github.com/GuardouApp/Guardou/compare/v0.6.0...v0.7.0) (2026-10-27)
 
 
