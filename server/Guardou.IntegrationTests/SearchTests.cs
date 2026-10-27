@@ -170,6 +170,26 @@ public sealed class SearchTests : SignedInTests
         Assert.Equal(3, (await Client.GetItemAsync(docs.Id)).Entry.Size);
     }
 
+    [Fact]
+    public async Task RegeneratesTheIndexOfAllUsers()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        ItemEntry file = await Client.UploadEntryAsync(docs.Id, "regenerated.txt", "1234");
+        await using (AsyncServiceScope scope = Factory.Services.CreateAsyncScope())
+        {
+            IndexDbContext index = scope.ServiceProvider.GetRequiredService<IndexDbContext>();
+            await index.Entries.Where(entry => entry.Name == "regenerated.txt").ExecuteDeleteAsync(CancellationToken);
+            await index.Entries.Where(entry => entry.Name == "docs").ExecuteUpdateAsync(setters => setters.SetProperty(entry => entry.Size, 99), CancellationToken);
+        }
+
+        HttpResponseMessage response = await Client.PostAsync("/api/tasks/queues/searchIndex/all", null, CancellationToken);
+        await Client.WaitForIdleQueuesAsync();
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal([file.Id], await SearchIdsAsync(Client, "regenerated"));
+        Assert.Equal(4, (await Client.GetItemAsync(docs.Id)).Entry.Size);
+    }
+
     private static async Task<ItemEntry> ReadEntryAsync(Task<HttpResponseMessage> response)
     {
         return await ItemsApi.ReadEntryAsync(await response);

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
-import '../../api/generated/models/item_kind.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -171,7 +170,7 @@ class _WideRow extends StatelessWidget {
     SortField.name => entry.name,
     SortField.modified => formatDate(entry.modified, l10n.localeName),
     SortField.created => formatDate(entry.created, l10n.localeName),
-    SortField.size => sizeLabel(entry, l10n),
+    SortField.size => formatSize(entry.size, l10n.localeName),
     SortField.kind => kindLabel(entry, l10n),
   };
 
@@ -232,7 +231,7 @@ class _CompactRow extends StatelessWidget {
       child: ListTile(
         leading: ItemLeading(entry: entry, interactions: interactions, size: 24),
         title: _ItemName(entry: entry),
-        subtitle: Text(entry.kind == ItemKind.folder ? modified : l10n.fileSummary(modified, sizeLabel(entry, l10n))),
+        subtitle: Text(l10n.fileSummary(modified, formatSize(entry.size, l10n.localeName))),
         trailing: ItemMoreButton(entry: entry, interactions: interactions),
       ),
     );

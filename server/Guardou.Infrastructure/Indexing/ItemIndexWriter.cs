@@ -1,4 +1,5 @@
 using Guardou.Application.Files;
+using Guardou.Application.Search;
 using Guardou.Domain.Files;
 using Guardou.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Guardou.Infrastructure.Indexing;
 
-internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IMimeTypeMap mimeTypes)
+internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IMimeTypeMap mimeTypes) : IItemIndexRebuilder
 {
     private DbSet<Item> Items => app.Set<Item>();
 
@@ -36,19 +37,46 @@ internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IM
             return;
         }
 
-        await using IDbContextTransaction transaction = await index.Database.BeginTransactionAsync(cancellationToken);
-        foreach (Item root in await Items.AsNoTracking().Where(item => item.ParentId == null).ToListAsync(cancellationToken))
-        {
-            await InsertSubtreeAsync(root, parentPath: null, cancellationToken);
-        }
+        await InTransactionAsync(
+            async () =>
+            {
+                foreach (Item root in await Items.AsNoTracking().Where(item => item.ParentId == null).ToListAsync(cancellationToken))
+                {
+                    await InsertSubtreeAsync(root, parentPath: null, cancellationToken);
+                }
+            },
+            cancellationToken);
+    }
 
+    public Task RebuildAsync(Guid rootId, CancellationToken cancellationToken)
+    {
+        return InTransactionAsync(
+            async () =>
+            {
+                if (await Items.AsNoTracking().SingleOrDefaultAsync(item => item.Id == rootId && item.ParentId == null, cancellationToken) is { } root)
+                {
+                    await RemoveOwnerAsync(root.OwnerId, cancellationToken);
+                    await InsertSubtreeAsync(root, parentPath: null, cancellationToken);
+                }
+            },
+            cancellationToken);
+    }
+
+    private async Task InTransactionAsync(Func<Task> work, CancellationToken cancellationToken)
+    {
+        await using IDbContextTransaction transaction = await index.Database.BeginTransactionAsync(cancellationToken);
+        await work();
         await transaction.CommitAsync(cancellationToken);
         index.ChangeTracker.Clear();
     }
 
-    private async Task UpdateAsync(List<Guid> changed, CancellationToken cancellationToken)
+    private Task UpdateAsync(List<Guid> changed, CancellationToken cancellationToken)
     {
-        await using IDbContextTransaction transaction = await index.Database.BeginTransactionAsync(cancellationToken);
+        return InTransactionAsync(() => ApplyChangesAsync(changed, cancellationToken), cancellationToken);
+    }
+
+    private async Task ApplyChangesAsync(List<Guid> changed, CancellationToken cancellationToken)
+    {
         List<IndexEntry> previous = await index.Entries.Where(entry => changed.Contains(entry.ItemId)).ToListAsync(cancellationToken);
         Dictionary<Guid, Item> current = await Items.AsNoTracking()
             .Where(item => changed.Contains(item.Id))
@@ -69,9 +97,6 @@ internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IM
         {
             await PlaceAsync(item, cancellationToken);
         }
-
-        await transaction.CommitAsync(cancellationToken);
-        index.ChangeTracker.Clear();
     }
 
     private List<IndexEntry> UpdateInPlace(List<IndexEntry> previous, Dictionary<Guid, Item> current)

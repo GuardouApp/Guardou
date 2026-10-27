@@ -7,12 +7,18 @@ namespace Guardou.IntegrationTests;
 
 public sealed class SettingsTests : SignedInTests
 {
+    private static readonly TaskConcurrency[] Defaults =
+    [
+        new(TaskKind.Preview, TaskQueueSettings.DefaultConcurrency),
+        new(TaskKind.SearchIndex, TaskQueueSettings.DefaultConcurrency),
+    ];
+
     [Fact]
     public async Task ReadsTheDefaultConcurrency()
     {
         IReadOnlyList<TaskConcurrency> settings = await GetTaskSettingsAsync(Client);
 
-        Assert.Equal([new TaskConcurrency(TaskKind.Preview, TaskQueueSettings.DefaultConcurrency)], settings);
+        Assert.Equal(Defaults, settings);
     }
 
     [Fact]
@@ -21,7 +27,7 @@ public sealed class SettingsTests : SignedInTests
         HttpResponseMessage response = await PutTaskSettingsAsync([new TaskConcurrency(TaskKind.Preview, 5)]);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5)], await GetTaskSettingsAsync(Client));
+        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5), Defaults[1]], await GetTaskSettingsAsync(Client));
     }
 
     [Fact]
@@ -34,8 +40,8 @@ public sealed class SettingsTests : SignedInTests
             HttpClientExtensions.JsonOptions,
             CancellationToken);
 
-        Assert.Equal([new TaskConcurrency(TaskKind.Preview, TaskQueueSettings.DefaultConcurrency)], defaults);
-        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5)], await GetTaskSettingsAsync(Client));
+        Assert.Equal(Defaults, defaults);
+        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5), Defaults[1]], await GetTaskSettingsAsync(Client));
     }
 
     [Theory]

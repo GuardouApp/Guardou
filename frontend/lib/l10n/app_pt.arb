@@ -184,6 +184,8 @@
   "taskBusy": "A tarefa está em execução. Tente novamente mais tarde.",
   "queuePreviewTitle": "Gerar pré-visualizações",
   "queuePreviewDescription": "Gera miniaturas e pré-visualizações grandes de imagens, fotos RAW, HEIC, PDF e vídeos.",
+  "queueIndexTitle": "Gerar índice de busca",
+  "queueIndexDescription": "Recalcula o índice de busca e o tamanho das pastas.",
   "queueAll": "Todos",
   "queueAllTitle": "Processar todos os arquivos novamente?",
   "queueAllMessage": "O Guardou exclui os resultados desta fila e os gera novamente para todos os arquivos. Isso pode demorar muito.",

@@ -20,6 +20,7 @@ public static class ApplicationServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<TaskSignal>();
         services.AddScoped<ITaskHandler, PreviewTaskHandler>();
+        services.AddScoped<ITaskHandler, IndexTaskHandler>();
         services.AddScoped<RuntimeConfigurationQuery>();
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
@@ -47,6 +48,8 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<ItemSearch>(services);
         AddScopedWithInternalConstructor<PreviewTasks>(services);
         services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<PreviewTasks>());
+        AddScopedWithInternalConstructor<IndexTasks>(services);
+        services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<IndexTasks>());
         AddScopedWithInternalConstructor<ItemPreviews>(services);
         AddScopedWithInternalConstructor<ItemSharing>(services);
         AddScopedWithInternalConstructor<SharedItems>(services);

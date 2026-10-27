@@ -368,6 +368,8 @@
   "taskBusy": "The task is running. Try again later.",
   "queuePreviewTitle": "Generate previews",
   "queuePreviewDescription": "Make thumbnails and large previews for images, RAW photos, HEIC, PDF and video files.",
+  "queueIndexTitle": "Build the search index",
+  "queueIndexDescription": "Recalculates the search index and folder size.",
   "queueAll": "All",
   "queueAllTitle": "Process all files again?",
   "queueAllMessage": "Guardou deletes the results of this queue and makes them again for all files. This can take a long time.",
