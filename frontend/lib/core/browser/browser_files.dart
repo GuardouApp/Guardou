@@ -45,8 +45,6 @@ abstract interface class BrowserFiles {
 
   void download(Uri uri);
 
-  void open(Uri uri);
-
   Stream<FileDragEvent> get dragEvents;
 }
 

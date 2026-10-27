@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:guardou/core/widgets/labeled_text_field.dart';
 import 'package:guardou/api/generated/models/authentication_method.dart';
 import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/features/auth/login_page.dart';
@@ -34,8 +33,8 @@ void main() {
   );
 
   Future<void> submit(WidgetTester tester) async {
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Username'), 'admin');
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Password'), 'secret-password');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'admin');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'secret-password');
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
   }
@@ -131,7 +130,7 @@ void main() {
     await pumpLogin(tester, size: const Size(390, 844), methods: const [AuthenticationMethod.oidc]);
 
     expect(find.widgetWithText(FilledButton, 'Sign in with single sign-on'), findsOneWidget);
-    expect(find.widgetWithText(LabeledTextField, 'Username'), findsNothing);
+    expect(find.widgetWithText(TextFormField, 'Username'), findsNothing);
     expect(find.text('or'), findsNothing);
   });
 

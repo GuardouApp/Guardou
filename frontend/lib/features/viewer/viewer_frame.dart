@@ -33,11 +33,6 @@ class ViewerFrame extends ConsumerWidget {
         title: Text(entry.name, overflow: TextOverflow.ellipsis),
         actions: [
           IconButton(
-            tooltip: l10n.actionOpenInNewTab,
-            onPressed: () => browser.open(source.viewUri(entry.id)),
-            icon: const Icon(LucideIcons.externalLink),
-          ),
-          IconButton(
             tooltip: l10n.actionDownload,
             onPressed: () => browser.download(source.downloadUri(entry.id)),
             icon: const Icon(LucideIcons.download),

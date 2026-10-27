@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_tokens.dart';
@@ -178,6 +179,104 @@ class _SettingsActions extends StatelessWidget {
       ),
     );
   }
+}
+
+class SettingsField extends StatelessWidget {
+  const SettingsField({super.key, required this.label, this.description, this.required = false, required this.child});
+
+  final String label;
+  final String? description;
+  final bool required;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final text = description;
+
+    return Padding(
+      padding: EdgeInsets.only(top: AppTokens.of(context).spacing * 1.25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text.rich(
+            TextSpan(
+              text: label,
+              children: [
+                if (required)
+                  TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: colors.error),
+                  ),
+              ],
+            ),
+            style: theme.textTheme.titleSmall?.copyWith(color: colors.primary),
+          ),
+          if (text != null) ...[const SizedBox(height: 4), Text(text, style: theme.textTheme.bodyMedium)],
+          const SizedBox(height: 8),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class SettingsTextField extends StatelessWidget {
+  const SettingsTextField({
+    super.key,
+    required this.label,
+    this.description,
+    this.required = false,
+    required this.controller,
+    this.validator,
+    this.onChanged,
+    this.keyboardType,
+    this.obscureText = false,
+    this.inputFormatters,
+  });
+
+  final String label;
+  final String? description;
+  final bool required;
+  final TextEditingController controller;
+  final FormFieldValidator<String>? validator;
+  final ValueChanged<String>? onChanged;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final List<TextInputFormatter>? inputFormatters;
+
+  @override
+  Widget build(BuildContext context) => SettingsField(
+    label: label,
+    description: description,
+    required: required,
+    child: TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      inputFormatters: inputFormatters,
+      autofillHints: obscureText ? const [] : null,
+      decoration: settingsInputDecoration(context),
+      onChanged: onChanged,
+      validator: validator,
+    ),
+  );
+}
+
+InputDecoration settingsInputDecoration(BuildContext context) {
+  final colors = Theme.of(context).colorScheme;
+  final shape = OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none);
+  return InputDecoration(
+    filled: true,
+    fillColor: colors.surfaceContainerHighest,
+    border: shape,
+    enabledBorder: shape,
+    focusedBorder: shape.copyWith(borderSide: BorderSide(color: colors.primary, width: 2)),
+    errorBorder: shape.copyWith(borderSide: BorderSide(color: colors.error)),
+    focusedErrorBorder: shape.copyWith(borderSide: BorderSide(color: colors.error, width: 2)),
+    errorMaxLines: 3,
+  );
 }
 
 class SettingsSwitch extends StatelessWidget {

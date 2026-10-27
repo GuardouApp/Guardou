@@ -8,7 +8,6 @@ import 'package:guardou/api/generated/models/server_settings.dart';
 import 'package:guardou/api/generated/models/task_concurrency.dart';
 import 'package:guardou/api/generated/models/task_kind.dart';
 import 'package:guardou/app/router/app_router.dart';
-import 'package:guardou/core/widgets/labeled_text_field.dart';
 import 'package:guardou/features/settings/settings_page.dart';
 import 'package:guardou/features/settings/settings_section.dart';
 import 'package:mocktail/mocktail.dart';
@@ -63,7 +62,7 @@ void main() {
   );
 
   Finder field(String label) => find.descendant(
-    of: find.byWidgetPredicate((widget) => widget is LabeledTextField && widget.label == label),
+    of: find.byWidgetPredicate((widget) => widget is SettingsTextField && widget.label == label),
     matching: find.byType(TextFormField),
   );
 
