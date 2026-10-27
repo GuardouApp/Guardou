@@ -22,7 +22,7 @@ COPY api/openapi.json /src/api/openapi.json
 COPY frontend/ ./
 RUN dart run swagger_parser \
     && dart run build_runner build \
-    && flutter build web --release
+    && flutter build web --release --no-web-resources-cdn
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS server
 ARG TARGETARCH
