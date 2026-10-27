@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../api/generated/models/current_user.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/item_kind.dart';
 import '../../app/theme/app_tokens.dart';
@@ -159,10 +160,29 @@ class _FileCard extends ConsumerWidget {
 
   static double _gap(double spacing) => spacing / 2;
 
-  String _createdLabel(AppLocalizations l10n, String? currentUserId) {
-    final date = formatCardDate(entry.created, clock.now(), l10n.localeName);
+  String _cardDate(AppLocalizations l10n, DateTime date) => formatCardDate(date, clock.now(), l10n.localeName);
+
+  Widget _lastEventAvatar(CurrentUser? user) {
+    if (entry.opened != null && user != null) {
+      return UserAvatar(userId: user.id, name: user.displayName, hasPicture: user.hasPicture, radius: _avatarRadius);
+    }
+    return UserAvatar(
+      userId: entry.creator.id,
+      name: entry.creator.displayName,
+      hasPicture: entry.creator.hasPicture,
+      pictureUri: interactions.source.creatorPictureUri(entry.id),
+      radius: _avatarRadius,
+    );
+  }
+
+  String _lastEventLabel(AppLocalizations l10n, CurrentUser? user) {
+    final opened = entry.opened;
+    if (opened != null && user != null) {
+      return l10n.fileOpenedByYou(_cardDate(l10n, opened));
+    }
+    final date = _cardDate(l10n, entry.created);
     final creator = entry.creator;
-    return creator.id == currentUserId ? l10n.fileCreatedByYou(date) : l10n.fileCreatedBy(creator.displayName, date);
+    return creator.id == user?.id ? l10n.fileCreatedByYou(date) : l10n.fileCreatedBy(creator.displayName, date);
   }
 
   @override
@@ -170,7 +190,7 @@ class _FileCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final spacing = AppTokens.of(context).spacing;
-    final currentUserId = ref.watch(sessionControllerProvider).value?.id;
+    final user = ref.watch(sessionControllerProvider).value;
     final placeholder = Center(
       child: Icon(iconFor(entry), size: _placeholderIconSize, color: theme.colorScheme.onSurfaceVariant),
     );
@@ -231,17 +251,11 @@ class _FileCard extends ConsumerWidget {
               height: _footerHeight,
               child: Row(
                 children: [
-                  UserAvatar(
-                    userId: entry.creator.id,
-                    name: entry.creator.displayName,
-                    hasPicture: entry.creator.hasPicture,
-                    pictureUri: interactions.source.creatorPictureUri(entry.id),
-                    radius: _avatarRadius,
-                  ),
+                  _lastEventAvatar(user),
                   SizedBox(width: spacing / 2),
                   Expanded(
                     child: Text(
-                      _createdLabel(l10n, currentUserId),
+                      _lastEventLabel(l10n, user),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),

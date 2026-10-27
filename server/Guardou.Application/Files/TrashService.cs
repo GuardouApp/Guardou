@@ -50,7 +50,7 @@ public sealed class TrashService
         List<TrashEntry> entries = [];
         foreach (Item item in items.OrderByDescending(item => item.Trashed))
         {
-            entries.Add(await ToEntryAsync(item, cancellationToken));
+            entries.Add(await ToEntryAsync(item, ownerId, cancellationToken));
         }
 
         return entries;
@@ -69,7 +69,7 @@ public sealed class TrashService
             string name = await _placement.ResolveNameAsync(parent, item.Name, ConflictPolicy.Rename, null, cancellationToken) ?? item.Name;
             item.Restore(parent, name);
             await _store.SaveAsync(cancellationToken);
-            restored.Add(await _entries.CreateAsync(item, cancellationToken));
+            restored.Add(await _entries.CreateAsync(item, ownerId, cancellationToken));
         }
 
         return restored;
@@ -97,10 +97,10 @@ public sealed class TrashService
         await _remover.RemoveAsync(await _store.TrashedBeforeAsync(cutoff, cancellationToken), cancellationToken);
     }
 
-    private async Task<TrashEntry> ToEntryAsync(Item item, CancellationToken cancellationToken)
+    private async Task<TrashEntry> ToEntryAsync(Item item, string ownerId, CancellationToken cancellationToken)
     {
         DateTimeOffset trashed = item.Trashed.GetValueOrDefault();
-        return new TrashEntry(await _entries.CreateAsync(item, cancellationToken), trashed, TrashPolicy.ExpiresAt(trashed));
+        return new TrashEntry(await _entries.CreateAsync(item, ownerId, cancellationToken), trashed, TrashPolicy.ExpiresAt(trashed));
     }
 
     private async Task<Item> RestoreParentAsync(Item item, CancellationToken cancellationToken)

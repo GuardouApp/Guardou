@@ -90,7 +90,7 @@ public sealed class SharedItems
         ItemPath? path = ItemId.TryParse(id, out Guid itemId)
             ? await _items.TryFindActiveAsync(root.OwnerId, itemId, cancellationToken)
             : null;
-        return path is not null && path.Contains(root.Id) ? new ItemAccess(path, root.Id) : throw NotFound();
+        return path is not null && path.Contains(root.Id) ? new ItemAccess(path, root.Id, ViewerId: null) : throw NotFound();
     }
 
     internal async Task<Item> FindRootAsync(string token, CancellationToken cancellationToken)

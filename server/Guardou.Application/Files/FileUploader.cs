@@ -60,7 +60,7 @@ public sealed class FileUploader
         }
 
         await _previews.EnqueueAsync([item], TaskPriority.Normal, cancellationToken);
-        return await _entries.CreateAsync(item, cancellationToken);
+        return await _entries.CreateAsync(item, ownerId, cancellationToken);
     }
 
     private static List<string> FolderNames(string? relativePath)

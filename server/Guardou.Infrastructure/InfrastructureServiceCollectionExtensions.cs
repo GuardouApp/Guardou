@@ -51,6 +51,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IItemStore, EfItemStore>();
         services.AddScoped<IShareStore, EfShareStore>();
         services.AddScoped<IDirectShareStore, EfDirectShareStore>();
+        services.AddScoped<IItemOpenStore, EfItemOpenStore>();
         services.AddScoped<IUserNames, EfUserNames>();
         services.AddScoped<IUserDirectory, EfUserDirectory>();
         services.AddSingleton<LocalBlobStore>();

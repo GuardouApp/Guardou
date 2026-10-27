@@ -42,7 +42,7 @@ public sealed class ItemOrganizer
         Item folder = Item.CreateFolder(parent.Item, name, ownerId, _time.GetUtcNow());
         _store.Add(folder);
         await _store.SaveAsync(cancellationToken);
-        return await _entries.CreateAsync(folder, cancellationToken);
+        return await _entries.CreateAsync(folder, ownerId, cancellationToken);
     }
 
     public async Task<ItemEntry> RenameAsync(string ownerId, string id, string name, CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ public sealed class ItemOrganizer
             await _store.SaveAsync(cancellationToken);
         }
 
-        return await _entries.CreateAsync(item, cancellationToken);
+        return await _entries.CreateAsync(item, ownerId, cancellationToken);
     }
 
     public async Task<ItemEntry?> MoveAsync(
@@ -77,7 +77,7 @@ public sealed class ItemOrganizer
 
         if (item.ParentId == destination.Item.Id)
         {
-            return await _entries.CreateAsync(item, cancellationToken);
+            return await _entries.CreateAsync(item, ownerId, cancellationToken);
         }
 
         string? name = await _placement.ResolveNameAsync(destination.Item, item.Name, conflict, source, cancellationToken);
@@ -88,7 +88,7 @@ public sealed class ItemOrganizer
 
         item.MoveTo(destination.Item, name);
         await _store.SaveAsync(cancellationToken);
-        return await _entries.CreateAsync(item, cancellationToken);
+        return await _entries.CreateAsync(item, ownerId, cancellationToken);
     }
 
     public async Task<ItemEntry?> CopyAsync(
@@ -112,7 +112,7 @@ public sealed class ItemOrganizer
         }
 
         Item copy = await CopyTreeAsync(source.Item, destination.Item, name, ownerId, cancellationToken);
-        return await _entries.CreateAsync(copy, cancellationToken);
+        return await _entries.CreateAsync(copy, ownerId, cancellationToken);
     }
 
     private async Task<Item> CopyTreeAsync(

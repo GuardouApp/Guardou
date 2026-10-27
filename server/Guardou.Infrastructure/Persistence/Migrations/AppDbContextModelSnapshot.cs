@@ -75,6 +75,24 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.ToTable("Items", (string)null);
                 });
 
+            modelBuilder.Entity("Guardou.Domain.Files.ItemOpen", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Opened")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("UserId", "ItemId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("ItemOpens", (string)null);
+                });
+
             modelBuilder.Entity("Guardou.Domain.Shares.DirectShare", b =>
                 {
                     b.Property<Guid>("Id")
@@ -411,6 +429,21 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Guardou.Domain.Files.ItemOpen", b =>
+                {
+                    b.HasOne("Guardou.Domain.Files.Item", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guardou.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Guardou.Domain.Shares.DirectShare", b =>

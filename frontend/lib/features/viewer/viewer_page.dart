@@ -8,6 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../files/files_service.dart';
 import '../files/folder_controller.dart';
 import '../files/folder_states.dart';
+import 'item_open.dart';
 import 'media_siblings.dart';
 import 'media_viewer.dart';
 
@@ -19,6 +20,7 @@ class ViewerPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    ref.watch(itemOpenProvider(fileId));
 
     return Theme(
       data: AppTheme.dark(),

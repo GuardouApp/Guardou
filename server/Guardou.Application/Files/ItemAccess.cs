@@ -2,15 +2,15 @@ using Guardou.Domain.Files;
 
 namespace Guardou.Application.Files;
 
-internal sealed record ItemAccess(ItemPath Path, Guid? ShareRootId)
+internal sealed record ItemAccess(ItemPath Path, Guid? ShareRootId, string? ViewerId)
 {
     public Item Item => Path.Item;
 
     public IReadOnlyList<Breadcrumb> Breadcrumbs => VisibleAncestors().Select(ItemEntryFactory.Breadcrumb).ToList();
 
-    public static ItemAccess Owned(ItemPath path)
+    public static ItemAccess Owned(ItemPath path, string viewerId)
     {
-        return new ItemAccess(path, ShareRootId: null);
+        return new ItemAccess(path, ShareRootId: null, viewerId);
     }
 
     private IEnumerable<Item> VisibleAncestors()
