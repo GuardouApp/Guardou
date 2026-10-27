@@ -107,7 +107,7 @@ class _TaskTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return ListTile(
-      title: Text(task.itemName, overflow: TextOverflow.ellipsis),
+      title: Text(task.itemName.isEmpty ? l10n.myFiles : task.itemName, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         [task.owner, taskPriorityLabel(task.priority, l10n), taskUpdatedLabel(task, l10n), ?task.error].join(' · '),
         maxLines: 3,
