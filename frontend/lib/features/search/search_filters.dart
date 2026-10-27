@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-enum SearchType { folder, image, video, audio, pdf, document, spreadsheet, presentation, archive }
+import '../../api/generated/models/item_type.dart';
 
 enum SearchModified { today, last7Days, last30Days, thisYear, lastYear }
 
@@ -10,13 +9,13 @@ enum SearchSize { smallerThan1Mb, largerThan1Mb, largerThan100Mb, largerThan1Gb 
 class SearchFilters {
   const SearchFilters({this.types = const {}, this.modified, this.size});
 
-  final Set<SearchType> types;
+  final Set<ItemType> types;
   final SearchModified? modified;
   final SearchSize? size;
 
   bool get isEmpty => types.isEmpty && modified == null && size == null;
 
-  SearchFilters toggleType(SearchType type) => SearchFilters(
+  SearchFilters toggleType(ItemType type) => SearchFilters(
     types: types.contains(type) ? ({...types}..remove(type)) : {...types, type},
     modified: modified,
     size: size,
@@ -27,8 +26,8 @@ class SearchFilters {
   SearchFilters withSize(SearchSize? value) => SearchFilters(types: types, modified: modified, size: value);
 
   List<String> tokens(DateTime now) => [
-    for (final type in SearchType.values)
-      if (types.contains(type)) 'type:${type.name}',
+    for (final type in ItemType.values)
+      if (types.contains(type)) 'type:${type.json}',
     if (modified case final value?) 'modified:${_modifiedValue(value, now)}',
     if (size case final value?) 'size:${_sizeValue(value)}',
   ];

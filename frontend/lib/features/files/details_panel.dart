@@ -6,6 +6,7 @@ import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'file_presentation.dart';
+import 'item_type_presentation.dart';
 
 class DetailsPanel extends StatelessWidget {
   const DetailsPanel({super.key, required this.entry, required this.selectedCount, this.onClose});
@@ -25,7 +26,7 @@ class DetailsPanel extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(item == null ? LucideIcons.files : iconFor(item)),
+            item == null ? const Icon(LucideIcons.files) : ItemTypeIcon(item.type),
             SizedBox(width: spacing / 2),
             Expanded(
               child: Text(

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:guardou/api/generated/models/item_type.dart';
 import 'package:guardou/features/search/search_filters.dart';
 
 void main() {
@@ -10,8 +11,8 @@ void main() {
 
   test('changes the filters into the query grammar', () {
     final filters = const SearchFilters()
-        .toggleType(SearchType.video)
-        .toggleType(SearchType.image)
+        .toggleType(ItemType.video)
+        .toggleType(ItemType.image)
         .withModified(SearchModified.last7Days)
         .withSize(SearchSize.largerThan100Mb);
 
@@ -24,16 +25,17 @@ void main() {
   });
 
   test('removes a type when it is toggled again', () {
-    final filters = const SearchFilters().toggleType(SearchType.pdf).toggleType(SearchType.pdf);
+    final filters = const SearchFilters().toggleType(ItemType.pdf).toggleType(ItemType.pdf);
 
     expect(filters.isEmpty, isTrue);
     expect(searchQuery('', filters, now), isEmpty);
   });
 
   test('clears the modified and size filters', () {
-    final filters = const SearchFilters(modified: SearchModified.today, size: SearchSize.smallerThan1Mb)
-        .withModified(null)
-        .withSize(null);
+    final filters = const SearchFilters(
+      modified: SearchModified.today,
+      size: SearchSize.smallerThan1Mb,
+    ).withModified(null).withSize(null);
 
     expect(filters, const SearchFilters());
   });

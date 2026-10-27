@@ -16,6 +16,7 @@ import 'item_interactions.dart';
 import 'item_thumbnail.dart';
 import 'remembered_scroll.dart';
 import 'sort_menu.dart';
+import 'item_type_presentation.dart';
 
 class FileGridView extends StatelessWidget {
   const FileGridView({
@@ -125,7 +126,7 @@ class _FolderTile extends StatelessWidget {
         padding: EdgeInsetsDirectional.only(start: spacing),
         child: Row(
           children: [
-            ItemLeading(entry: entry, interactions: interactions, icon: iconFor(entry)),
+            ItemLeading(entry: entry, interactions: interactions),
             SizedBox(width: spacing),
             Expanded(child: Text(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ItemMoreButton(entry: entry, interactions: interactions),
@@ -191,9 +192,7 @@ class _FileCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final spacing = AppTokens.of(context).spacing;
     final user = ref.watch(sessionControllerProvider).value;
-    final placeholder = Center(
-      child: Icon(iconFor(entry), size: _placeholderIconSize, color: theme.colorScheme.onSurfaceVariant),
-    );
+    final placeholder = Center(child: ItemTypeIcon(entry.type, size: _placeholderIconSize));
 
     return SelectableItem(
       entry: entry,
@@ -209,13 +208,7 @@ class _FileCard extends ConsumerWidget {
               height: _headerHeight,
               child: Row(
                 children: [
-                  ItemLeading(
-                    entry: entry,
-                    interactions: interactions,
-                    icon: iconFor(entry),
-                    size: _iconSize,
-                    showPreview: false,
-                  ),
+                  ItemLeading(entry: entry, interactions: interactions, size: _iconSize, showPreview: false),
                   SizedBox(width: spacing * 0.75),
                   Expanded(
                     child: Text(

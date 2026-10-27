@@ -10,6 +10,7 @@ import 'package:guardou/api/generated/models/item_creator.dart';
 import 'package:guardou/api/generated/models/item_details.dart';
 import 'package:guardou/api/generated/models/item_entry.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
+import 'package:guardou/api/generated/models/item_type.dart';
 import 'package:guardou/api/generated/models/item_permissions.dart';
 import 'package:guardou/api/generated/models/password_policy.dart';
 import 'package:guardou/api/generated/models/runtime_configuration.dart';
@@ -98,6 +99,7 @@ ItemEntry testEntry(
   String? id,
   String? parentId = testRootId,
   ItemKind kind = ItemKind.file,
+  ItemType? type,
   int size = 0,
   DateTime? modified,
   DateTime? opened,
@@ -111,6 +113,7 @@ ItemEntry testEntry(
     parentId: parentId,
     name: name,
     kind: kind,
+    type: type ?? (kind == ItemKind.folder ? ItemType.folder : ItemType.text),
     size: size,
     mimeType: kind == ItemKind.folder ? null : mimeType,
     modified: date,

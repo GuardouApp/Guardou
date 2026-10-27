@@ -129,6 +129,7 @@ internal sealed class ItemEntryFactory(
             item.ParentId is { } parentId ? ItemId.Format(parentId) : null,
             item.Name,
             item.Kind,
+            ItemTypes.Of(item, mimeTypes),
             size,
             item.IsFolder ? null : mimeTypes.MimeTypeOf(item.Name),
             item.Modified,

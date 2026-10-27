@@ -8,6 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../files/file_presentation.dart';
 import 'search_controller.dart';
 import 'search_filter_chips.dart';
+import '../files/item_type_presentation.dart';
 
 class SearchPanel extends ConsumerWidget {
   const SearchPanel({super.key, required this.onOpen});
@@ -71,7 +72,7 @@ class _SearchResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return ListTile(
-      leading: Icon(iconFor(entry)),
+      leading: ItemTypeIcon(entry.type),
       title: Text(entry.name, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         l10n.fileSummary(formatDate(entry.modified, l10n.localeName), formatSize(entry.size, l10n.localeName)),

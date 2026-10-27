@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_tokens.dart';
+import 'item_type_colors.dart';
 
 abstract final class AppTheme {
   static const _seedColor = Color(0xFF00639B);
@@ -26,7 +27,7 @@ abstract final class AppTheme {
         tileHeight: _navigationTileHeight,
         iconTheme: WidgetStatePropertyAll(IconThemeData(size: _navigationIconSize)),
       ),
-      extensions: [AppTokens.from(colorScheme)],
+      extensions: [AppTokens.from(colorScheme), ItemTypeColors.from(brightness, _seedColor)],
     );
   }
 

@@ -1,8 +1,7 @@
 using System.Collections.Frozen;
-using Guardou.Application.Files;
 using Guardou.Domain.Files;
 
-namespace Guardou.Application.Search;
+namespace Guardou.Application.Files;
 
 public static class ItemTypes
 {

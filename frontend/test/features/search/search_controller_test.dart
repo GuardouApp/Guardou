@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guardou/api/generated/models/item_entry.dart';
 import 'package:guardou/features/search/search_controller.dart';
-import 'package:guardou/features/search/search_filters.dart';
+import 'package:guardou/api/generated/models/item_type.dart';
 import 'package:guardou/features/search/search_service.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -45,7 +45,7 @@ void main() {
   });
 
   test('searches with only a filter', () async {
-    controller().toggleType(SearchType.image);
+    controller().toggleType(ItemType.image);
     await Future<void>.delayed(ItemSearchController.debounce * 2);
 
     verify(() => service.search('type:image')).called(1);

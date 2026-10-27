@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Guardou.Application.Files;
+using Guardou.Domain.Files;
 using Guardou.Infrastructure.Indexing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,8 @@ public sealed class SearchTests : SignedInTests
         ItemEntry large = await Client.UploadEntryAsync(photos.Id, "large.png", new string('x', 2048));
         await Client.UploadEntryAsync(photos.Id, "list.txt", new string('x', 2048));
 
+        Assert.Equal(ItemType.Image, large.Type);
+        Assert.Equal(ItemType.Text, (await SearchAsync(Client, "list")).Single().Type);
         Assert.Equal([photos.Id], await SearchIdsAsync(Client, "type:folder"));
         Assert.Equal([large.Id], await SearchIdsAsync(Client, "type:image size:>1KB"));
         Assert.Equal([small.Id], await SearchIdsAsync(Client, "type:image size:<1KB"));

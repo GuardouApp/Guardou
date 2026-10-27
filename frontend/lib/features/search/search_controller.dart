@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/models/item_entry.dart';
 import 'search_filters.dart';
 import 'search_service.dart';
+import '../../api/generated/models/item_type.dart';
 
 final itemSearchControllerProvider = NotifierProvider<ItemSearchController, ItemSearchState>(ItemSearchController.new);
 
@@ -71,7 +72,7 @@ class ItemSearchController extends Notifier<ItemSearchState> {
 
   void setFolderOnly(bool folderOnly) => _update(state.copyWith(folderOnly: folderOnly));
 
-  void toggleType(SearchType type) => _update(state.copyWith(filters: state.filters.toggleType(type)));
+  void toggleType(ItemType type) => _update(state.copyWith(filters: state.filters.toggleType(type)));
 
   void setModified(SearchModified? modified) => _update(state.copyWith(filters: state.filters.withModified(modified)));
 

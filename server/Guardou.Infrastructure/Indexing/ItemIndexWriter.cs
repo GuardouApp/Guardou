@@ -1,5 +1,4 @@
 using Guardou.Application.Files;
-using Guardou.Application.Search;
 using Guardou.Domain.Files;
 using Guardou.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

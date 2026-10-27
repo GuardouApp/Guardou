@@ -4822,6 +4822,7 @@
           "parentId",
           "name",
           "kind",
+          "type",
           "size",
           "mimeType",
           "modified",
@@ -4845,6 +4846,9 @@
           },
           "kind": {
             "$ref": "#/components/schemas/ItemKind"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ItemType"
           },
           "size": {
             "type": "integer",
@@ -4920,6 +4924,22 @@
             }
           }
         }
+      },
+      "ItemType": {
+        "enum": [
+          "folder",
+          "image",
+          "video",
+          "audio",
+          "pdf",
+          "document",
+          "spreadsheet",
+          "presentation",
+          "archive",
+          "text",
+          "other"
+        ],
+        "type": "string"
       },
       "LoginRequest": {
         "required": [

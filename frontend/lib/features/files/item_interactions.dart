@@ -8,6 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import 'file_source.dart';
 import 'item_thumbnail.dart';
 import 'selection.dart';
+import 'item_type_presentation.dart';
 
 @immutable
 class ItemInteractions {
@@ -113,7 +114,6 @@ class ItemLeading extends StatelessWidget {
     super.key,
     required this.entry,
     required this.interactions,
-    required this.icon,
     this.size = 20,
     this.showPreview = true,
   });
@@ -123,7 +123,6 @@ class ItemLeading extends StatelessWidget {
 
   final ItemEntry entry;
   final ItemInteractions interactions;
-  final IconData icon;
   final double size;
   final bool showPreview;
 
@@ -134,7 +133,7 @@ class ItemLeading extends StatelessWidget {
         child: Checkbox(value: interactions.isSelected(entry), onChanged: (_) {}),
       );
     }
-    final placeholder = Icon(icon, size: size);
+    final placeholder = ItemTypeIcon(entry.type, size: size);
     if (!showPreview || !entry.hasPreview) {
       return placeholder;
     }

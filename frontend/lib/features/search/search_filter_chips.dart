@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../../api/generated/models/item_type.dart';
+import '../files/item_type_presentation.dart';
 import 'search_controller.dart';
 import 'search_filters.dart';
 
@@ -30,15 +32,15 @@ class SearchFilterChips extends ConsumerWidget {
         _MenuChip(
           label: filters.types.isEmpty
               ? l10n.searchType
-              : filters.types.map((type) => searchTypeLabel(type, l10n)).join(', '),
+              : filters.types.map((type) => itemTypeLabel(type, l10n)).join(', '),
           selected: filters.types.isNotEmpty,
           items: [
-            for (final type in SearchType.values)
-              CheckboxMenuButton(
-                value: filters.types.contains(type),
+            for (final type in ItemType.$valuesDefined)
+              MenuItemButton(
                 closeOnActivate: false,
-                onChanged: (_) => controller.toggleType(type),
-                child: Text(searchTypeLabel(type, l10n)),
+                onPressed: () => controller.toggleType(type),
+                leadingIcon: filters.types.contains(type) ? ItemTypeIcon(type) : Icon(itemTypeIcon(type)),
+                child: Text(itemTypeLabel(type, l10n)),
               ),
           ],
         ),
@@ -98,18 +100,6 @@ class _MenuChip extends StatelessWidget {
     ),
   );
 }
-
-String searchTypeLabel(SearchType type, AppLocalizations l10n) => switch (type) {
-  SearchType.folder => l10n.searchTypeFolder,
-  SearchType.image => l10n.searchTypeImage,
-  SearchType.video => l10n.searchTypeVideo,
-  SearchType.audio => l10n.searchTypeAudio,
-  SearchType.pdf => l10n.searchTypePdf,
-  SearchType.document => l10n.searchTypeDocument,
-  SearchType.spreadsheet => l10n.searchTypeSpreadsheet,
-  SearchType.presentation => l10n.searchTypePresentation,
-  SearchType.archive => l10n.searchTypeArchive,
-};
 
 String searchModifiedLabel(SearchModified modified, DateTime now, AppLocalizations l10n) => switch (modified) {
   SearchModified.today => l10n.searchModifiedToday,
