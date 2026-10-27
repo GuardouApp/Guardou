@@ -18,11 +18,6 @@ public sealed class ItemOpenRecorder
     public async Task RecordAsync(string userId, string id, CancellationToken cancellationToken)
     {
         Item item = (await _items.FindActiveAsync(userId, id, cancellationToken)).Item;
-        if (item.IsFolder)
-        {
-            throw new InvalidItemRequestException("A folder has no content.");
-        }
-
         DateTimeOffset now = _time.GetUtcNow();
         if (await _opens.FindAsync(item.Id, userId, cancellationToken) is { } open)
         {

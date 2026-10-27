@@ -275,6 +275,6 @@
   "shareRemoveAccess": "Remover acesso",
   "sharedWithMeEmptyTitle": "Nada foi compartilhado com você",
   "sharedWithMeEmptyMessage": "Os itens que outros usuários compartilham com você aparecem aqui.",
-  "recentEmptyTitle": "Nenhum arquivo recente",
-  "recentEmptyMessage": "Os arquivos que você envia ou abre aparecem aqui."
+  "recentEmptyTitle": "Nenhum item recente",
+  "recentEmptyMessage": "As pastas e os arquivos que você adiciona ou abre aparecem aqui."
 }

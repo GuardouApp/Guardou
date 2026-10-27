@@ -1,38 +1,45 @@
 using System.Net.Http.Json;
 using Guardou.Application.Files;
+using Guardou.Domain.Files;
 
 namespace Guardou.IntegrationTests;
 
 public sealed class RecentItemsTests : SignedInTests
 {
     [Fact]
-    public async Task ListsUploadedAndOpenedFilesNewestFirst()
+    public async Task ListsFoldersThenFilesNewestFirst()
     {
         ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
         ItemEntry first = await Client.UploadEntryAsync(docs.Id, "first.txt", "1");
         Factory.Time.Advance(TimeSpan.FromMinutes(1));
+        ItemEntry photos = await Client.CreateFolderEntryAsync(ItemsApi.Root, "photos");
         ItemEntry second = await Client.UploadEntryAsync(ItemsApi.Root, "second.txt", "2");
         Factory.Time.Advance(TimeSpan.FromMinutes(1));
         await OpenAsync(Client, first.Id);
+        await OpenAsync(Client, docs.Id);
 
         IReadOnlyList<ItemEntry> recent = await GetRecentAsync(Client);
 
-        Assert.Equal([first.Id, second.Id], recent.Select(entry => entry.Id));
+        Assert.Equal([docs.Id, photos.Id, first.Id, second.Id], recent.Select(entry => entry.Id));
     }
 
     [Fact]
-    public async Task LimitsTheList()
+    public async Task LimitsTheFoldersAndTheFiles()
     {
-        for (int index = 0; index < RecentItems.Limit + 2; index++)
+        for (int index = 0; index < RecentItems.FileLimit + 2; index++)
         {
+            await Client.CreateFolderEntryAsync(ItemsApi.Root, $"folder-{index}");
             await Client.UploadEntryAsync(ItemsApi.Root, $"file-{index}.txt", "x");
             Factory.Time.Advance(TimeSpan.FromSeconds(1));
         }
 
         IReadOnlyList<ItemEntry> recent = await GetRecentAsync(Client);
 
-        Assert.Equal(RecentItems.Limit, recent.Count);
-        Assert.Equal($"file-{RecentItems.Limit + 1}.txt", recent[0].Name);
+        List<ItemEntry> folders = recent.Where(entry => entry.Kind == ItemKind.Folder).ToList();
+        Assert.Equal(RecentItems.FolderLimit, folders.Count);
+        Assert.Equal(RecentItems.FileLimit, recent.Count - folders.Count);
+        Assert.Equal($"folder-{RecentItems.FileLimit + 1}", recent[0].Name);
+        Assert.Equal($"file-{RecentItems.FileLimit + 1}.txt", recent[RecentItems.FolderLimit].Name);
     }
 
     [Fact]

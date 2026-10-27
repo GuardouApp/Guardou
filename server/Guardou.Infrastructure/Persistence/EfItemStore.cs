@@ -60,12 +60,17 @@ internal sealed class EfItemStore(AppDbContext context) : IItemStore
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Item>> RecentFilesAsync(string userId, int skip, int take, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Item>> RecentAsync(
+        string userId,
+        ItemKind kind,
+        int skip,
+        int take,
+        CancellationToken cancellationToken)
     {
         IQueryable<ItemOpen> opens = context.Set<ItemOpen>().Where(open => open.UserId == userId);
         return await Items
             .AsNoTracking()
-            .Where(item => item.Kind == ItemKind.File && item.Trashed == null)
+            .Where(item => item.Kind == kind && item.ParentId != null && item.Trashed == null)
             .Select(item => new
             {
                 Item = item,

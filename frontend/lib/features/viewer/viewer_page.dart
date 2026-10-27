@@ -8,7 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../files/files_service.dart';
 import '../files/folder_controller.dart';
 import '../files/folder_states.dart';
-import 'item_open.dart';
+import '../files/item_open.dart';
 import 'media_siblings.dart';
 import 'media_viewer.dart';
 

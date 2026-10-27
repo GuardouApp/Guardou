@@ -46,13 +46,14 @@ public sealed class ItemOpensTests : SignedInTests
     }
 
     [Fact]
-    public async Task RefusesAFolder()
+    public async Task RecordsAFolder()
     {
         ItemEntry folder = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
 
         HttpResponseMessage open = await OpenAsync(Client, folder.Id);
 
-        Assert.Equal(HttpStatusCode.BadRequest, open.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, open.StatusCode);
+        Assert.NotNull((await Client.GetItemAsync(folder.Id)).Entry.Opened);
     }
 
     [Fact]

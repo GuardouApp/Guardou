@@ -27,6 +27,7 @@ import 'folder_states.dart';
 import 'item_action.dart';
 import 'item_actions_menu.dart';
 import 'item_interactions.dart';
+import 'item_open.dart';
 import 'new_item_menu.dart';
 import 'selection.dart';
 import 'selection_controller.dart';
@@ -39,6 +40,8 @@ class FolderPage extends ConsumerStatefulWidget {
 
   final String folderId;
   final String? focusedItemId;
+
+  bool get _recordsOpen => focusedItemId == null && folderId != Routes.rootFolderId;
 
   @override
   ConsumerState<FolderPage> createState() => _FolderPageState();
@@ -204,6 +207,9 @@ class _FolderPageState extends ConsumerState<FolderPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget._recordsOpen) {
+      ref.watch(itemOpenProvider(widget.folderId));
+    }
     final folderState = ref.watch(folderControllerProvider(widget.folderId));
     final selection = ref.watch(selectionControllerProvider(widget.folderId));
     final settings = ref.watch(fileViewSettingsProvider);

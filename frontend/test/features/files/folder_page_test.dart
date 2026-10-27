@@ -322,6 +322,18 @@ void main() {
     expect(find.byType(SliverGrid), findsNothing);
   });
 
+  testWidgets('records the open of a folder but not of the root folder', (tester) async {
+    await pumpFolder(tester, '/files');
+    verifyNever(() => files.recordOpen(any()));
+
+    await tester.tap(find.text('docs').last);
+    await tester.pump(kDoubleTapMinTime);
+    await tester.tap(find.text('docs').last);
+    await tester.pumpAndSettle();
+
+    verify(() => files.recordOpen('docs')).called(1);
+  });
+
   testWidgets('shows thumbnails for files with previews', (tester) async {
     when(() => files.preview('photo.jpg', PreviewSize.thumbnail, any())).thenAnswer((_) async => pixel);
 
