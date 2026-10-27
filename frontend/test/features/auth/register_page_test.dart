@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:guardou/core/widgets/labeled_text_field.dart';
 import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/features/auth/register_page.dart';
 import 'package:mocktail/mocktail.dart';
@@ -31,12 +30,11 @@ void main() {
     String email = 'alice@example.com',
     String password = 'long-password',
   }) async {
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Username'), username);
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Display name'), displayName);
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Email'), email);
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Password'), password);
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Confirm the password'), password);
-    await tester.ensureVisible(find.text('Create account'));
+    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), username);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), displayName);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Email'), email);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), password);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Confirm the password'), password);
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();
   }
@@ -51,16 +49,11 @@ void main() {
   testWidgets('shows password errors only after the field loses focus', (tester) async {
     await pumpRegister(tester);
 
-    await tester.enterText(find.widgetWithText(LabeledTextField, 'Password'), 'short');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'short');
     await tester.pump();
     expect(find.text('Use at least 12 characters.'), findsNothing);
 
-    final confirmation = find.descendant(
-      of: find.widgetWithText(LabeledTextField, 'Confirm the password'),
-      matching: find.byType(TextFormField),
-    );
-    await tester.ensureVisible(confirmation);
-    await tester.tap(confirmation);
+    await tester.tap(find.widgetWithText(TextFormField, 'Confirm the password'));
     await tester.pump();
     expect(find.text('Use at least 12 characters.'), findsOneWidget);
   });

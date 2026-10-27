@@ -18,8 +18,5 @@ class _UnsupportedBrowserFiles implements BrowserFiles {
   void download(Uri uri) {}
 
   @override
-  void open(Uri uri) {}
-
-  @override
   Stream<FileDragEvent> get dragEvents => const Stream.empty();
 }

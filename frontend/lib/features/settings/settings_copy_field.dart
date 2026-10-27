@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/theme/app_tokens.dart';
-import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'settings_section.dart';
 
 class SettingsCopyField extends StatefulWidget {
   const SettingsCopyField({super.key, required this.label, required this.value});
@@ -51,7 +51,7 @@ class _SettingsCopyFieldState extends State<SettingsCopyField> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return LabeledField(
+    return SettingsField(
       label: widget.label,
       child: Container(
         padding: const EdgeInsets.all(4),

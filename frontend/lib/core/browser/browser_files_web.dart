@@ -11,7 +11,6 @@ BrowserFiles createBrowserFiles() => _WebBrowserFiles();
 class _WebBrowserFiles implements BrowserFiles {
   static const _filesType = 'Files';
   static const _copyEffect = 'copy';
-  static const _newTab = '_blank';
   static const _imageTypes = 'image/*';
 
   @override
@@ -37,9 +36,6 @@ class _WebBrowserFiles implements BrowserFiles {
       ..click()
       ..remove();
   }
-
-  @override
-  void open(Uri uri) => web.window.open(uri.toString(), _newTab);
 
   Future<List<LocalFile>> _pick({required bool directory, bool multiple = true, String accept = ''}) {
     final completer = Completer<List<LocalFile>>();

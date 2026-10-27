@@ -33,22 +33,10 @@ class UnsupportedViewer extends ConsumerWidget {
             SizedBox(height: spacing),
             Text(l10n.viewerUnsupported, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
             SizedBox(height: spacing),
-            Wrap(
-              spacing: spacing / 2,
-              runSpacing: spacing / 2,
-              alignment: WrapAlignment.center,
-              children: [
-                FilledButton.icon(
-                  onPressed: () => browser.download(source.downloadUri(entry.id)),
-                  icon: const Icon(LucideIcons.download),
-                  label: Text(l10n.actionDownload),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => browser.open(source.viewUri(entry.id)),
-                  icon: const Icon(LucideIcons.externalLink),
-                  label: Text(l10n.actionOpenInNewTab),
-                ),
-              ],
+            FilledButton.icon(
+              onPressed: () => browser.download(source.downloadUri(entry.id)),
+              icon: const Icon(LucideIcons.download),
+              label: Text(l10n.actionDownload),
             ),
           ],
         ),

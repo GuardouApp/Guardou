@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../api/generated/models/task_concurrency.dart';
-import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../tasks/task_presentation.dart';
 import 'settings_section.dart';
@@ -93,7 +92,7 @@ class _TaskSettingsFormState extends ConsumerState<_TaskSettingsForm>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final MapEntry(key: setting, value: field) in _fields.entries)
-            LabeledTextField(
+            SettingsTextField(
               label: l10n.queueConcurrency(queueTitle(setting.kind, l10n)),
               required: true,
               controller: field,

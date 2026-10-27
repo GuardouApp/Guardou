@@ -5,7 +5,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../api/generated/models/authentication_method.dart';
 import '../../app/router/redirect_guard.dart';
 import '../../app/theme/app_tokens.dart';
-import '../../core/widgets/labeled_text_field.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../configuration/configuration_controller.dart';
 import 'auth_card.dart';
@@ -98,19 +97,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ),
         if (passwordLogin) ...[
-          LabeledTextField(
-            label: l10n.loginUsername,
+          TextFormField(
             controller: _username,
+            decoration: InputDecoration(labelText: l10n.loginUsername),
             autofillHints: const [AutofillHints.username],
             textInputAction: TextInputAction.next,
             validator: _required,
           ),
-          LabeledTextField(
-            label: l10n.loginPassword,
+          SizedBox(height: spacing),
+          TextFormField(
             controller: _password,
+            decoration: InputDecoration(labelText: l10n.loginPassword),
             autofillHints: const [AutofillHints.password],
             obscureText: true,
-            onSubmitted: (_) => _submit(),
+            onFieldSubmitted: (_) => _submit(),
             validator: _required,
           ),
           CheckboxListTile(
