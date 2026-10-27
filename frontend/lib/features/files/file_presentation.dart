@@ -31,9 +31,6 @@ String kindLabel(ItemEntry entry, AppLocalizations l10n) {
   return extension.isEmpty ? l10n.kindFileUnknown : l10n.kindFile(extension.toUpperCase());
 }
 
-String sizeLabel(ItemEntry entry, AppLocalizations l10n) =>
-    entry.kind == ItemKind.folder ? l10n.valueMissing : formatSize(entry.size, l10n.localeName);
-
 String folderLabel(ItemEntry folder, AppLocalizations l10n) => folder.name.isEmpty ? l10n.myFiles : folder.name;
 
 String breadcrumbLabel(Breadcrumb crumb, AppLocalizations l10n) => crumb.name.isEmpty ? l10n.myFiles : crumb.name;
