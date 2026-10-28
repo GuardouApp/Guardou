@@ -12,6 +12,10 @@ Future<ItemAction?> showItemActions(
   List<ItemAction> actions = ItemAction.values,
 }) {
   final l10n = AppLocalizations.of(context);
+  final applicable = [
+    for (final action in actions)
+      if (action.appliesTo(entries)) action,
+  ];
   if (WindowSizeClass.of(context) == WindowSizeClass.compact) {
     return showModalBottomSheet<ItemAction>(
       context: context,
@@ -20,7 +24,7 @@ Future<ItemAction?> showItemActions(
         child: ListView(
           shrinkWrap: true,
           children: [
-            for (final action in actions)
+            for (final action in applicable)
               ListTile(
                 leading: Icon(action.icon),
                 title: Text(action.label(l10n)),
@@ -36,7 +40,7 @@ Future<ItemAction?> showItemActions(
     context: context,
     position: menuPositionAt(context, position),
     items: [
-      for (final action in actions)
+      for (final action in applicable)
         PopupMenuItem(
           value: action,
           enabled: action.isEnabledFor(entries),

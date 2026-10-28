@@ -52,6 +52,9 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.Property<long>("Size")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Starred")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("StorageKey")
                         .HasColumnType("TEXT");
 
@@ -65,6 +68,8 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.HasIndex("OwnerId")
                         .IsUnique()
                         .HasFilter("\"ParentId\" IS NULL");
+
+                    b.HasIndex("OwnerId", "Starred");
 
                     b.HasIndex("OwnerId", "Trashed");
 

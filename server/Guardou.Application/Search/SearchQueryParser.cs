@@ -8,6 +8,8 @@ internal sealed class SearchQueryParser(TimeProvider time)
     private const string TypeKey = "type";
     private const string ModifiedKey = "modified";
     private const string SizeKey = "size";
+    private const string IsKey = "is";
+    private const string StarredState = "starred";
 
     public SearchQuery Parse(string? text)
     {
@@ -16,6 +18,7 @@ internal sealed class SearchQueryParser(TimeProvider time)
         HashSet<ItemType> types = [];
         Period period = new(null, null);
         SizeRange size = new(null, null);
+        bool starred = false;
         foreach (SearchToken token in SearchTokenizer.Tokenize(text ?? string.Empty))
         {
             (string key, string value) = Split(token);
@@ -30,13 +33,16 @@ internal sealed class SearchQueryParser(TimeProvider time)
                 case SizeKey:
                     size = Intersect(size, SizeFilter.Parse(value));
                     break;
+                case IsKey:
+                    starred = IsStarred(value);
+                    break;
                 default:
                     terms.Add(token.Value);
                     break;
             }
         }
 
-        return new SearchQuery(terms, types, period.From, period.Before, size.LargerThan, size.SmallerThan);
+        return new SearchQuery(terms, types, period.From, period.Before, size.LargerThan, size.SmallerThan, starred);
     }
 
     private static (string Key, string Value) Split(SearchToken token)
@@ -52,6 +58,16 @@ internal sealed class SearchQueryParser(TimeProvider time)
         return value.All(char.IsAsciiLetter) && Enum.TryParse(value, ignoreCase: true, out ItemType type)
             ? type
             : throw new InvalidSearchQueryException($"The type '{value}' is not valid.");
+    }
+
+    private static bool IsStarred(string value)
+    {
+        if (!value.Equals(StarredState, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidSearchQueryException($"The state '{value}' is not valid.");
+        }
+
+        return true;
     }
 
     private static Period Intersect(Period current, Period added)

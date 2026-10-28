@@ -8,6 +8,8 @@ enum ItemAction {
   open(LucideIcons.externalLink),
   download(LucideIcons.download),
   share(LucideIcons.userPlus),
+  star(LucideIcons.star),
+  unstar(LucideIcons.starOff),
   rename(LucideIcons.pencil),
   move(LucideIcons.folderInput),
   copy(LucideIcons.copy),
@@ -22,11 +24,19 @@ enum ItemAction {
     open => l10n.actionOpen,
     download => l10n.actionDownload,
     share => l10n.actionShare,
+    star => l10n.actionStar,
+    unstar => l10n.actionUnstar,
     rename => l10n.actionRename,
     move => l10n.actionMove,
     copy => l10n.actionCopy,
     details => l10n.actionDetails,
     trash => l10n.actionTrash,
+  };
+
+  bool appliesTo(List<ItemEntry> entries) => switch (this) {
+    star => !_allStarred(entries),
+    unstar => _allStarred(entries),
+    _ => true,
   };
 
   bool isEnabledFor(List<ItemEntry> entries) => switch (this) {
@@ -35,6 +45,8 @@ enum ItemAction {
     download => true,
     rename => entries.length == 1 && entries.single.permissions.canModify,
     share => entries.length == 1 && entries.single.permissions.canModify,
-    move || copy || trash => entries.every((entry) => entry.permissions.canModify),
+    move || copy || star || unstar || trash => entries.every((entry) => entry.permissions.canModify),
   };
+
+  static bool _allStarred(List<ItemEntry> entries) => entries.isNotEmpty && entries.every((entry) => entry.starred);
 }

@@ -109,6 +109,7 @@ internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IM
                 entry.Name = item.Name;
                 entry.Type = ItemTypes.Of(item, mimeTypes);
                 entry.Modified = item.Modified;
+                entry.Starred = item.Starred;
             }
             else
             {
@@ -206,6 +207,7 @@ internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IM
             Type = ItemTypes.Of(node.Item, mimeTypes),
             Size = size,
             Modified = node.Item.Modified,
+            Starred = node.Item.Starred,
         };
     }
 

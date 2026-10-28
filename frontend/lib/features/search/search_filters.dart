@@ -7,29 +7,42 @@ enum SearchSize { smallerThan1Mb, largerThan1Mb, largerThan100Mb, largerThan1Gb 
 
 @immutable
 class SearchFilters {
-  const SearchFilters({this.types = const {}, this.modified, this.size});
+  const SearchFilters({this.types = const {}, this.modified, this.size, this.starred = false});
 
   final Set<ItemType> types;
   final SearchModified? modified;
   final SearchSize? size;
+  final bool starred;
 
-  bool get isEmpty => types.isEmpty && modified == null && size == null;
+  bool get isEmpty => types.isEmpty && modified == null && size == null && !starred;
 
-  SearchFilters toggleType(ItemType type) => SearchFilters(
-    types: types.contains(type) ? ({...types}..remove(type)) : {...types, type},
-    modified: modified,
-    size: size,
+  SearchFilters toggleType(ItemType type) =>
+      _copyWith(types: types.contains(type) ? ({...types}..remove(type)) : {...types, type});
+
+  SearchFilters withModified(SearchModified? value) => _copyWith(modified: () => value);
+
+  SearchFilters withSize(SearchSize? value) => _copyWith(size: () => value);
+
+  SearchFilters withStarred(bool value) => _copyWith(starred: value);
+
+  SearchFilters _copyWith({
+    Set<ItemType>? types,
+    SearchModified? Function()? modified,
+    SearchSize? Function()? size,
+    bool? starred,
+  }) => SearchFilters(
+    types: types ?? this.types,
+    modified: modified == null ? this.modified : modified(),
+    size: size == null ? this.size : size(),
+    starred: starred ?? this.starred,
   );
-
-  SearchFilters withModified(SearchModified? value) => SearchFilters(types: types, modified: value, size: size);
-
-  SearchFilters withSize(SearchSize? value) => SearchFilters(types: types, modified: modified, size: value);
 
   List<String> tokens(DateTime now) => [
     for (final type in ItemType.values)
       if (types.contains(type)) 'type:${type.json}',
     if (modified case final value?) 'modified:${_modifiedValue(value, now)}',
     if (size case final value?) 'size:${_sizeValue(value)}',
+    if (starred) 'is:starred',
   ];
 
   static String _modifiedValue(SearchModified modified, DateTime now) => switch (modified) {
@@ -49,10 +62,14 @@ class SearchFilters {
 
   @override
   bool operator ==(Object other) =>
-      other is SearchFilters && setEquals(other.types, types) && other.modified == modified && other.size == size;
+      other is SearchFilters &&
+      setEquals(other.types, types) &&
+      other.modified == modified &&
+      other.size == size &&
+      other.starred == starred;
 
   @override
-  int get hashCode => Object.hash(Object.hashAllUnordered(types), modified, size);
+  int get hashCode => Object.hash(Object.hashAllUnordered(types), modified, size, starred);
 }
 
 String searchQuery(String text, SearchFilters filters, DateTime now) =>

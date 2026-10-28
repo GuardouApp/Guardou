@@ -33,7 +33,7 @@ internal sealed class EfItemIndex(IndexDbContext index) : IItemIndex
             yield break;
         }
 
-        IQueryable<Guid> results = Filter(index.Entries.AsNoTracking().Where(IndexPath.WithinAny(paths)), query)
+        IQueryable<Guid> results = Filter(index.Entries.AsNoTracking().Where(IndexPath.WithinAny(paths)), scope, query)
             .Where(entry => entry.ItemId != scope.Excluded)
             .OrderByDescending(entry => entry.Modified)
             .ThenBy(entry => entry.Name)
@@ -45,7 +45,7 @@ internal sealed class EfItemIndex(IndexDbContext index) : IItemIndex
         }
     }
 
-    private IQueryable<IndexEntry> Filter(IQueryable<IndexEntry> entries, SearchQuery query)
+    private IQueryable<IndexEntry> Filter(IQueryable<IndexEntry> entries, SearchScope scope, SearchQuery query)
     {
         foreach (string term in query.Terms)
         {
@@ -76,6 +76,11 @@ internal sealed class EfItemIndex(IndexDbContext index) : IItemIndex
         if (query.SmallerThan is { } smaller)
         {
             entries = entries.Where(entry => entry.Size < smaller);
+        }
+
+        if (query.Starred)
+        {
+            entries = entries.Where(entry => entry.Starred && entry.OwnerId == scope.ViewerId);
         }
 
         return entries;

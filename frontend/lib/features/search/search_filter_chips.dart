@@ -71,6 +71,12 @@ class SearchFilterChips extends ConsumerWidget {
               MenuItemButton(onPressed: () => controller.setSize(size), child: Text(searchSizeLabel(size, l10n))),
           ],
         ),
+        FilterChip(
+          avatar: const Icon(LucideIcons.star, size: 16),
+          label: Text(l10n.navigationStarred),
+          selected: filters.starred,
+          onSelected: controller.setStarred,
+        ),
       ],
     );
   }

@@ -24,6 +24,7 @@ import 'files_service.dart';
 import 'folder_controller.dart';
 import 'item_action.dart';
 import 'recent_items.dart';
+import 'starred_items.dart';
 import 'storage_usage_controller.dart';
 
 class FileActions {
@@ -49,6 +50,8 @@ class FileActions {
     ItemAction.open => open(entries.single),
     ItemAction.download => download(entries),
     ItemAction.share => showShareDialog(_context, entries.single),
+    ItemAction.star => star(entries),
+    ItemAction.unstar => unstar(entries),
     ItemAction.rename => rename(entries.single),
     ItemAction.move => transfer(entries, copy: false),
     ItemAction.copy => transfer(entries, copy: true),
@@ -167,8 +170,14 @@ class FileActions {
     }
   }
 
+  Future<void> star(List<ItemEntry> entries) =>
+      _guard(() => _files.star(_ids(entries)), done: _l10n.itemsStarred(entries.length));
+
+  Future<void> unstar(List<ItemEntry> entries) =>
+      _guard(() => _files.unstar(_ids(entries)), done: _l10n.itemsUnstarred(entries.length));
+
   Future<void> trash(List<ItemEntry> entries) async {
-    final ids = [for (final entry in entries) entry.id];
+    final ids = _ids(entries);
     final trashed = await _guard(() => _files.trash(ids));
     if (trashed) {
       _show(
@@ -204,6 +213,8 @@ class FileActions {
     }
   }
 
+  static List<String> _ids(List<ItemEntry> entries) => [for (final entry in entries) entry.id];
+
   Future<ConflictDecision?> _askConflict(String name) async =>
       _context.mounted ? showConflictDialog(_context, name) : null;
 
@@ -227,6 +238,7 @@ class FileActions {
       ..invalidate(folderControllerProvider)
       ..invalidate(childrenControllerProvider)
       ..invalidate(recentItemsProvider)
+      ..invalidate(starredItemsProvider)
       ..invalidate(storageUsageControllerProvider)
       ..invalidate(trashControllerProvider);
   }

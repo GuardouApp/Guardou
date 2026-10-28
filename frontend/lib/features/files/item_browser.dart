@@ -46,6 +46,8 @@ class ItemBrowser extends ConsumerStatefulWidget {
   static const defaultToolbarActions = [
     ItemAction.download,
     ItemAction.share,
+    ItemAction.star,
+    ItemAction.unstar,
     ItemAction.move,
     ItemAction.copy,
     ItemAction.rename,
@@ -156,7 +158,7 @@ class _ItemBrowserState extends ConsumerState<ItemBrowser> {
       onClear: _selection.clear,
       onMore: (anchor) => unawaited(_showActions(selected, anchorPosition(anchor))),
       actions: [
-        for (final action in widget.toolbarActions)
+        for (final action in widget.toolbarActions.where((action) => action.appliesTo(selected)))
           ToolbarAction(
             icon: action.icon,
             label: action.label(l10n),

@@ -39,4 +39,12 @@ void main() {
 
     expect(filters, const SearchFilters());
   });
+
+  test('adds the starred filter', () {
+    final filters = const SearchFilters().withStarred(true);
+
+    expect(filters.isEmpty, isFalse);
+    expect(searchQuery('plan', filters, now), 'plan is:starred');
+    expect(filters.withStarred(false), const SearchFilters());
+  });
 }

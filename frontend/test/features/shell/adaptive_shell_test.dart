@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guardou/features/shell/adaptive_shell.dart';
-import 'package:guardou/features/shell/section_page.dart';
-import 'package:guardou/features/shell/shell_destination.dart';
 
 import '../../helpers/test_app.dart';
 
@@ -11,10 +9,7 @@ void main() {
     tester,
     size: size,
     overrides: serviceOverrides(auth: MockAuthService()),
-    child: const AdaptiveShell(
-      location: '/home',
-      child: SectionPage(destination: ShellDestination.home),
-    ),
+    child: const AdaptiveShell(location: '/home', child: SizedBox.shrink()),
   );
 
   testWidgets('compact portrait shows the bottom navigation and the New button', (tester) async {

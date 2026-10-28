@@ -50,6 +50,8 @@ public sealed class Item
 
     public DateTimeOffset? Trashed { get; private set; }
 
+    public bool Starred { get; private set; }
+
     public bool IsRoot => ParentId is null;
 
     public bool IsFolder => Kind == ItemKind.Folder;
@@ -90,6 +92,16 @@ public sealed class Item
     {
         ParentId = parent.Id;
         Name = name;
+    }
+
+    public void Star()
+    {
+        Starred = true;
+    }
+
+    public void Unstar()
+    {
+        Starred = false;
     }
 
     public void Trash(DateTimeOffset now)

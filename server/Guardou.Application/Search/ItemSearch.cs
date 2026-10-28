@@ -65,11 +65,11 @@ public sealed class ItemSearch
         if (folderId is not null)
         {
             ItemAccess folder = await _items.FindActiveFolderAsync(userId, folderId, cancellationToken);
-            return new SearchScope([folder.Item.Id], folder.Item.Id);
+            return new SearchScope([folder.Item.Id], folder.Item.Id, userId);
         }
 
         Guid rootId = (await _owned.RootAsync(userId, cancellationToken)).Id;
         IEnumerable<Guid> shared = (await _shares.OfUserAsync(userId, cancellationToken)).Select(share => share.ItemId);
-        return new SearchScope([rootId, .. shared], rootId);
+        return new SearchScope([rootId, .. shared], rootId, userId);
     }
 }

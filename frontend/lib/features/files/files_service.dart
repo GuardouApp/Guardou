@@ -28,6 +28,12 @@ class FilesService extends FileSource {
 
   Future<List<ItemEntry>> recent() => _api.recentItems.getRecentItems();
 
+  Future<List<ItemEntry>> starred() => _api.itemStars.getStarredItems();
+
+  Future<void> star(List<String> ids) => _api.itemStars.starItems(body: ItemSelection(ids: ids));
+
+  Future<void> unstar(List<String> ids) => _api.itemStars.unstarItems(body: ItemSelection(ids: ids));
+
   Future<StorageUsage> usage() => _api.items.getStorageUsage();
 
   Future<ItemEntry> createFolder(String parentId, String name) => _api.items.createFolder(
