@@ -30,5 +30,6 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.HasIndex(item => new { item.ParentId, item.Name }).IsUnique().HasFilter(ActiveFilter);
         builder.HasIndex(item => item.OwnerId).IsUnique().HasFilter(RootFilter);
         builder.HasIndex(item => new { item.OwnerId, item.Trashed });
+        builder.HasIndex(item => new { item.OwnerId, item.Starred });
     }
 }

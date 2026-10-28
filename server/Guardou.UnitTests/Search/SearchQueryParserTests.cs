@@ -158,6 +158,23 @@ public sealed class SearchQueryParserTests
         Assert.Throws<InvalidSearchQueryException>(() => _parser.Parse(text));
     }
 
+    [Theory]
+    [InlineData("is:starred")]
+    [InlineData("IS:Starred")]
+    public void ParsesTheStarredFilter(string text)
+    {
+        SearchQuery query = _parser.Parse(text);
+
+        Assert.True(query.Starred);
+        Assert.False(query.IsEmpty);
+    }
+
+    [Fact]
+    public void RefusesAnUnknownState()
+    {
+        Assert.Throws<InvalidSearchQueryException>(() => _parser.Parse("is:shared"));
+    }
+
     private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
     {
         public override TimeZoneInfo LocalTimeZone => TimeZoneInfo.Utc;

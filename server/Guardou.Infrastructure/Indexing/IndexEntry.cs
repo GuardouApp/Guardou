@@ -21,4 +21,6 @@ internal sealed class IndexEntry
     public required long Size { get; init; }
 
     public required DateTimeOffset Modified { get; set; }
+
+    public required bool Starred { get; set; }
 }

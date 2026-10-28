@@ -13,6 +13,7 @@ public sealed record ItemEntry(
     DateTimeOffset Modified,
     DateTimeOffset Created,
     DateTimeOffset? Opened,
+    bool Starred,
     ItemCreator Creator,
     bool HasPreview,
     ItemPermissions Permissions);

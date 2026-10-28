@@ -47,7 +47,7 @@ internal sealed class ItemEntryFactory(
         return new Breadcrumb(ItemId.Format(item.Id), item.Name);
     }
 
-    private async Task<IReadOnlyList<ItemEntry>> CreateAsync(
+    public async Task<IReadOnlyList<ItemEntry>> CreateAsync(
         IEnumerable<Item> items,
         string? viewerId,
         CancellationToken cancellationToken)
@@ -86,6 +86,7 @@ internal sealed class ItemEntryFactory(
             .Select(entry => entry with
             {
                 ParentId = isShareRoot(entry) ? null : entry.ParentId,
+                Starred = false,
                 Permissions = ReadOnly,
             })
             .ToList();
@@ -135,6 +136,7 @@ internal sealed class ItemEntryFactory(
             item.Modified,
             item.Created,
             opened,
+            item.Starred,
             _creators[item.CreatedBy],
             HasPreview(item),
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));

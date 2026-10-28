@@ -8,6 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import 'file_source.dart';
 import 'item_thumbnail.dart';
 import 'selection.dart';
+import 'star_mark.dart';
 import 'item_type_presentation.dart';
 
 @immutable
@@ -116,6 +117,7 @@ class ItemLeading extends StatelessWidget {
     required this.interactions,
     this.size = 20,
     this.showPreview = true,
+    this.showStar = true,
   });
 
   static const _thumbnailScale = 1.4;
@@ -125,6 +127,7 @@ class ItemLeading extends StatelessWidget {
   final ItemInteractions interactions;
   final double size;
   final bool showPreview;
+  final bool showStar;
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +136,10 @@ class ItemLeading extends StatelessWidget {
         child: Checkbox(value: interactions.isSelected(entry), onChanged: (_) {}),
       );
     }
+    return showStar ? StarMark(entry: entry, size: size, child: _icon()) : _icon();
+  }
+
+  Widget _icon() {
     final placeholder = ItemTypeIcon(entry.type, size: size);
     if (!showPreview || !entry.hasPreview) {
       return placeholder;

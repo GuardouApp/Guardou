@@ -9,6 +9,7 @@ import '../files/file_presentation.dart';
 import 'search_controller.dart';
 import 'search_filter_chips.dart';
 import '../files/item_type_presentation.dart';
+import '../files/star_mark.dart';
 
 class SearchPanel extends ConsumerWidget {
   const SearchPanel({super.key, required this.onOpen});
@@ -65,6 +66,8 @@ class _SearchResults extends StatelessWidget {
 class _SearchResultTile extends StatelessWidget {
   const _SearchResultTile({required this.entry, required this.onOpen});
 
+  static const _iconSize = 24.0;
+
   final ItemEntry entry;
   final ValueChanged<ItemEntry> onOpen;
 
@@ -72,7 +75,11 @@ class _SearchResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return ListTile(
-      leading: ItemTypeIcon(entry.type),
+      leading: StarMark(
+        entry: entry,
+        size: _iconSize,
+        child: ItemTypeIcon(entry.type, size: _iconSize),
+      ),
       title: Text(entry.name, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         l10n.fileSummary(formatDate(entry.modified, l10n.localeName), formatSize(entry.size, l10n.localeName)),

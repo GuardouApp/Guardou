@@ -78,6 +78,8 @@ class ItemSearchController extends Notifier<ItemSearchState> {
 
   void setSize(SearchSize? size) => _update(state.copyWith(filters: state.filters.withSize(size)));
 
+  void setStarred(bool starred) => _update(state.copyWith(filters: state.filters.withStarred(starred)));
+
   void _update(ItemSearchState next) {
     _timer?.cancel();
     final generation = ++_generation;

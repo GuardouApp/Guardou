@@ -53,6 +53,7 @@ public static class ApplicationServiceCollectionExtensions
         AddScopedWithInternalConstructor<ItemDownloads>(services);
         AddScopedWithInternalConstructor<ItemOpenRecorder>(services);
         AddScopedWithInternalConstructor<RecentItems>(services);
+        AddScopedWithInternalConstructor<ItemStars>(services);
         AddScopedWithInternalConstructor<ItemSearch>(services);
         AddScopedWithInternalConstructor<PreviewTasks>(services);
         services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<PreviewTasks>());

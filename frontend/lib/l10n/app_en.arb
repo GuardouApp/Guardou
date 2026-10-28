@@ -73,8 +73,6 @@
     }
   },
   "signOut": "Sign out",
-  "emptySectionTitle": "Nothing here yet",
-  "emptySectionMessage": "Your files will show here.",
   "search": "Search",
   "searchHint": "Search files",
   "viewAsGrid": "Show as grid",
@@ -512,6 +510,26 @@
   "sharedWithMeEmptyMessage": "Items that other users share with you appear here.",
   "recentEmptyTitle": "No recent items",
   "recentEmptyMessage": "Folders and files that you add or open appear here.",
+  "actionStar": "Add to Starred",
+  "actionUnstar": "Remove from Starred",
+  "itemsStarred": "{count, plural, =1{1 item added to Starred} other{{count} items added to Starred}}",
+  "@itemsStarred": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemsUnstarred": "{count, plural, =1{1 item removed from Starred} other{{count} items removed from Starred}}",
+  "@itemsUnstarred": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "starredEmptyTitle": "No starred items",
+  "starredEmptyMessage": "Add a star to folders and files that you use frequently.",
   "searchPrompt": "Type at least {count} characters or select a filter.",
   "@searchPrompt": {
     "placeholders": {

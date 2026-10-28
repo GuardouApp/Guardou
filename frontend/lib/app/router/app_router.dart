@@ -18,9 +18,8 @@ import '../../features/shares/shared_link_gate.dart';
 import '../../features/shares/shared_link_page.dart';
 import '../../features/shares/shared_viewer_page.dart';
 import '../../features/shares/shared_with_me_page.dart';
+import '../../features/starred/starred_page.dart';
 import '../../features/shell/adaptive_shell.dart';
-import '../../features/shell/section_page.dart';
-import '../../features/shell/shell_destination.dart';
 import '../../features/tasks/tasks_page.dart';
 import '../../features/trash/trash_page.dart';
 import '../../features/users/users_page.dart';
@@ -116,13 +115,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => AdaptiveShell(location: state.uri.path, child: child),
         routes: [
-          for (final destination in ShellDestination.values.where(
-            (destination) => !_dedicatedPages.contains(destination),
-          ))
-            GoRoute(
-              path: destination.path,
-              pageBuilder: (_, _) => NoTransitionPage(child: SectionPage(destination: destination)),
-            ),
           GoRoute(path: Routes.files, pageBuilder: (_, _) => _folderPage(Routes.rootFolderId)),
           GoRoute(
             path: '${Routes.folders}/:${Routes.idParameter}',
@@ -140,6 +132,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.home,
             pageBuilder: (_, _) => const NoTransitionPage(child: HomePage()),
+          ),
+          GoRoute(
+            path: Routes.starred,
+            pageBuilder: (_, _) => const NoTransitionPage(child: StarredPage()),
           ),
           GoRoute(
             path: Routes.shared,
@@ -181,8 +177,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   });
   return router;
 });
-
-const _dedicatedPages = {ShellDestination.home, ShellDestination.files, ShellDestination.shared, ShellDestination.trash};
 
 Page<void> _folderPage(String folderId) => NoTransitionPage(
   child: FolderPage(key: ValueKey(folderId), folderId: folderId),

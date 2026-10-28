@@ -46,6 +46,11 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index) :
         return await Items.Where(item => item.ParentId == parentId).ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Item>> StarredAsync(string ownerId, CancellationToken cancellationToken)
+    {
+        return await Items.Where(item => item.OwnerId == ownerId && item.Starred && item.Trashed == null).ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Item>> TrashedAsync(string ownerId, CancellationToken cancellationToken)
     {
         return await Items.Where(item => item.OwnerId == ownerId && item.Trashed != null).ToListAsync(cancellationToken);
