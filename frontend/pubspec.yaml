@@ -5,7 +5,7 @@ version: 0.9.0 # x-release-please-version
 
 environment:
   sdk: ^3.10.0
-  flutter: 3.47.7
+  flutter: 3.47.8
 
 dependencies:
   clock: ^1.1.2
