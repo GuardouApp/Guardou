@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/GuardouApp/Guardou/compare/v0.9.0...v0.9.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* update Flutter to 3.47.8 to remove the compromised eMudhra intermediates ([#44](https://github.com/GuardouApp/Guardou/issues/44)) ([ed76bdd](https://github.com/GuardouApp/Guardou/commit/ed76bdd1bc2ef06b9f087c44db5b88fb7659138d))
+
 ## [0.9.0](https://github.com/GuardouApp/Guardou/compare/v0.8.0...v0.9.0) (2026-10-29)
 
 
