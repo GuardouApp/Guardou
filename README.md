@@ -43,7 +43,7 @@ docker-compose up -d
 |---------|----------------|
 | .NET    | 10             |
 | C#      | 14             |
-| Flutter | 3.47.7         |
+| Flutter | 3.47.8         |
 
 ## AI Disclaimer
 
