@@ -14,27 +14,24 @@ Guardou is a self-hosted file storage solution. Designed to be a simple alternat
 - SSO Support
 - URL sharing
 
-No telemetry. No tracking. No ads. 100% Free.
-
 ## Features
 
-| Feature                    | Status |
-|----------------------------|--------|
-| Multiple users             | Yes    | 
-| File/Folder Sharing        | Yes*   |
-| OIDC-based SSO             | Yes    |
+| Feature                    | Status  |
+|----------------------------|---------|
+| Multiple Users             | Yes     | 
+| Sharing                    | Yes*    |
+| OIDC-Based SSO             | Yes     |
+| Resumable Uploads          | Planned |
+| Quotas                     | Planned |
+| Real Time Updates          | Planned |
+| Document Editing           | TBD     |
+| Native Android & iOS Apps  | Planned |
 
-_* URL only, direct user sharing is in progress._ 
+\* ead-only sharing is available through URLs and direct shares. Edit access is planned to be added soon, in the form of collaborative spaces.
 
 ## Getting Started
 
-Use the [docker-compose](docker/docker-compose.yaml) file provided in the repository. No changes are required but you may customize it for your needs.
-
-Run the container:
-
-```
-docker-compose up -d
-```
+The installation guide can be found [here](https://guardou.app/docs/overview/quick-start).
 
 
 ## Tech Stack
@@ -45,13 +42,12 @@ docker-compose up -d
 | C#      | 14             |
 | Flutter | 3.47.7         |
 
+## Disclaimer
+
+Guardou is in early-stage development. Breaking changes can happen. For this reason, it is only recommended for personal/home use.
+
+If you decide to use it, follow the [3-2-1](https://www.backblaze.com/blog/the-3-2-1-backup-strategy/) backup strategy.
+
 ## AI Disclaimer
 
-Guardou is a personal experiment where I leverage my professional knowledge to test if it's possible to build a stable software using AI.
-AI is writing **only the code**. Documentation, architecture, features, UI/UX, and technology choices are up to me.
-
-I'm personally not a fan of AI generated stuff, that's why the server is on C# and not Rust 😅 I'm using something I actually understand, trying my best to keep track of everything, writing small, focused PR's, and following best practices.
-
-This don't change the fact that Guardou code is completelly built with AI. For this reason, I don't recommended it for production use. **Use it at your own risk.**
-
-Finally, if you decide to use it, please follow [3-2-1](https://www.backblaze.com/blog/the-3-2-1-backup-strategy/) backup strategy.
+Guardou uses AI-assisted code, with a careful approach to ensure code quality. We understand this may be a dealbreaker for some. Further details on what type of AI usage is allowed are explained in [CONTRIBUTING.md](CONTRIBUTING.md).

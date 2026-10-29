@@ -1,0 +1,28 @@
+---
+sidebar_position: 2
+description: Backup strategy
+---
+
+# Backup
+
+Guardou stores files in the following structure. Backing up these files is all you need to get your instance up and running again.
+
+```
+.
+├── cache/
+├── db/
+│   ├── app.db
+│   ├── app.db-shm
+│   ├── app.db-wal
+│   └── index.db
+├── files/
+├── profile/
+└── thumbs/
+```
+
+Generated files and folders that you can safely exclude from the backup:
+* `cache/*`
+* `db/index.db`
+* `thumbs/*`
+
+Additionally, follow the [3-2-1](https://www.backblaze.com/blog/the-3-2-1-backup-strategy/) backup strategy.
