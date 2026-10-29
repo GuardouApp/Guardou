@@ -5111,6 +5111,7 @@
           "created",
           "opened",
           "starred",
+          "sharedByMe",
           "creator",
           "hasPreview",
           "permissions"
@@ -5155,6 +5156,9 @@
             "nullable": true
           },
           "starred": {
+            "type": "boolean"
+          },
+          "sharedByMe": {
             "type": "boolean"
           },
           "creator": {

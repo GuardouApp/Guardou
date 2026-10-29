@@ -14,6 +14,7 @@ public sealed record ItemEntry(
     DateTimeOffset Created,
     DateTimeOffset? Opened,
     bool Starred,
+    bool SharedByMe,
     ItemCreator Creator,
     bool HasPreview,
     ItemPermissions Permissions);
