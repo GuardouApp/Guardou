@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.0](https://github.com/GuardouApp/Guardou/compare/v0.8.0...v0.9.0) (2026-10-29)
+
+
+### Features
+
+* add a shared indicator to items shared by me ([#43](https://github.com/GuardouApp/Guardou/issues/43)) ([69e920f](https://github.com/GuardouApp/Guardou/commit/69e920f37c8fa258759cf3498a84bf38d024eef5))
+* add starred items ([#41](https://github.com/GuardouApp/Guardou/issues/41)) ([3e8a54b](https://github.com/GuardouApp/Guardou/commit/3e8a54b95ec1cdc569f0dae28bbd7804ac7343cc))
+
 ## [0.8.0](https://github.com/GuardouApp/Guardou/compare/v0.7.0...v0.8.0) (2026-10-27)
 
 
