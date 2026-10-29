@@ -13,10 +13,10 @@ import '../../l10n/generated/app_localizations.dart';
 import '../auth/session_controller.dart';
 import 'file_presentation.dart';
 import 'item_interactions.dart';
+import 'item_marks.dart';
 import 'item_thumbnail.dart';
 import 'remembered_scroll.dart';
 import 'sort_menu.dart';
-import 'star_mark.dart';
 import 'item_type_presentation.dart';
 
 class FileGridView extends StatelessWidget {
@@ -148,8 +148,6 @@ class _FileCard extends ConsumerWidget {
   static const _placeholderIconSize = 56.0;
   static const _previewRadius = 8.0;
   static const _avatarRadius = 12.0;
-  static const _markSize = 24.0;
-  static const _markInset = 8.0;
 
   final ItemEntry entry;
   final ItemInteractions interactions;
@@ -216,7 +214,7 @@ class _FileCard extends ConsumerWidget {
                     interactions: interactions,
                     size: _iconSize,
                     showPreview: false,
-                    showStar: false,
+                    showMarks: false,
                   ),
                   SizedBox(width: spacing * 0.75),
                   Expanded(
@@ -233,30 +231,22 @@ class _FileCard extends ConsumerWidget {
             ),
             AspectRatio(
               aspectRatio: _previewAspectRatio,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(_previewRadius),
-                    child: ColoredBox(
-                      color: theme.colorScheme.surface,
-                      child: entry.hasPreview
-                          ? ItemThumbnail(
-                              key: ValueKey(entry.id),
-                              entry: entry,
-                              source: interactions.source,
-                              placeholder: placeholder,
-                            )
-                          : placeholder,
-                    ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(_previewRadius),
+                child: PreviewMarks(
+                  entry: entry,
+                  child: ColoredBox(
+                    color: theme.colorScheme.surface,
+                    child: entry.hasPreview
+                        ? ItemThumbnail(
+                            key: ValueKey(entry.id),
+                            entry: entry,
+                            source: interactions.source,
+                            placeholder: placeholder,
+                          )
+                        : placeholder,
                   ),
-                  if (entry.starred)
-                    PositionedDirectional(
-                      end: _markInset,
-                      bottom: _markInset,
-                      child: const StarBadge(size: _markSize),
-                    ),
-                ],
+                ),
               ),
             ),
             SizedBox(height: _gap(spacing)),

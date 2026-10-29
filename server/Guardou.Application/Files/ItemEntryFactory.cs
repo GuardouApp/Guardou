@@ -1,5 +1,6 @@
 using Guardou.Application.Previews;
 using Guardou.Application.Search;
+using Guardou.Application.Shares;
 using Guardou.Application.Users;
 using Guardou.Domain.Files;
 
@@ -11,7 +12,8 @@ internal sealed class ItemEntryFactory(
     IUserNames users,
     IProfilePictureStore pictures,
     IItemOpenStore opens,
-    IItemIndex index)
+    IItemIndex index,
+    IShareLookup shares)
 {
     private static readonly ItemPermissions ReadOnly = new(CanModify: false, CanAddChildren: false);
 
@@ -56,12 +58,23 @@ internal sealed class ItemEntryFactory(
         await LoadCreatorsAsync(ordered, cancellationToken);
         IReadOnlyDictionary<Guid, DateTimeOffset> opened = await OpenedAsync(ordered, viewerId, cancellationToken);
         IReadOnlyDictionary<Guid, long> sizes = await FolderSizesAsync(ordered, cancellationToken);
+        IReadOnlySet<Guid> shared = await SharedByViewerAsync(ordered, viewerId, cancellationToken);
         return ordered
             .Select(item => Create(
                 item,
                 sizes.GetValueOrDefault(item.Id, item.Size),
-                opened.TryGetValue(item.Id, out DateTimeOffset time) ? time : null))
+                opened.TryGetValue(item.Id, out DateTimeOffset time) ? time : null,
+                shared.Contains(item.Id)))
             .ToList();
+    }
+
+    private async Task<IReadOnlySet<Guid>> SharedByViewerAsync(
+        List<Item> items,
+        string? viewerId,
+        CancellationToken cancellationToken)
+    {
+        List<Guid> owned = items.Where(item => item.OwnerId == viewerId).Select(item => item.Id).ToList();
+        return owned.Count == 0 ? new HashSet<Guid>() : await shares.SharedAsync(owned, cancellationToken);
     }
 
     private async Task<IReadOnlyDictionary<Guid, long>> FolderSizesAsync(List<Item> items, CancellationToken cancellationToken)
@@ -123,7 +136,7 @@ internal sealed class ItemEntryFactory(
             : await opens.OpenedAsync(viewerId, items.Select(item => item.Id).ToList(), cancellationToken);
     }
 
-    private ItemEntry Create(Item item, long size, DateTimeOffset? opened)
+    private ItemEntry Create(Item item, long size, DateTimeOffset? opened, bool sharedByMe)
     {
         return new ItemEntry(
             ItemId.Format(item.Id),
@@ -137,6 +150,7 @@ internal sealed class ItemEntryFactory(
             item.Created,
             opened,
             item.Starred,
+            sharedByMe,
             _creators[item.CreatedBy],
             HasPreview(item),
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));

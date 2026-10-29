@@ -9,7 +9,7 @@ import '../files/file_presentation.dart';
 import 'search_controller.dart';
 import 'search_filter_chips.dart';
 import '../files/item_type_presentation.dart';
-import '../files/star_mark.dart';
+import '../files/item_marks.dart';
 
 class SearchPanel extends ConsumerWidget {
   const SearchPanel({super.key, required this.onOpen});
@@ -75,7 +75,7 @@ class _SearchResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return ListTile(
-      leading: StarMark(
+      leading: ItemMarks(
         entry: entry,
         size: _iconSize,
         child: ItemTypeIcon(entry.type, size: _iconSize),

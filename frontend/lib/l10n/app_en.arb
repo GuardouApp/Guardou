@@ -506,6 +506,7 @@
   "shareAddPeople": "Add people",
   "shareNoPeople": "No other user has access.",
   "shareRemoveAccess": "Remove access",
+  "itemSharedByMe": "Shared by you",
   "sharedWithMeEmptyTitle": "Nothing is shared with you",
   "sharedWithMeEmptyMessage": "Items that other users share with you appear here.",
   "recentEmptyTitle": "No recent items",

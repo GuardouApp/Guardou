@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
 import 'package:guardou/app/router/routes.dart';
-import 'package:guardou/features/files/star_mark.dart';
+import 'package:guardou/features/files/item_marks.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -46,7 +46,7 @@ void main() {
 
     expect(find.text('Starred'), findsWidgets);
     expect(tester.getTopLeft(find.text('docs')).dy, lessThan(tester.getTopLeft(find.text('plan.txt')).dy));
-    expect(find.descendant(of: find.byType(StarMark), matching: find.byIcon(LucideIcons.star)), findsNWidgets(2));
+    expect(find.descendant(of: find.byType(ItemMarks), matching: find.byIcon(LucideIcons.star)), findsNWidgets(2));
   });
 
   testWidgets('shows the star on the file preview in the grid view', (tester) async {
@@ -59,7 +59,7 @@ void main() {
     final badge = find.descendant(of: preview, matching: find.byType(StarBadge));
     expect(preview, findsOneWidget);
     expect(tester.getBottomRight(badge).dx, closeTo(tester.getBottomRight(preview).dx, 8));
-    expect(find.descendant(of: find.byType(StarMark), matching: find.byType(StarBadge)), findsOneWidget);
+    expect(find.descendant(of: find.byType(ItemMarks), matching: find.byType(StarBadge)), findsOneWidget);
   });
 
   testWidgets('removes a star from the context menu', (tester) async {

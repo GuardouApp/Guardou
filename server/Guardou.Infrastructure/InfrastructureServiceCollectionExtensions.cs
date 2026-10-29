@@ -58,6 +58,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IItemIndex, EfItemIndex>();
         services.AddScoped<IShareStore, EfShareStore>();
         services.AddScoped<IDirectShareStore, EfDirectShareStore>();
+        services.AddScoped<IShareLookup, EfShareLookup>();
         services.AddScoped<IItemOpenStore, EfItemOpenStore>();
         services.AddScoped<IUserNames, EfUserNames>();
         services.AddScoped<IUserDirectory, EfUserDirectory>();
