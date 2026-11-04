@@ -27,7 +27,7 @@ Guardou is a self-hosted file storage solution. Designed to be a simple alternat
 | Document Editing           | TBD     |
 | Native Android & iOS Apps  | Planned |
 
-\* ead-only sharing is available through URLs and direct shares. Edit access is planned to be added soon, in the form of collaborative spaces.
+\* Read-only sharing is available through URLs and direct shares. Edit access is planned to be added soon, in the form of collaborative spaces.
 
 ## Getting Started
 
