@@ -12,6 +12,7 @@ import '../../features/errors/loading_page.dart';
 import '../../features/files/file_route_page.dart';
 import '../../features/files/folder_page.dart';
 import '../../features/home/home_page.dart';
+import '../../features/preferences/preferences_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shares/shared_folder_page.dart';
 import '../../features/shares/shared_link_gate.dart';
@@ -144,6 +145,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.trash,
             pageBuilder: (_, _) => const NoTransitionPage(child: TrashPage()),
+          ),
+          GoRoute(
+            path: Routes.accountSettings,
+            pageBuilder: (_, _) => const NoTransitionPage(child: PreferencesPage()),
           ),
         ],
       ),

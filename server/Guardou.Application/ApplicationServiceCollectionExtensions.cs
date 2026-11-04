@@ -2,6 +2,7 @@ using System.Reflection;
 using Guardou.Application.Authentication;
 using Guardou.Application.Configuration;
 using Guardou.Application.Files;
+using Guardou.Application.Preferences;
 using Guardou.Application.Previews;
 using Guardou.Application.Search;
 using Guardou.Application.Settings;
@@ -33,6 +34,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<UserAdministration>();
         services.AddScoped<UserAccounts>();
         services.AddScoped<ProfilePictures>();
+        services.AddScoped<UserPreferencesService>();
         services.AddScoped<UserSearch>();
         services.AddScoped<Registration>();
         services.AddScoped<PasswordLogin>();

@@ -88,4 +88,21 @@ void main() {
       throwsA(isA<DioException>()),
     );
   });
+
+  test('uses the upload preference without a prompt', () async {
+    final attempts = <ConflictPolicy>[];
+    final session = ConflictSession((_) async => fail('The prompt must not open.'), remembered: ConflictPolicy.rename);
+
+    expect(await session.run('a', attemptWith(attempts)), 'rename');
+    expect(attempts, [ConflictPolicy.rename]);
+  });
+
+  test('skips each conflict with the skip preference', () async {
+    final attempts = <ConflictPolicy>[];
+    final session = ConflictSession((_) async => fail('The prompt must not open.'), remembered: ConflictPolicy.skip);
+
+    expect(await session.run('a', attemptWith(attempts)), isNull);
+    expect(await session.run('b', attemptWith(attempts, conflicts: const {})), 'fail');
+    expect(attempts, [ConflictPolicy.fail, ConflictPolicy.fail]);
+  });
 }

@@ -69,10 +69,14 @@ class AccountPanel extends ConsumerWidget {
     unawaited(ref.read(sessionControllerProvider.notifier).logout());
   }
 
-  void _openAdministration(BuildContext context) {
+  void _openAdministration(BuildContext context) => _go(context, Routes.adminUsers);
+
+  void _openSettings(BuildContext context) => _go(context, Routes.accountSettings);
+
+  void _go(BuildContext context, String location) {
     final router = GoRouter.of(context);
     Navigator.of(context).pop();
-    router.go(Routes.adminUsers);
+    router.go(location);
   }
 
   @override
@@ -119,7 +123,7 @@ class AccountPanel extends ConsumerWidget {
                       ),
                     SizedBox(height: spacing),
                     FilledButton.tonalIcon(
-                      onPressed: null,
+                      onPressed: () => _openSettings(context),
                       icon: const Icon(LucideIcons.settings, size: 18),
                       label: Text(l10n.accountSettings),
                     ),

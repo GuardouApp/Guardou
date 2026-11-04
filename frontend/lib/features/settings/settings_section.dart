@@ -296,6 +296,52 @@ InputDecoration settingsInputDecoration(BuildContext context) {
   );
 }
 
+class SettingsChoiceField<T> extends StatelessWidget {
+  const SettingsChoiceField({
+    super.key,
+    required this.label,
+    this.description,
+    required this.value,
+    required this.choices,
+    required this.labelOf,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String? description;
+  final T value;
+  final List<T> choices;
+  final String Function(T choice) labelOf;
+  final ValueChanged<T> onChanged;
+
+  @override
+  Widget build(BuildContext context) => SettingsField(
+    label: label,
+    description: description,
+    child: InputDecorator(
+      decoration: settingsInputDecoration(context).copyWith(contentPadding: const EdgeInsets.symmetric(horizontal: 12)),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isExpanded: true,
+          items: [
+            for (final choice in choices)
+              DropdownMenuItem(
+                value: choice,
+                child: Text(labelOf(choice), overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (choice) {
+            if (choice != null) {
+              onChanged(choice);
+            }
+          },
+        ),
+      ),
+    ),
+  );
+}
+
 class SettingsSwitch extends StatelessWidget {
   const SettingsSwitch({super.key, required this.label, required this.value, required this.onChanged});
 

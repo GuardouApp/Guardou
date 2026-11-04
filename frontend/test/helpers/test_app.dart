@@ -11,10 +11,14 @@ import 'package:guardou/api/generated/models/item_details.dart';
 import 'package:guardou/api/generated/models/item_entry.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
 import 'package:guardou/api/generated/models/item_type.dart';
+import 'package:guardou/api/generated/models/language.dart';
 import 'package:guardou/api/generated/models/item_permissions.dart';
 import 'package:guardou/api/generated/models/password_policy.dart';
 import 'package:guardou/api/generated/models/runtime_configuration.dart';
 import 'package:guardou/api/generated/models/storage_usage.dart';
+import 'package:guardou/api/generated/models/theme_preference.dart';
+import 'package:guardou/api/generated/models/upload_conflict_policy.dart';
+import 'package:guardou/api/generated/models/user_preferences.dart';
 import 'package:guardou/app/app.dart';
 import 'package:guardou/app/router/app_router.dart';
 import 'package:guardou/app/router/routes.dart';
@@ -26,6 +30,7 @@ import 'package:guardou/core/browser/browser_location.dart';
 import 'package:guardou/features/auth/auth_service.dart';
 import 'package:guardou/features/configuration/configuration_service.dart';
 import 'package:guardou/features/files/files_service.dart';
+import 'package:guardou/features/preferences/preferences_service.dart';
 import 'package:guardou/features/profile/profile_picture_service.dart';
 import 'package:guardou/features/settings/settings_service.dart';
 import 'package:guardou/features/shares/shares_service.dart';
@@ -56,6 +61,8 @@ class MockSettingsService extends Mock implements SettingsService {}
 class MockSharesService extends Mock implements SharesService {}
 
 class MockProfilePictureService extends Mock implements ProfilePictureService {}
+
+class MockPreferencesService extends Mock implements PreferencesService {}
 
 class FakeBrowserEmbeds implements BrowserEmbeds {
   @override
@@ -90,6 +97,19 @@ const testUser = CurrentUser(
   isAdmin: true,
   hasPicture: false,
 );
+
+const testPreferences = UserPreferences(
+  theme: ThemePreference.system,
+  language: Language.system,
+  uploadConflictPolicy: UploadConflictPolicy.ask,
+);
+
+MockPreferencesService stubPreferences({UserPreferences preferences = testPreferences}) {
+  final service = MockPreferencesService();
+  when(service.preferences).thenAnswer((_) async => preferences);
+  when(service.defaults).thenAnswer((_) async => testPreferences);
+  return service;
+}
 
 const testUsage = StorageUsage(usedBytes: 1024 * 1024, totalBytes: 4 * 1024 * 1024);
 
@@ -187,6 +207,7 @@ List<Override> serviceOverrides({
   SettingsService? settings,
   SharesService? shares,
   ProfilePictureService? pictures,
+  PreferencesService? preferences,
   BrowserFiles? browser,
   BrowserEmbeds? embeds,
   BrowserLocation? location,
@@ -204,6 +225,7 @@ List<Override> serviceOverrides({
     settingsServiceProvider.overrideWithValue(settings ?? MockSettingsService()),
     sharesServiceProvider.overrideWithValue(shares ?? MockSharesService()),
     profilePictureServiceProvider.overrideWithValue(pictures ?? MockProfilePictureService()),
+    preferencesServiceProvider.overrideWithValue(preferences ?? stubPreferences()),
     browserFilesProvider.overrideWithValue(browser ?? stubBrowser()),
     browserEmbedsProvider.overrideWithValue(embeds ?? FakeBrowserEmbeds()),
     browserLocationProvider.overrideWithValue(location ?? MockBrowserLocation()),

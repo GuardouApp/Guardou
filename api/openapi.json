@@ -1899,6 +1899,154 @@
         }
       }
     },
+    "/api/users/me/preferences": {
+      "get": {
+        "tags": [
+          "Preferences"
+        ],
+        "operationId": "GetPreferences",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Preferences"
+        ],
+        "operationId": "ChangePreferences",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPreferences"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPreferences"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/preferences/defaults": {
+      "get": {
+        "tags": [
+          "Preferences"
+        ],
+        "operationId": "GetPreferencesDefaults",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/items/{id}/preview": {
       "get": {
         "tags": [
@@ -5231,6 +5379,15 @@
         ],
         "type": "string"
       },
+      "Language": {
+        "enum": [
+          "system",
+          "en",
+          "pt",
+          "ptBr"
+        ],
+        "type": "string"
+      },
       "LockedSetting": {
         "required": [
           "field",
@@ -5691,6 +5848,14 @@
         ],
         "type": "string"
       },
+      "ThemePreference": {
+        "enum": [
+          "system",
+          "light",
+          "dark"
+        ],
+        "type": "string"
+      },
       "TransferRequest": {
         "required": [
           "destinationId"
@@ -5725,6 +5890,15 @@
             "format": "date-time"
           }
         }
+      },
+      "UploadConflictPolicy": {
+        "enum": [
+          "ask",
+          "replace",
+          "rename",
+          "skip"
+        ],
+        "type": "string"
       },
       "UserAccount": {
         "required": [
@@ -5761,6 +5935,25 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "UserPreferences": {
+        "required": [
+          "theme",
+          "language",
+          "uploadConflictPolicy"
+        ],
+        "type": "object",
+        "properties": {
+          "theme": {
+            "$ref": "#/components/schemas/ThemePreference"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "uploadConflictPolicy": {
+            "$ref": "#/components/schemas/UploadConflictPolicy"
           }
         }
       },
@@ -5877,6 +6070,9 @@
     },
     {
       "name": "ItemStars"
+    },
+    {
+      "name": "Preferences"
     },
     {
       "name": "Previews"
