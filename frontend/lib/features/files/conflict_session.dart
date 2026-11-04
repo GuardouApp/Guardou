@@ -15,7 +15,7 @@ class ConflictDecision {
 typedef ConflictPrompt = Future<ConflictDecision?> Function(String name);
 
 class ConflictSession {
-  ConflictSession(this._prompt);
+  ConflictSession(this._prompt, {ConflictPolicy? remembered}) : _remembered = remembered;
 
   static const _resolvingPolicies = {ConflictPolicy.replace, ConflictPolicy.rename};
 

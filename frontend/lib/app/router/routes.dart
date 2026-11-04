@@ -12,6 +12,7 @@ abstract final class Routes {
   static const starred = '/starred';
   static const shared = '/shared';
   static const trash = '/trash';
+  static const accountSettings = '/settings';
   static const admin = '/admin';
   static const adminUsers = '/admin/users';
   static const adminTasks = '/admin/tasks';

@@ -267,6 +267,20 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Guardou.Infrastructure.Persistence.StoredPreferences", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserPreferences", (string)null);
+                });
+
             modelBuilder.Entity("Guardou.Infrastructure.Persistence.StoredSetting", b =>
                 {
                     b.Property<string>("Key")
@@ -480,6 +494,15 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.HasOne("Guardou.Domain.Files.Item", null)
                         .WithMany()
                         .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Guardou.Infrastructure.Persistence.StoredPreferences", b =>
+                {
+                    b.HasOne("Guardou.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne()
+                        .HasForeignKey("Guardou.Infrastructure.Persistence.StoredPreferences", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

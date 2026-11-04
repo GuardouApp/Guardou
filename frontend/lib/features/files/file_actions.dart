@@ -10,6 +10,8 @@ import '../../core/browser/browser_files.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../core/status/operation_status.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../preferences/preference_choices.dart';
+import '../preferences/preferences_controller.dart';
 import '../shares/share_dialog.dart';
 import '../trash/trash_controller.dart';
 import '../trash/trash_service.dart';
@@ -103,7 +105,8 @@ class FileActions {
     if (files.isEmpty) {
       return;
     }
-    final session = ConflictSession(_askConflict);
+    final preference = _container.read(preferencesControllerProvider).value?.uploadConflictPolicy;
+    final session = ConflictSession(_askConflict, remembered: preference?.policy);
     final total = files.fold(0, (sum, file) => sum + file.size);
     var uploaded = 0;
     final succeeded = await _guard(

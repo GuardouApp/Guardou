@@ -315,5 +315,21 @@
   "searchSizeSmallerThan1Mb": "Menor que 1 MB",
   "searchSizeLargerThan1Mb": "Maior que 1 MB",
   "searchSizeLargerThan100Mb": "Maior que 100 MB",
-  "searchSizeLargerThan1Gb": "Maior que 1 GB"
+  "searchSizeLargerThan1Gb": "Maior que 1 GB",
+  "appearanceSettings": "Aparência",
+  "appearanceSettingsDescription": "Personalize o tema e o idioma da interface",
+  "theme": "Tema",
+  "themeSystem": "Padrão do sistema",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
+  "language": "Idioma",
+  "languageSystem": "Padrão do navegador",
+  "languageEnglish": "English",
+  "languagePortuguese": "Português",
+  "languagePortugueseBrazil": "Português (Brasil)",
+  "uploadSettings": "Uploads",
+  "uploadSettingsDescription": "Comportamentos referentes a upload",
+  "uploadConflictPolicy": "Conflitos de nome",
+  "uploadConflictPolicyDescription": "Escolha aplicada a cada conflito de um upload.",
+  "uploadConflictAsk": "Perguntar sempre"
 }

@@ -1,6 +1,7 @@
 using Guardou.Application.Authentication;
 using Guardou.Application.Files;
 using Guardou.Application.Persistence;
+using Guardou.Application.Preferences;
 using Guardou.Application.Previews;
 using Guardou.Application.Search;
 using Guardou.Application.Settings;
@@ -68,6 +69,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITaskStore, EfTaskStore>();
         services.AddScoped<ITaskQueueSettingsStore, EfTaskQueueSettingsStore>();
         services.AddScoped<ISettingsStore, EfSettingsStore>();
+        services.AddScoped<IPreferencesStore, EfPreferencesStore>();
         services.AddOptions<SettingsOverrides>().BindConfiguration(SettingsOverrides.Section);
         services.AddSingleton<OidcSettingsSnapshot>();
         services.AddSingleton<IOidcSettingsObserver>(provider => provider.GetRequiredService<OidcSettingsSnapshot>());
