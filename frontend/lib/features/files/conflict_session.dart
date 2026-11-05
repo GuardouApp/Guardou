@@ -17,11 +17,13 @@ typedef ConflictPrompt = Future<ConflictDecision?> Function(String name);
 class ConflictSession {
   ConflictSession(this._prompt, {ConflictPolicy? remembered}) : _remembered = remembered;
 
+  static const uploadInProgressCode = 'uploadInProgress';
   static const _resolvingPolicies = {ConflictPolicy.replace, ConflictPolicy.rename};
 
   final ConflictPrompt _prompt;
   ConflictPolicy? _remembered;
   bool _cancelled = false;
+  Future<ConflictDecision?> _prompting = Future.value();
 
   bool get cancelled => _cancelled;
 
@@ -38,7 +40,7 @@ class ConflictSession {
         rethrow;
       }
     }
-    final decision = remembered == null ? await _prompt(name) : ConflictDecision(remembered);
+    final decision = await _decide(name);
     if (decision == null) {
       _cancelled = true;
       return null;
@@ -49,8 +51,16 @@ class ConflictSession {
     return decision.policy == ConflictPolicy.skip ? null : attempt(decision.policy);
   }
 
+  Future<ConflictDecision?> _decide(String name) => _prompting = _prompting.then<ConflictDecision?>((_) {
+    final remembered = _remembered;
+    if (_cancelled) {
+      return null;
+    }
+    return remembered == null ? _prompt(name) : ConflictDecision(remembered);
+  });
+
   static bool isConflict(Object error) => switch (error) {
-    DioException(error: ApiProblem(status: 409)) => true,
+    DioException(error: ApiProblem(status: 409, :final codes)) => !codes.contains(uploadInProgressCode),
     _ => false,
   };
 }

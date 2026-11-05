@@ -15,12 +15,15 @@ public sealed class RuntimeConfigurationQuery(
     public async Task<RuntimeConfiguration> GetAsync(CancellationToken cancellationToken)
     {
         OidcSettings oidc = await oidcSettings.GetAsync(cancellationToken);
+        ServerSettings settings = await server.GetAsync(cancellationToken);
         return new RuntimeConfiguration(
             Product.Name,
             MethodsOf(oidc),
             await registration.IsOpenAsync(),
             PasswordPolicy.Default,
-            (await server.GetAsync(cancellationToken)).TrashRetentionDays);
+            settings.TrashRetentionDays,
+            settings.UploadConcurrency,
+            settings.UploadChunkSizeMb);
     }
 
     private static List<AuthenticationMethod> MethodsOf(OidcSettings oidc)

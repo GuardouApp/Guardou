@@ -16,7 +16,7 @@ void main() {
   late MockProfilePictureService pictures;
   late MockBrowserFiles browser;
 
-  final picture = LocalFile(name: 'me.png', size: 3, read: () async => Uint8List.fromList([1, 2, 3]));
+  final picture = LocalFile(name: 'me.png', size: 3, readRange: (_, _) async => Uint8List.fromList([1, 2, 3]));
   final userWithPicture = testUser.copyWith(hasPicture: true);
 
   setUpAll(() => registerFallbackValue(picture));
@@ -73,7 +73,7 @@ void main() {
   });
 
   testWidgets('refuses a picture that is too large', (tester) async {
-    final large = LocalFile(name: 'large.png', size: maximumPictureBytes + 1, read: () async => Uint8List(0));
+    final large = LocalFile(name: 'large.png', size: maximumPictureBytes + 1, readRange: (_, _) async => Uint8List(0));
     when(browser.pickImage).thenAnswer((_) async => large);
     await openPanel(tester, const Size(1280, 800));
 

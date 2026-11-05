@@ -10,11 +10,9 @@ import '../../core/browser/browser_files.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../core/status/operation_status.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../preferences/preference_choices.dart';
-import '../preferences/preferences_controller.dart';
 import '../shares/share_dialog.dart';
-import '../trash/trash_controller.dart';
 import '../trash/trash_service.dart';
+import '../uploads/upload_queue_controller.dart';
 import 'conflict_session.dart';
 import 'details_panel.dart';
 import 'details_panel_controller.dart';
@@ -22,12 +20,9 @@ import 'dialogs/confirm_dialog.dart';
 import 'dialogs/conflict_dialog.dart';
 import 'dialogs/destination_picker.dart';
 import 'dialogs/name_dialog.dart';
+import 'file_views.dart';
 import 'files_service.dart';
-import 'folder_controller.dart';
 import 'item_action.dart';
-import 'recent_items.dart';
-import 'starred_items.dart';
-import 'storage_usage_controller.dart';
 
 class FileActions {
   FileActions(this._context)
@@ -101,34 +96,9 @@ class FileActions {
 
   Future<void> uploadFolder(String folderId) async => upload(folderId, await _browser.pickFolder());
 
-  Future<void> upload(String folderId, List<LocalFile> files) async {
-    if (files.isEmpty) {
-      return;
-    }
-    final preference = _container.read(preferencesControllerProvider).value?.uploadConflictPolicy;
-    final session = ConflictSession(_askConflict, remembered: preference?.policy);
-    final total = files.fold(0, (sum, file) => sum + file.size);
-    var uploaded = 0;
-    final succeeded = await _guard(
-      () => _status.track(_l10n.uploadingFiles(files.length), (report) async {
-        var sent = 0;
-        for (final file in files.takeWhile((_) => !session.cancelled)) {
-          final entry = await session.run(
-            file.name,
-            (policy) => _files.upload(
-              folderId,
-              file,
-              conflict: policy,
-              onProgress: (count, _) => report(total == 0 ? 1 : (sent + count) / total),
-            ),
-          );
-          sent += file.size;
-          uploaded += entry == null ? 0 : 1;
-        }
-      }),
-    );
-    if (succeeded) {
-      _show(_l10n.filesUploaded(uploaded));
+  void upload(String folderId, List<LocalFile> files) {
+    if (files.isNotEmpty) {
+      _container.read(uploadQueueProvider.notifier).enqueue(folderId, files);
     }
   }
 
@@ -236,15 +206,7 @@ class FileActions {
     }
   }
 
-  void _refresh() {
-    _container
-      ..invalidate(folderControllerProvider)
-      ..invalidate(childrenControllerProvider)
-      ..invalidate(recentItemsProvider)
-      ..invalidate(starredItemsProvider)
-      ..invalidate(storageUsageControllerProvider)
-      ..invalidate(trashControllerProvider);
-  }
+  void _refresh() => refreshFileViews(_container.invalidate);
 
   void _show(String message, {SnackBarAction? action}) => _messenger
     ..hideCurrentSnackBar()

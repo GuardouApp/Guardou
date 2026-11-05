@@ -98,6 +98,47 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.ToTable("ItemOpens", (string)null);
                 });
 
+            modelBuilder.Entity("Guardou.Domain.Files.Upload", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("FolderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FolderPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("LastWrite")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("Modified")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LastWrite");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("FolderId", "Name");
+
+                    b.ToTable("Uploads", (string)null);
+                });
+
             modelBuilder.Entity("Guardou.Domain.Shares.DirectShare", b =>
                 {
                     b.Property<Guid>("Id")
@@ -461,6 +502,21 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.HasOne("Guardou.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Guardou.Domain.Files.Upload", b =>
+                {
+                    b.HasOne("Guardou.Domain.Files.Item", null)
+                        .WithMany()
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Guardou.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

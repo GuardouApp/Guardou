@@ -10,7 +10,7 @@ namespace Guardou.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/items")]
-public sealed class ItemsController(ItemBrowser browser, ItemOrganizer organizer, FileUploader uploader, TrashService trash)
+public sealed class ItemsController(ItemBrowser browser, ItemOrganizer organizer, TrashService trash)
     : ControllerBase
 {
     [HttpGet("{id}", Name = "GetItem")]
@@ -55,24 +55,6 @@ public sealed class ItemsController(ItemBrowser browser, ItemOrganizer organizer
     {
         ItemEntry folder = await organizer.CreateFolderAsync(User.UserId(), id, request.Name, cancellationToken);
         return CreatedAtRoute("GetItem", new { id = folder.Id }, folder);
-    }
-
-    [HttpPost("{id}/files", Name = "UploadFile")]
-    [Consumes(MediaTypeNames.Multipart.FormData)]
-    [DisableRequestSizeLimit]
-    [RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue)]
-    [ProducesResponseType<ItemEntry>(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Upload(string id, [FromForm] UploadForm form, CancellationToken cancellationToken)
-    {
-        await using Stream content = form.File.OpenReadStream();
-        UploadRequest request = new(id, form.File.FileName, form.RelativePath, form.Modified, form.Conflict, content);
-        ItemEntry? entry = await uploader.UploadAsync(User.UserId(), request, cancellationToken);
-        return entry is null ? NoContent() : CreatedAtRoute("GetItem", new { id = entry.Id }, entry);
     }
 
     [HttpPatch("{id}", Name = "RenameItem")]

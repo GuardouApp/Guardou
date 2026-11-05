@@ -87,6 +87,8 @@ const testConfiguration = RuntimeConfiguration(
     requireNonAlphanumeric: false,
   ),
   trashRetentionDays: 30,
+  uploadConcurrency: 3,
+  uploadChunkSizeMb: 64,
 );
 
 const testUser = CurrentUser(

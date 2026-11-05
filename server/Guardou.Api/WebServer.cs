@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Guardou.Api.Authorization;
 using Guardou.Api.Configuration;
+using Guardou.Api.Endpoints;
 using Guardou.Api.Errors;
 using Guardou.Api.Filters;
 using Guardou.Api.Hosting;
@@ -66,6 +67,7 @@ public static class WebServer
         services.Configure<HostOptions>(options => options.ShutdownTimeout = ShutdownTimeout);
         services.AddHostedService<TrashPurgeWorker>();
         services.AddHostedService<TaskWorkerPool>();
+        services.AddHostedService<UploadCleanupWorker>();
     }
 
     private static void RevalidateStaticFile(StaticFileResponseContext context)
@@ -90,6 +92,7 @@ public static class WebServer
         app.UseAuthorization();
 
         app.MapControllers();
+        app.MapUploadContent();
         app.MapHealthChecks("/health");
         app.MapFallback("/api/{**path}", () => Results.NotFound());
         app.MapFallbackToFile("index.html", staticFiles);

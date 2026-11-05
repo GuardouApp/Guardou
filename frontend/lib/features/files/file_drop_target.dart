@@ -126,7 +126,7 @@ class _FileDropTargetState extends ConsumerState<FileDropTarget> {
 
   void _drop(List<LocalFile> files) {
     if (mounted) {
-      unawaited(FileActions(context).upload(widget.folderId, files));
+      FileActions(context).upload(widget.folderId, files);
     }
   }
 

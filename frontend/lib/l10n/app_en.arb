@@ -167,7 +167,7 @@
   "actionDetails": "Details",
   "actionTrash": "Move to trash",
   "moreActions": "More actions",
-  "viewerUnsupported": "Guardou cannot show this file.",
+  "viewerUnsupported": "This file cannot be shown.",
   "viewerPrevious": "Previous file",
   "viewerNext": "Next file",
   "clearSelection": "Clear the selection",
@@ -208,22 +208,6 @@
   },
   "copyingItems": "{count, plural, =1{Copying 1 item} other{Copying {count} items}}",
   "@copyingItems": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "uploadingFiles": "{count, plural, =1{Uploading 1 file} other{Uploading {count} files}}",
-  "@uploadingFiles": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "filesUploaded": "{count, plural, =0{No files uploaded} =1{1 file uploaded} other{{count} files uploaded}}",
-  "@filesUploaded": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -377,7 +361,7 @@
   "queueIndexDescription": "Recalculates the search index and folder size.",
   "queueAll": "All",
   "queueAllTitle": "Process all files again?",
-  "queueAllMessage": "Guardou deletes the results of this queue and makes them again for all files. This can take a long time.",
+  "queueAllMessage": "The results of this queue are deleted and made again for all files. This can take a long time.",
   "queueAllDone": "All files are in the queue.",
   "taskListTitle": "{queue}: {state}",
   "@taskListTitle": {
@@ -456,7 +440,7 @@
   "copy": "Copy",
   "copied": "Copied",
   "serverSettings": "Server",
-  "serverSettingsDescription": "Set the public address of Guardou and the trash retention",
+  "serverSettingsDescription": "Set the public address, the trash retention and the uploads",
   "oidcSettings": "Single sign-on (OIDC)",
   "oidcSettingsDescription": "Sign in with an OpenID Connect provider",
   "oidcClientRequired": "Set the issuer URL and the client ID together.",
@@ -472,8 +456,8 @@
   "oidcPostLogoutRedirectUri": "post_logout_redirect_uri",
   "settingsReset": "Reset",
   "settingsRestoreDefaults": "Restore the default settings",
-  "externalUrlDescription": "The public address of Guardou, for example https://guardou.example.com.",
-  "settingsLocked": "Set by the environment variable {variable}. To change it, change the variable and restart Guardou.",
+  "externalUrlDescription": "The public address of the server, for example https://files.example.com.",
+  "settingsLocked": "Set by the environment variable {variable}. To change it, change the variable and restart the server.",
   "@settingsLocked": {
     "placeholders": {
       "variable": {
@@ -482,7 +466,7 @@
     }
   },
   "trashRetentionDays": "Trash retention (days)",
-  "trashRetentionDescription": "Guardou deletes the items in the trash permanently after this number of days.",
+  "trashRetentionDescription": "The items in the trash are deleted permanently after this number of days.",
   "actionShare": "Share",
   "shareTitle": "Share \"{name}\"",
   "@shareTitle": {
@@ -595,5 +579,76 @@
   "uploadSettingsDescription": "Upload behaviors",
   "uploadConflictPolicy": "Name conflicts",
   "uploadConflictPolicyDescription": "Choice applied to each conflict of an upload.",
-  "uploadConflictAsk": "Ask each time"
+  "uploadConflictAsk": "Ask each time",
+  "uploadConcurrency": "Simultaneous uploads",
+  "uploadConcurrencyDescription": "Number of files that each client uploads at the same time.",
+  "uploadChunkSize": "Chunk size (MB)",
+  "uploadChunkSizeDescription": "Size of each request of an upload.",
+  "uploadingItems": "{count, plural, =1{Uploading 1 item} other{Uploading {count} items}}",
+  "@uploadingItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadsComplete": "{count, plural, =0{No uploads complete} =1{1 upload complete} other{{count} uploads complete}}",
+  "@uploadsComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadsFailed": "{count, plural, =1{1 upload failed} other{{count} uploads failed}}",
+  "@uploadsFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadStarting": "Starting…",
+  "uploadTimeLeftLessThanMinute": "Less than a minute left",
+  "uploadTimeLeftMinutes": "{count, plural, =1{1 minute left} other{{count} minutes left}}",
+  "@uploadTimeLeftMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadTimeLeftHours": "{count, plural, =1{1 hour left} other{{count} hours left}}",
+  "@uploadTimeLeftHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadProgress": "{sent} of {total}",
+  "@uploadProgress": {
+    "placeholders": {
+      "sent": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadWaiting": "Waiting",
+  "uploadPaused": "Paused",
+  "uploadSkipped": "Skipped",
+  "uploadCancelled": "Cancelled",
+  "uploadFailed": "The upload failed",
+  "uploadInProgressElsewhere": "Another upload to this place is in progress",
+  "uploadPause": "Pause",
+  "uploadResume": "Resume",
+  "uploadRetry": "Retry",
+  "uploadPanelMinimize": "Minimize",
+  "uploadPanelExpand": "Expand",
+  "cancelUploadsTitle": "Cancel all uploads?",
+  "cancelUploadsMessage": "The uploads in progress stop. The completed files stay.",
+  "cancelUploads": "Cancel uploads"
 }

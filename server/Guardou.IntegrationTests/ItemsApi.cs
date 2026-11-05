@@ -1,7 +1,4 @@
-using System.Globalization;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using Guardou.Api.Models;
 using Guardou.Application.Files;
 
@@ -27,50 +24,6 @@ internal static class ItemsApi
     public static async Task<ItemEntry> CreateFolderEntryAsync(this HttpClient client, string parentId, string name)
     {
         return await ReadEntryAsync(await client.CreateFolderAsync(parentId, name));
-    }
-
-    public static Task<HttpResponseMessage> UploadAsync(
-        this HttpClient client,
-        string folderId,
-        string fileName,
-        string content,
-        ConflictPolicy conflict = ConflictPolicy.Fail,
-        string? relativePath = null,
-        DateTimeOffset? modified = null)
-    {
-        return client.UploadBytesAsync(folderId, fileName, Encoding.UTF8.GetBytes(content), conflict, relativePath, modified);
-    }
-
-    public static Task<HttpResponseMessage> UploadBytesAsync(
-        this HttpClient client,
-        string folderId,
-        string fileName,
-        byte[] content,
-        ConflictPolicy conflict = ConflictPolicy.Fail,
-        string? relativePath = null,
-        DateTimeOffset? modified = null)
-    {
-        MultipartFormDataContent form = new();
-        ByteArrayContent file = new(content);
-        file.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-        form.Add(file, "file", fileName);
-        form.Add(new StringContent(conflict.ToString()), "conflict");
-        if (relativePath is not null)
-        {
-            form.Add(new StringContent(relativePath), "relativePath");
-        }
-
-        if (modified is { } date)
-        {
-            form.Add(new StringContent(date.ToString("O", CultureInfo.InvariantCulture)), "modified");
-        }
-
-        return client.PostAsync($"/api/items/{folderId}/files", form, CancellationToken);
-    }
-
-    public static async Task<ItemEntry> UploadEntryAsync(this HttpClient client, string folderId, string fileName, string content)
-    {
-        return await ReadEntryAsync(await client.UploadAsync(folderId, fileName, content));
     }
 
     public static Task<HttpResponseMessage> TransferAsync(

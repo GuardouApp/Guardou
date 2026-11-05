@@ -7,6 +7,7 @@ using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
+using Guardou.Application.Uploads;
 using Guardou.Application.Users;
 using Guardou.Domain;
 using Guardou.Domain.Authentication;
@@ -19,6 +20,7 @@ using Guardou.Infrastructure.Persistence;
 using Guardou.Infrastructure.Previews;
 using Guardou.Infrastructure.Profiles;
 using Guardou.Infrastructure.Storage;
+using Guardou.Infrastructure.Uploads;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
@@ -27,6 +29,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using tusdotnet.Stores;
 
 namespace Guardou.Infrastructure;
 
@@ -66,6 +69,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<LocalBlobStore>();
         services.AddSingleton<IBlobStore>(provider => provider.GetRequiredService<LocalBlobStore>());
         services.AddSingleton<IMimeTypeMap, MimeTypeMap>();
+        services.AddSingleton(provider =>
+            new TusDiskStore(Directory.CreateDirectory(provider.GetRequiredService<StoragePaths>().UploadsDirectory).FullName));
+        services.AddSingleton<IUploadContent, TusUploadContent>();
+        services.AddScoped<IUploadStore, EfUploadStore>();
         services.AddScoped<ITaskStore, EfTaskStore>();
         services.AddScoped<ITaskQueueSettingsStore, EfTaskQueueSettingsStore>();
         services.AddScoped<ISettingsStore, EfSettingsStore>();

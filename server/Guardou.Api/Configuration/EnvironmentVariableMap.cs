@@ -8,6 +8,8 @@ internal static class EnvironmentVariableMap
     {
         [SettingsVariables.ExternalUrl] = Override(nameof(SettingsOverrides.ExternalUrl)),
         [SettingsVariables.TrashRetentionDays] = Override(nameof(SettingsOverrides.TrashRetentionDays)),
+        [SettingsVariables.UploadConcurrency] = Override(nameof(SettingsOverrides.UploadConcurrency)),
+        [SettingsVariables.UploadChunkSizeMb] = Override(nameof(SettingsOverrides.UploadChunkSizeMb)),
         [SettingsVariables.OidcIssuer] = Override(nameof(SettingsOverrides.OidcIssuer)),
         [SettingsVariables.OidcClientId] = Override(nameof(SettingsOverrides.OidcClientId)),
         [SettingsVariables.OidcClientSecret] = Override(nameof(SettingsOverrides.OidcClientSecret)),

@@ -4,6 +4,8 @@ public static class SettingsVariables
 {
     public const string ExternalUrl = "EXTERNAL_URL";
     public const string TrashRetentionDays = "TRASH_RETENTION_DAYS";
+    public const string UploadConcurrency = "UPLOAD_CONCURRENCY";
+    public const string UploadChunkSizeMb = "UPLOAD_CHUNK_SIZE_MB";
     public const string OidcIssuer = "OIDC_ISSUER";
     public const string OidcClientId = "OIDC_CLIENT_ID";
     public const string OidcClientSecret = "OIDC_CLIENT_SECRET";

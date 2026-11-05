@@ -16,5 +16,7 @@ internal sealed class StoragePaths(string root)
 
     public string ThumbsDirectory { get; } = Path.Combine(Path.GetFullPath(root), "thumbs");
 
+    public string UploadsDirectory { get; } = Path.Combine(Path.GetFullPath(root), "cache", "uploads");
+
     public string TemporaryDirectory { get; } = Path.Combine(Path.GetFullPath(root), "cache", "tmp");
 }

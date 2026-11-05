@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/api_client.dart';
@@ -10,7 +9,6 @@ import '../../api/generated/models/name_request.dart';
 import '../../api/generated/models/storage_usage.dart';
 import '../../api/generated/models/transfer_request.dart';
 import '../../core/api/api_providers.dart';
-import '../../core/browser/browser_files.dart';
 import 'file_source.dart';
 
 final filesServiceProvider = Provider<FilesService>(
@@ -59,26 +57,6 @@ class FilesService extends FileSource {
   Future<void> recordOpen(String id) => _api.itemOpens.recordItemOpen(id: id);
 
   Future<void> trash(List<String> ids) => _api.items.moveItemsToTrash(body: ItemSelection(ids: ids));
-
-  Future<ItemEntry> upload(
-    String folderId,
-    LocalFile file, {
-    required ConflictPolicy conflict,
-    ProgressCallback? onProgress,
-  }) async {
-    final form = FormData.fromMap({
-      'file': MultipartFile.fromBytes(await file.read(), filename: file.name),
-      'conflict': conflict.json,
-      'relativePath': ?file.relativePath,
-      'modified': ?file.lastModified?.toUtc().toIso8601String(),
-    });
-    final response = await dio.post<Map<String, Object?>>(
-      '/api/items/${Uri.encodeComponent(folderId)}/files',
-      data: form,
-      onSendProgress: onProgress,
-    );
-    return ItemEntry.fromJson(response.data ?? const {});
-  }
 
   Uri archiveUri(List<String> ids) => baseUri.replace(path: '/api/items/archive', queryParameters: {'ids': ids});
 

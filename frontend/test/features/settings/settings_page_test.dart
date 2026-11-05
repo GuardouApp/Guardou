@@ -31,7 +31,13 @@ void main() {
     postLogoutRedirectUri: 'http://localhost/login',
     locked: [],
   );
-  const server = ServerSettingsView(externalUrl: null, trashRetentionDays: 30, locked: []);
+  const server = ServerSettingsView(
+    externalUrl: null,
+    trashRetentionDays: 30,
+    uploadConcurrency: 3,
+    uploadChunkSizeMb: 64,
+    locked: [],
+  );
   const concurrencyLabel = 'Generate previews: tasks at the same time';
 
   late MockSettingsService settings;
@@ -171,9 +177,41 @@ void main() {
 
     verify(
       () => settings.changeServerSettings(
-        const ServerSettings(externalUrl: 'https://files.example.com', trashRetentionDays: 7),
+        const ServerSettings(
+          externalUrl: 'https://files.example.com',
+          trashRetentionDays: 7,
+          uploadConcurrency: 3,
+          uploadChunkSizeMb: 64,
+        ),
       ),
     ).called(1);
+  });
+
+  testWidgets('saves the upload settings', (tester) async {
+    when(() => settings.changeServerSettings(any())).thenAnswer((_) async => server);
+    await pumpSettings(tester);
+    await expand(tester, 'Server');
+
+    await tester.enterText(field('Simultaneous uploads'), '5');
+    await tester.enterText(field('Chunk size (MB)'), '16');
+    await tapVisible(tester, button('Save').hitTestable());
+
+    verify(
+      () => settings.changeServerSettings(
+        const ServerSettings(externalUrl: null, trashRetentionDays: 30, uploadConcurrency: 5, uploadChunkSizeMb: 16),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('refuses a chunk size out of range', (tester) async {
+    await pumpSettings(tester);
+    await expand(tester, 'Server');
+
+    await tester.enterText(field('Chunk size (MB)'), '91');
+    await tapVisible(tester, button('Save').hitTestable());
+
+    expect(find.text('Enter a number from 1 to 90.'), findsOneWidget);
+    verifyNever(() => settings.changeServerSettings(any()));
   });
 
   testWidgets('refuses a trash retention out of range', (tester) async {
@@ -202,7 +240,7 @@ void main() {
     );
     expect(externalUrl.readOnly, isTrue);
     expect(
-      find.text('Set by the environment variable EXTERNAL_URL. To change it, change the variable and restart Guardou.'),
+      find.text('Set by the environment variable EXTERNAL_URL. To change it, change the variable and restart the server.'),
       findsOneWidget,
     );
     final retention = tester.widget<TextField>(

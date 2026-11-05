@@ -104,7 +104,7 @@ class _WebBrowserFiles implements BrowserFiles {
     size: file.size,
     relativePath: relativePath,
     lastModified: DateTime.fromMillisecondsSinceEpoch(file.lastModified, isUtc: true),
-    read: () async => (await file.arrayBuffer().toDart).toDart.asUint8List(),
+    readRange: (start, end) async => (await file.slice(start, end).arrayBuffer().toDart).toDart.asUint8List(),
   );
 
   Future<List<LocalFile>> _droppedFiles(web.DataTransfer transfer) async {
