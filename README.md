@@ -21,7 +21,7 @@ Guardou is a self-hosted file storage solution. Designed to be a simple alternat
 | Multiple Users             | Yes     | 
 | Sharing                    | Yes*    |
 | OIDC-Based SSO             | Yes     |
-| Resumable Uploads          | Planned |
+| Resumable Uploads          | Yes     |
 | Quotas                     | Planned |
 | Real Time Updates          | Planned |
 | Document Editing           | TBD     |
