@@ -7,4 +7,6 @@ public sealed record RuntimeConfiguration(
     IReadOnlyList<AuthenticationMethod> AuthenticationMethods,
     bool RegistrationOpen,
     PasswordPolicy PasswordPolicy,
-    int TrashRetentionDays);
+    int TrashRetentionDays,
+    int UploadConcurrency,
+    int UploadChunkSizeMb);

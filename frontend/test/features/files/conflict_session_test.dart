@@ -18,6 +18,34 @@ void main() {
     return policy.name;
   };
 
+  test('asks once when parallel items conflict', () async {
+    var prompts = 0;
+    final attempts = <ConflictPolicy>[];
+    final session = ConflictSession((_) async {
+      prompts++;
+      await Future<void>.delayed(Duration.zero);
+      return const ConflictDecision(ConflictPolicy.rename, applyToAll: true);
+    });
+
+    final results = await Future.wait([
+      session.run('a', attemptWith(attempts)),
+      session.run('b', attemptWith(attempts)),
+    ]);
+
+    expect(prompts, 1);
+    expect(results, ['rename', 'rename']);
+  });
+
+  test('does not treat an upload in progress as a name conflict', () {
+    final error = DioException(
+      requestOptions: RequestOptions(),
+      error: const ApiProblem(status: 409, codes: [ConflictSession.uploadInProgressCode]),
+    );
+
+    expect(ConflictSession.isConflict(error), isFalse);
+    expect(ConflictSession.isConflict(conflict()), isTrue);
+  });
+
   test('does not ask without a conflict', () async {
     final attempts = <ConflictPolicy>[];
     final session = ConflictSession((_) async => fail('The prompt must not open.'));

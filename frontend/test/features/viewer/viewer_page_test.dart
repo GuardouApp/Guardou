@@ -92,7 +92,7 @@ void main() {
   testWidgets('offers a download for a file that it cannot show', (tester) async {
     await pumpViewer(tester, fourth.id, size: portrait);
 
-    expect(find.text('Guardou cannot show this file.'), findsOneWidget);
+    expect(find.text('This file cannot be shown.'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Download'));
 
     verify(() => browser.download(Uri.parse('/get/${fourth.id}'))).called(1);

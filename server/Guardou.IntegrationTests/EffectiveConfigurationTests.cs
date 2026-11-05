@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
+using Guardou.Application.Configuration;
 using Guardou.Application.Files;
 using Guardou.Application.Settings;
+using Guardou.Domain.Files;
 using Guardou.Domain.Settings;
 
 namespace Guardou.IntegrationTests;
@@ -31,7 +33,11 @@ public sealed class EffectiveConfigurationTests : SignedInTests
         Assert.Equal(EnvironmentUrl, view.ExternalUrl);
         Assert.Equal(7, view.TrashRetentionDays);
         Assert.Equal(
-            [new LockedSetting("externalUrl", SettingsVariables.ExternalUrl), new LockedSetting("trashRetentionDays", SettingsVariables.TrashRetentionDays)],
+            [
+                new LockedSetting("externalUrl", SettingsVariables.ExternalUrl),
+                new LockedSetting("trashRetentionDays", SettingsVariables.TrashRetentionDays),
+                new LockedSetting("uploadChunkSizeMb", SettingsVariables.UploadChunkSizeMb),
+            ],
             view.Locked);
     }
 
@@ -44,6 +50,15 @@ public sealed class EffectiveConfigurationTests : SignedInTests
         IReadOnlyList<TrashEntry> trash = await GetAsync<IReadOnlyList<TrashEntry>>("/api/trash");
 
         Assert.All(trash, entry => Assert.Equal(entry.Trashed + TimeSpan.FromDays(7), entry.Expires));
+    }
+
+    [Fact]
+    public async Task GivesTheUploadSettingsToTheClients()
+    {
+        RuntimeConfiguration configuration = await GetAsync<RuntimeConfiguration>("/api/config");
+
+        Assert.Equal(UploadPolicy.DefaultConcurrency, configuration.UploadConcurrency);
+        Assert.Equal(16, configuration.UploadChunkSizeMb);
     }
 
     [Fact]
@@ -64,6 +79,7 @@ public sealed class EffectiveConfigurationTests : SignedInTests
             {
                 [$"{SettingsOverrides.Section}:{nameof(SettingsOverrides.ExternalUrl)}"] = EnvironmentUrl,
                 [$"{SettingsOverrides.Section}:{nameof(SettingsOverrides.TrashRetentionDays)}"] = "7",
+                [$"{SettingsOverrides.Section}:{nameof(SettingsOverrides.UploadChunkSizeMb)}"] = "16",
                 [$"{SettingsOverrides.Section}:{nameof(SettingsOverrides.OidcClientSecret)}"] = "secret",
             },
         };

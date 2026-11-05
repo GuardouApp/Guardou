@@ -3,6 +3,7 @@ using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
+using Guardou.Application.Uploads;
 using Guardou.Application.Users;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,11 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             problem.Extensions[CodesExtension] = rejected.Errors.Select(error => error.Code).ToList();
         }
 
+        if (exception is UploadInProgressException)
+        {
+            problem.Extensions[CodesExtension] = new[] { UploadInProgressException.Code };
+        }
+
         return problem;
     }
 
@@ -60,6 +66,8 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             TaskNotFoundException => StatusCodes.Status404NotFound,
             TaskConflictException => StatusCodes.Status409Conflict,
             InvalidSettingsException => StatusCodes.Status400BadRequest,
+            UploadNotFoundException => StatusCodes.Status404NotFound,
+            UploadInProgressException => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError,
         };
     }

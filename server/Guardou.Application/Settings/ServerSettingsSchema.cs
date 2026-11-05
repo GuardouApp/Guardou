@@ -16,6 +16,14 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
             nameof(ServerSettings.TrashRetentionDays),
             settings => settings.TrashRetentionDays.ToString(CultureInfo.InvariantCulture),
             new(SettingsVariables.TrashRetentionDays, overrides => overrides.TrashRetentionDays is not null, (target, source) => target with { TrashRetentionDays = source.TrashRetentionDays })),
+        new(
+            nameof(ServerSettings.UploadConcurrency),
+            settings => settings.UploadConcurrency.ToString(CultureInfo.InvariantCulture),
+            new(SettingsVariables.UploadConcurrency, overrides => overrides.UploadConcurrency is not null, (target, source) => target with { UploadConcurrency = source.UploadConcurrency })),
+        new(
+            nameof(ServerSettings.UploadChunkSizeMb),
+            settings => settings.UploadChunkSizeMb.ToString(CultureInfo.InvariantCulture),
+            new(SettingsVariables.UploadChunkSizeMb, overrides => overrides.UploadChunkSizeMb is not null, (target, source) => target with { UploadChunkSizeMb = source.UploadChunkSizeMb })),
     ];
 
     public static ServerSettings Normalize(ServerSettings settings)
@@ -26,6 +34,18 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
                 $"The trash retention must be from {TrashPolicy.MinimumRetentionDays} to {TrashPolicy.MaximumRetentionDays} days.");
         }
 
+        if (!UploadPolicy.IsValidConcurrency(settings.UploadConcurrency))
+        {
+            throw new InvalidSettingsException(
+                $"The upload concurrency must be from {UploadPolicy.MinimumConcurrency} to {UploadPolicy.MaximumConcurrency}.");
+        }
+
+        if (!UploadPolicy.IsValidChunkSize(settings.UploadChunkSizeMb))
+        {
+            throw new InvalidSettingsException(
+                $"The upload chunk size must be from {UploadPolicy.MinimumChunkSizeMb} to {UploadPolicy.MaximumChunkSizeMb} MB.");
+        }
+
         return settings with { ExternalUrl = SettingsUrl.Normalize(settings.ExternalUrl, "external URL") };
     }
 
@@ -33,6 +53,8 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
     {
         return Normalize(new ServerSettings(
             overrides.ExternalUrl,
-            overrides.TrashRetentionDays ?? ServerSettings.Initial.TrashRetentionDays));
+            overrides.TrashRetentionDays ?? ServerSettings.Initial.TrashRetentionDays,
+            overrides.UploadConcurrency ?? ServerSettings.Initial.UploadConcurrency,
+            overrides.UploadChunkSizeMb ?? ServerSettings.Initial.UploadChunkSizeMb));
     }
 }

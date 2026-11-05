@@ -8,6 +8,10 @@ public sealed class SettingsOverrides
 
     public int? TrashRetentionDays { get; set; }
 
+    public int? UploadConcurrency { get; set; }
+
+    public int? UploadChunkSizeMb { get; set; }
+
     public string? OidcIssuer { get; set; }
 
     public string? OidcClientId { get; set; }

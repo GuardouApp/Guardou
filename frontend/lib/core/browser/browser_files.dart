@@ -6,13 +6,21 @@ import 'browser_files_stub.dart' if (dart.library.js_interop) 'browser_files_web
 
 @immutable
 class LocalFile {
-  const LocalFile({required this.name, required this.size, required this.read, this.relativePath, this.lastModified});
+  const LocalFile({
+    required this.name,
+    required this.size,
+    required this.readRange,
+    this.relativePath,
+    this.lastModified,
+  });
 
   final String name;
   final int size;
   final String? relativePath;
   final DateTime? lastModified;
-  final Future<Uint8List> Function() read;
+  final Future<Uint8List> Function(int start, int end) readRange;
+
+  Future<Uint8List> read() => readRange(0, size);
 }
 
 sealed class FileDragEvent {

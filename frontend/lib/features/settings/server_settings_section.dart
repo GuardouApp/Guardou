@@ -39,9 +39,15 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
     with SettingsForm<_ServerSettingsForm, ServerSettingsView> {
   static const _minimumRetention = 1;
   static const _maximumRetention = 3650;
+  static const _minimumConcurrency = 1;
+  static const _maximumConcurrency = 6;
+  static const _minimumChunkSize = 1;
+  static const _maximumChunkSize = 90;
 
   final _externalUrl = TextEditingController();
   final _trashRetention = TextEditingController();
+  final _uploadConcurrency = TextEditingController();
+  final _uploadChunkSize = TextEditingController();
 
   @override
   ServerSettingsView get saved => widget.settings;
@@ -56,6 +62,8 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
   void fill(ServerSettingsView value) {
     _externalUrl.text = value.externalUrl ?? '';
     _trashRetention.text = '${value.trashRetentionDays}';
+    _uploadConcurrency.text = '${value.uploadConcurrency}';
+    _uploadChunkSize.text = '${value.uploadChunkSizeMb}';
   }
 
   @override
@@ -68,6 +76,8 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
         ServerSettings(
           externalUrl: trimmedOrNull(_externalUrl.text),
           trashRetentionDays: int.parse(_trashRetention.text),
+          uploadConcurrency: int.parse(_uploadConcurrency.text),
+          uploadChunkSizeMb: int.parse(_uploadChunkSize.text),
         ),
       );
 
@@ -75,14 +85,34 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
   void dispose() {
     _externalUrl.dispose();
     _trashRetention.dispose();
+    _uploadConcurrency.dispose();
+    _uploadChunkSize.dispose();
     super.dispose();
   }
 
-  String? _validateRetention(AppLocalizations l10n, String? value) {
-    final days = int.tryParse(value ?? '');
-    final valid = days != null && days >= _minimumRetention && days <= _maximumRetention;
-    return valid ? null : l10n.concurrencyInvalid(_minimumRetention, _maximumRetention);
+  String? _validateRange(AppLocalizations l10n, String? value, int minimum, int maximum) {
+    final number = int.tryParse(value ?? '');
+    final valid = number != null && number >= minimum && number <= maximum;
+    return valid ? null : l10n.concurrencyInvalid(minimum, maximum);
   }
+
+  Widget _numberField({
+    required String label,
+    required String description,
+    required TextEditingController controller,
+    required String field,
+    required int minimum,
+    required int maximum,
+  }) => SettingsTextField(
+    label: label,
+    description: description,
+    required: true,
+    controller: controller,
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+    lockedBy: lockedVariable(widget.settings.locked, field),
+    validator: (value) => _validateRange(AppLocalizations.of(context), value, minimum, maximum),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -101,15 +131,29 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
             lockedBy: lockedVariable(widget.settings.locked, 'externalUrl'),
             validator: (value) => validateHttpUrl(l10n, value),
           ),
-          SettingsTextField(
+          _numberField(
             label: l10n.trashRetentionDays,
             description: l10n.trashRetentionDescription,
-            required: true,
             controller: _trashRetention,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            lockedBy: lockedVariable(widget.settings.locked, 'trashRetentionDays'),
-            validator: (value) => _validateRetention(l10n, value),
+            field: 'trashRetentionDays',
+            minimum: _minimumRetention,
+            maximum: _maximumRetention,
+          ),
+          _numberField(
+            label: l10n.uploadConcurrency,
+            description: l10n.uploadConcurrencyDescription,
+            controller: _uploadConcurrency,
+            field: 'uploadConcurrency',
+            minimum: _minimumConcurrency,
+            maximum: _maximumConcurrency,
+          ),
+          _numberField(
+            label: l10n.uploadChunkSize,
+            description: l10n.uploadChunkSizeDescription,
+            controller: _uploadChunkSize,
+            field: 'uploadChunkSizeMb',
+            minimum: _minimumChunkSize,
+            maximum: _maximumChunkSize,
           ),
           settingsActions(),
         ],

@@ -27,6 +27,11 @@ public sealed class ServerSettingsAdministration(EffectiveSettings<ServerSetting
 
     private ServerSettingsView ViewOf(ServerSettings effective)
     {
-        return new ServerSettingsView(effective.ExternalUrl, effective.TrashRetentionDays, settings.Locked);
+        return new ServerSettingsView(
+            effective.ExternalUrl,
+            effective.TrashRetentionDays,
+            effective.UploadConcurrency,
+            effective.UploadChunkSizeMb,
+            settings.Locked);
     }
 }

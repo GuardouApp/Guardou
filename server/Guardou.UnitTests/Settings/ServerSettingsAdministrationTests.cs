@@ -50,6 +50,30 @@ public sealed class ServerSettingsAdministrationTests
     }
 
     [Fact]
+    public async Task ChangesTheUploadSettings()
+    {
+        ServerSettingsView settings = await Administration().ChangeAsync(
+            new ServerSettings(null, UploadConcurrency: 5, UploadChunkSizeMb: 16),
+            CancellationToken);
+
+        Assert.Equal(5, settings.UploadConcurrency);
+        Assert.Equal(16, settings.UploadChunkSizeMb);
+    }
+
+    [Theory]
+    [InlineData(0, 64)]
+    [InlineData(7, 64)]
+    [InlineData(3, 0)]
+    [InlineData(3, 91)]
+    public async Task RefusesUploadSettingsOutOfRange(int concurrency, int chunkSizeMb)
+    {
+        await Assert.ThrowsAsync<InvalidSettingsException>(() =>
+            Administration().ChangeAsync(
+                new ServerSettings(null, UploadConcurrency: concurrency, UploadChunkSizeMb: chunkSizeMb),
+                CancellationToken));
+    }
+
+    [Fact]
     public async Task UsesTheRequestOriginWithoutAnExternalUrl()
     {
         Assert.Equal("http://localhost", await Administration().PublicOriginAsync("http://localhost", CancellationToken));

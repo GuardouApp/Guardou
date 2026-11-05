@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router/routes.dart';
@@ -7,6 +8,8 @@ import '../../core/layout/window_size_class.dart';
 import '../../core/status/status_bar.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../files/file_drop_target.dart';
+import '../uploads/upload_panel.dart';
+import '../uploads/upload_queue_controller.dart';
 import 'new_item_button.dart';
 import 'shell_destination.dart';
 import 'shell_navigation_drawer.dart';
@@ -49,7 +52,7 @@ class AdaptiveShell extends StatelessWidget {
   }
 }
 
-class _CompactShell extends StatelessWidget {
+class _CompactShell extends ConsumerWidget {
   const _CompactShell({
     required this.selected,
     required this.onSelected,
@@ -63,9 +66,10 @@ class _CompactShell extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final barIndex = ShellDestination.indexIn(ShellDestination.compactBar, selected);
+    final hasUploads = ref.watch(uploadQueueProvider.select((state) => state.items.isNotEmpty));
 
     return Scaffold(
       appBar: ShellTopBar(showMenuButton: true, currentFolderId: currentFolderId),
@@ -78,6 +82,7 @@ class _CompactShell extends StatelessWidget {
         currentFolderId: currentFolderId,
       ),
       body: _WithStatusBar(child: child),
+      bottomSheet: hasUploads ? const UploadPanel(compact: true) : null,
       floatingActionButton: NewItemButton(
         style: NewItemButtonStyle.floating,
         folderId: currentFolderId ?? Routes.rootFolderId,
@@ -120,25 +125,27 @@ class _MediumShell extends StatelessWidget {
 
     return Scaffold(
       appBar: ShellTopBar(currentFolderId: currentFolderId),
-      body: Row(
-        children: [
-          NavigationRail(
-            selectedIndex: index < 0 ? null : index,
-            onDestinationSelected: (index) => onSelected(ShellDestination.navigation[index]),
-            labelType: NavigationRailLabelType.all,
-            backgroundColor: Colors.transparent,
-            leading: NewItemButton(style: NewItemButtonStyle.small, folderId: currentFolderId ?? Routes.rootFolderId),
-            destinations: [
-              for (final destination in ShellDestination.navigation)
-                NavigationRailDestination(
-                  icon: Icon(destination.icon),
-                  selectedIcon: Icon(destination.selectedIcon),
-                  label: Text(destination.shortLabel(l10n)),
-                ),
-            ],
-          ),
-          Expanded(child: ContentPanel(child: child)),
-        ],
+      body: _WithUploadPanel(
+        child: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: index < 0 ? null : index,
+              onDestinationSelected: (index) => onSelected(ShellDestination.navigation[index]),
+              labelType: NavigationRailLabelType.all,
+              backgroundColor: Colors.transparent,
+              leading: NewItemButton(style: NewItemButtonStyle.small, folderId: currentFolderId ?? Routes.rootFolderId),
+              destinations: [
+                for (final destination in ShellDestination.navigation)
+                  NavigationRailDestination(
+                    icon: Icon(destination.icon),
+                    selectedIcon: Icon(destination.selectedIcon),
+                    label: Text(destination.shortLabel(l10n)),
+                  ),
+              ],
+            ),
+            Expanded(child: ContentPanel(child: child)),
+          ],
+        ),
       ),
     );
   }
@@ -161,19 +168,21 @@ class _ExpandedShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ShellTopBar(currentFolderId: currentFolderId),
-      body: Row(
-        children: [
-          SizedBox(
-            width: AppTokens.of(context).navigationWidth,
-            child: ShellNavigationDrawer(
-              selected: selected,
-              onSelected: onSelected,
-              currentFolderId: currentFolderId,
-              inline: true,
+      body: _WithUploadPanel(
+        child: Row(
+          children: [
+            SizedBox(
+              width: AppTokens.of(context).navigationWidth,
+              child: ShellNavigationDrawer(
+                selected: selected,
+                onSelected: onSelected,
+                currentFolderId: currentFolderId,
+                inline: true,
+              ),
             ),
-          ),
-          Expanded(child: ContentPanel(child: child)),
-        ],
+            Expanded(child: ContentPanel(child: child)),
+          ],
+        ),
       ),
     );
   }
@@ -212,6 +221,27 @@ class _WithStatusBar extends StatelessWidget {
       children: [
         Expanded(child: child),
         const StatusBar(),
+      ],
+    );
+  }
+}
+
+class _WithUploadPanel extends StatelessWidget {
+  const _WithUploadPanel({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(child: child),
+        Positioned(
+          right: AppTokens.of(context).spacing * 2,
+          bottom: 0,
+          width: UploadPanel.width,
+          child: const UploadPanel(compact: false),
+        ),
       ],
     );
   }

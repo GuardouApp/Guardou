@@ -12,6 +12,7 @@
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
         <PackageReference Include="NetVips" />
         <PackageReference Include="NetVips.Native" />
+        <PackageReference Include="tusdotnet" />
     </ItemGroup>
 
     <ItemGroup>
