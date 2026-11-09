@@ -1,7 +1,7 @@
 <h1 align="center">Guardou!</h1>
 <br/>
 <p align="center">
-  <img src="docs/static/img/screenshot.webp" width="720" title="Main Screenshot" alt="Main Screenshot">
+  <img src="docs/static/img/screenshot-dark.webp" width="720" title="Main Screenshot" alt="Main Screenshot">
 </p>
 <br/>
 
