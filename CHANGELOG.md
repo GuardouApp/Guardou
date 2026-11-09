@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.0](https://github.com/GuardouApp/Guardou/compare/v0.9.1...v0.10.0) (2026-11-05)
+
+
+### Features
+
+* add resumable uploads with tusdotnet ([#51](https://github.com/GuardouApp/Guardou/issues/51)) ([a793fcc](https://github.com/GuardouApp/Guardou/commit/a793fccfaf235a2b93531ea29ad7a95632c8a94b))
+* add user preferences ([#49](https://github.com/GuardouApp/Guardou/issues/49)) ([279a75f](https://github.com/GuardouApp/Guardou/commit/279a75fea3c4e50a359691312ef586cb51bc6de8))
+
 ## [0.9.1](https://github.com/GuardouApp/Guardou/compare/v0.9.0...v0.9.1) (2026-10-29)
 
 
