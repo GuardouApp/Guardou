@@ -5,8 +5,25 @@ description: Environment variables
 
 # Environment Variables
 
-All Guardou settings are available through the Admin Panel at:
+Set the variables in the `.env` file next to `docker-compose.yaml`. Then run `docker compose up -d` to apply them.
 
-`http://your-instance:2286/admin/settings`
+## Container
 
-If you prefer environment variables, they are documented in the [`example.env`](https://github.com/GuardouApp/Guardou/releases/latest/download/example.env) file provided with each release.
+| Variable    | Default | Description                                                       |
+| ----------- | ------- | ----------------------------------------------------------------- |
+| `DATA_PATH` |         | Required. The host folder for files, database and thumbnails.     |
+| `PUID`      | `1000`  | The user ID that Guardou runs as. It must have write access to `DATA_PATH`. |
+| `PGID`      | `1000`  | The group ID that Guardou runs as.                                 |
+
+## Settings
+
+These variables override the settings under **Admin → Settings**. A field that is set by a variable is read-only in the admin panel.
+
+| Variable               | Default | Description                                                              |
+| ---------------------- | ------- | ------------------------------------------------------------------------ |
+| `EXTERNAL_URL`         |         | The public URL.                                                          |
+| `TRASH_RETENTION_DAYS` | `30`    | Items in the trash are deleted after this number of days. 1 to 3650.     |
+| `UPLOAD_CONCURRENCY`   | `3`     | Files that each client uploads at the same time. 1 to 6.                 |
+| `UPLOAD_CHUNK_SIZE_MB` | `64`    | The size of each upload request. 1 to 90. See [Reverse Proxy](./reverse-proxy). |
+
+For the `OIDC_*` variables, see [Single Sign-On](./oidc).

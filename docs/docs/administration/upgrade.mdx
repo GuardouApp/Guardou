@@ -1,0 +1,19 @@
+---
+sidebar_position: 6
+description: Upgrade Guardou and breaking changes
+---
+
+# Upgrade
+
+Make a [backup](./backup). Then, from the folder that contains `docker-compose.yaml`, run:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Guardou updates the database at startup.
+
+## Breaking changes
+
+Read the [release notes](https://github.com/GuardouApp/Guardou/releases) of each version that you skip.
