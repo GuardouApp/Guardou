@@ -3,7 +3,7 @@ abstract final class Routes {
   static const loading = '/loading';
   static const login = '/login';
   static const register = '/register';
-  static const home = '/home';
+  static const recommended = '/recommended';
   static const files = '/files';
   static const folders = '/folders';
   static const file = '/file';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
@@ -151,7 +151,11 @@ class _ItemName extends StatelessWidget {
           const SizedBox(width: 6),
           Tooltip(
             message: AppLocalizations.of(context).readOnly,
-            child: Icon(LucideIcons.lock, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            child: Icon(
+              FluentIcons.lock_closed_24_regular,
+              size: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ],

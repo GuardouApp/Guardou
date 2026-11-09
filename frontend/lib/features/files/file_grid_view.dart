@@ -127,9 +127,10 @@ class _FolderTile extends StatelessWidget {
         padding: EdgeInsetsDirectional.only(start: spacing),
         child: Row(
           children: [
-            ItemLeading(entry: entry, interactions: interactions),
+            ItemLeading(entry: entry, interactions: interactions, showMarks: false),
             SizedBox(width: spacing),
             Expanded(child: Text(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            ItemIndicators(entry: entry),
             ItemMoreButton(entry: entry, interactions: interactions),
           ],
         ),
