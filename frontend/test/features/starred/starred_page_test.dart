@@ -47,24 +47,20 @@ void main() {
     expect(find.text('Starred'), findsWidgets);
     expect(tester.getTopLeft(find.text('docs')).dy, lessThan(tester.getTopLeft(find.text('plan.txt')).dy));
     expect(
-      find.descendant(of: find.byType(ItemMarks), matching: find.byIcon(FluentIcons.star_24_filled)),
+      find.descendant(of: find.byType(ItemName), matching: find.byIcon(FluentIcons.star_24_filled)),
       findsNWidgets(2),
     );
   });
 
-  testWidgets('shows the star on the file preview in the grid view', (tester) async {
+  testWidgets('shows the stars before the more button in the grid view', (tester) async {
     await pumpStarred(tester);
 
     await tester.tap(find.byTooltip('Show as grid'));
     await tester.pumpAndSettle();
 
-    final preview = find.ancestor(of: find.byType(StarBadge), matching: find.byType(AspectRatio));
-    final badge = find.descendant(of: preview, matching: find.byType(StarBadge));
-    expect(preview, findsOneWidget);
-    expect(tester.getBottomRight(badge).dx, closeTo(tester.getBottomRight(preview).dx, 8));
     expect(
       find.descendant(of: find.byType(ItemIndicators), matching: find.byIcon(FluentIcons.star_24_filled)),
-      findsOneWidget,
+      findsNWidgets(2),
     );
   });
 

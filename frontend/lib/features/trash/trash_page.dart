@@ -20,6 +20,7 @@ import '../files/files_service.dart';
 import '../files/folder_states.dart';
 import '../files/item_actions_menu.dart';
 import '../files/item_interactions.dart';
+import '../files/item_marks.dart';
 import '../files/selection.dart';
 import '../files/selection_controller.dart';
 import '../files/selection_toolbar.dart';
@@ -258,7 +259,7 @@ class _TrashRow extends StatelessWidget {
       interactions: interactions,
       child: ListTile(
         leading: ItemLeading(entry: item, interactions: interactions, size: 24),
-        title: Text(item.name, overflow: TextOverflow.ellipsis),
+        title: ItemName(entry: item),
         subtitle: Text(
           l10n.trashedSummary(formatDate(entry.trashed, l10n.localeName), formatDate(entry.expires, l10n.localeName)),
         ),

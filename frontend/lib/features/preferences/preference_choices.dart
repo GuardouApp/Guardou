@@ -56,14 +56,14 @@ extension UploadConflictPolicyChoice on UploadConflictPolicy {
 
 extension StartPageChoice on StartPage {
   String get path => switch (this) {
-    StartPage.recommended => Routes.recommended,
+    StartPage.suggested => Routes.suggested,
     StartPage.starred => Routes.starred,
     StartPage.shared => Routes.shared,
     StartPage.files || StartPage.$unknown => Routes.files,
   };
 
   String label(AppLocalizations l10n) => switch (this) {
-    StartPage.recommended => l10n.navigationRecommended,
+    StartPage.suggested => l10n.navigationSuggested,
     StartPage.starred => l10n.navigationStarred,
     StartPage.shared => l10n.navigationSharedWithMe,
     StartPage.files || StartPage.$unknown => l10n.navigationFiles,

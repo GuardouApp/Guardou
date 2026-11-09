@@ -87,7 +87,7 @@ void main() {
     await choose(tester, 'Dark', 'Light');
     await choose(tester, 'English', 'Português (Brasil)');
     await tapIn(tester, section(FluentIcons.settings_24_regular), 'Starred');
-    await tester.tap(find.text('Recommended').last);
+    await tester.tap(find.text('Suggested').last);
     await tester.pumpAndSettle();
     await tapIn(tester, section(FluentIcons.settings_24_regular), 'Save');
 
@@ -96,7 +96,7 @@ void main() {
         const UserPreferences(
           theme: ThemePreference.light,
           language: Language.ptBr,
-          startPage: StartPage.recommended,
+          startPage: StartPage.suggested,
           uploadConflictPolicy: UploadConflictPolicy.rename,
         ),
       ),

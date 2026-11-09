@@ -47,7 +47,7 @@
   "registerRejected": "The server refused the username or the password.",
   "registerClosed": "An account already exists. Sign in instead.",
   "genericError": "Something went wrong. Try again.",
-  "navigationRecommended": "Recommended",
+  "navigationSuggested": "Suggested",
   "navigationFiles": "Files",
   "navigationStarred": "Starred",
   "navigationShared": "Shared",

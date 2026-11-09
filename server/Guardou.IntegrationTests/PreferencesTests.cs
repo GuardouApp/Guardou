@@ -22,7 +22,7 @@ public sealed class PreferencesTests : SignedInTests
     [Fact]
     public async Task KeepsTheChangedPreferencesForEachUser()
     {
-        UserPreferences changed = new(ThemePreference.Dark, Language.PtBr, StartPage.Recommended, UploadConflictPolicy.Rename);
+        UserPreferences changed = new(ThemePreference.Dark, Language.PtBr, StartPage.Suggested, UploadConflictPolicy.Rename);
 
         HttpResponseMessage response = await Client.PutAsJsonAsync(PreferencesPath, changed, HttpClientExtensions.JsonOptions, CancellationToken);
         using HttpClient bob = await SignInAsBobAsync();

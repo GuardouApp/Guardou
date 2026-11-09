@@ -26,7 +26,7 @@
   "registerRejected": "O servidor recusou o nome de usuário ou a senha.",
   "registerClosed": "Já existe uma conta. Entre com ela.",
   "genericError": "Algo deu errado. Tente novamente.",
-  "navigationRecommended": "Recomendados",
+  "navigationSuggested": "Sugeridos",
   "navigationFiles": "Arquivos",
   "navigationStarred": "Com estrela",
   "navigationShared": "Compartilhados",

@@ -127,7 +127,7 @@ class _FolderTile extends StatelessWidget {
         padding: EdgeInsetsDirectional.only(start: spacing),
         child: Row(
           children: [
-            ItemLeading(entry: entry, interactions: interactions, showMarks: false),
+            ItemLeading(entry: entry, interactions: interactions),
             SizedBox(width: spacing),
             Expanded(child: Text(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ItemIndicators(entry: entry),
@@ -210,13 +210,7 @@ class _FileCard extends ConsumerWidget {
               height: _headerHeight,
               child: Row(
                 children: [
-                  ItemLeading(
-                    entry: entry,
-                    interactions: interactions,
-                    size: _iconSize,
-                    showPreview: false,
-                    showMarks: false,
-                  ),
+                  ItemLeading(entry: entry, interactions: interactions, size: _iconSize, showPreview: false),
                   SizedBox(width: spacing * 0.75),
                   Expanded(
                     child: Text(
@@ -226,6 +220,7 @@ class _FileCard extends ConsumerWidget {
                       style: theme.textTheme.titleSmall,
                     ),
                   ),
+                  ItemIndicators(entry: entry),
                   ItemMoreButton(entry: entry, interactions: interactions),
                 ],
               ),
@@ -234,19 +229,16 @@ class _FileCard extends ConsumerWidget {
               aspectRatio: _previewAspectRatio,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(_previewRadius),
-                child: PreviewMarks(
-                  entry: entry,
-                  child: ColoredBox(
-                    color: theme.colorScheme.surface,
-                    child: entry.hasPreview
-                        ? ItemThumbnail(
-                            key: ValueKey(entry.id),
-                            entry: entry,
-                            source: interactions.source,
-                            placeholder: placeholder,
-                          )
-                        : placeholder,
-                  ),
+                child: ColoredBox(
+                  color: theme.colorScheme.surface,
+                  child: entry.hasPreview
+                      ? ItemThumbnail(
+                          key: ValueKey(entry.id),
+                          entry: entry,
+                          source: interactions.source,
+                          placeholder: placeholder,
+                        )
+                      : placeholder,
                 ),
               ),
             ),
