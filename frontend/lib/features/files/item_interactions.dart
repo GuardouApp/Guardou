@@ -6,6 +6,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'file_source.dart';
+import 'item_drag.dart';
 import 'item_thumbnail.dart';
 import 'selection.dart';
 import 'item_type_presentation.dart';
@@ -23,6 +24,7 @@ class ItemInteractions {
     required this.keyFor,
     required this.decorate,
     required this.source,
+    this.dragging,
   });
 
   final Selection selection;
@@ -35,6 +37,7 @@ class ItemInteractions {
   final GlobalKey Function(String id) keyFor;
   final Widget Function(ItemEntry entry, Widget child) decorate;
   final FileSource source;
+  final ItemDragging? dragging;
 
   bool isSelected(ItemEntry entry) => selection.contains(entry.id);
 }
@@ -47,6 +50,7 @@ class SelectableItem extends StatefulWidget {
     required this.child,
     this.shape,
     this.color = Colors.transparent,
+    this.dragFeedbackWidth = ItemDraggable.defaultFeedbackWidth,
   });
 
   final ItemEntry entry;
@@ -54,6 +58,7 @@ class SelectableItem extends StatefulWidget {
   final Widget child;
   final ShapeBorder? shape;
   final Color color;
+  final double dragFeedbackWidth;
 
   @override
   State<SelectableItem> createState() => _SelectableItemState();
@@ -82,6 +87,20 @@ class _SelectableItemState extends State<SelectableItem> {
     }
   }
 
+  Widget _draggable(Widget child) {
+    final dragging = _interactions.dragging;
+    final items = dragging?.itemsFor(widget.entry);
+    if (dragging == null || items == null) {
+      return child;
+    }
+    return ItemDraggable(
+      items: DraggedItems(items),
+      feedbackWidth: widget.dragFeedbackWidth,
+      onDragStarted: () => dragging.onStarted(widget.entry),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selected = _interactions.isSelected(widget.entry);
@@ -91,16 +110,18 @@ class _SelectableItemState extends State<SelectableItem> {
       key: _interactions.keyFor(widget.entry.id),
       child: _interactions.decorate(
         widget.entry,
-        GestureDetector(
-          onSecondaryTapUp: (details) => _interactions.onContextMenu(widget.entry, details.globalPosition),
-          child: Material(
-            color: selected ? colorScheme.secondaryContainer : widget.color,
-            shape: widget.shape,
-            clipBehavior: widget.shape == null ? Clip.none : Clip.antiAlias,
-            child: InkWell(
-              onTap: _tap,
-              onLongPress: () => _interactions.onLongPress(widget.entry),
-              child: widget.child,
+        _draggable(
+          GestureDetector(
+            onSecondaryTapUp: (details) => _interactions.onContextMenu(widget.entry, details.globalPosition),
+            child: Material(
+              color: selected ? colorScheme.secondaryContainer : widget.color,
+              shape: widget.shape,
+              clipBehavior: widget.shape == null ? Clip.none : Clip.antiAlias,
+              child: InkWell(
+                onTap: _tap,
+                onLongPress: () => _interactions.onLongPress(widget.entry),
+                child: widget.child,
+              ),
             ),
           ),
         ),
