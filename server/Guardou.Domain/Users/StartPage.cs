@@ -3,7 +3,7 @@ namespace Guardou.Domain.Users;
 public enum StartPage
 {
     Files,
-    Recommended,
+    Suggested,
     Starred,
     Shared,
 }

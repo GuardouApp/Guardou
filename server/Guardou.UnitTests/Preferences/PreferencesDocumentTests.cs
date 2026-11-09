@@ -18,9 +18,9 @@ public sealed class PreferencesDocumentTests
     [Fact]
     public void StoredValuesReplaceTheDefaults()
     {
-        UserPreferences merged = new PreferencesDocument(ThemePreference.Light, null, StartPage.Recommended, UploadConflictPolicy.Skip).MergeOver(Defaults);
+        UserPreferences merged = new PreferencesDocument(ThemePreference.Light, null, StartPage.Suggested, UploadConflictPolicy.Skip).MergeOver(Defaults);
 
-        Assert.Equal(new UserPreferences(ThemePreference.Light, Language.Pt, StartPage.Recommended, UploadConflictPolicy.Skip), merged);
+        Assert.Equal(new UserPreferences(ThemePreference.Light, Language.Pt, StartPage.Suggested, UploadConflictPolicy.Skip), merged);
     }
 
     [Fact]

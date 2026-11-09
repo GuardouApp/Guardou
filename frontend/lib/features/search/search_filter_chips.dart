@@ -72,7 +72,8 @@ class SearchFilterChips extends ConsumerWidget {
           ],
         ),
         FilterChip(
-          avatar: const Icon(FluentIcons.star_24_regular, size: 16),
+          showCheckmark: false,
+          avatar: Icon(filters.starred ? FluentIcons.star_24_filled : FluentIcons.star_24_regular, size: 16),
           label: Text(l10n.navigationStarred),
           selected: filters.starred,
           onSelected: controller.setStarred,

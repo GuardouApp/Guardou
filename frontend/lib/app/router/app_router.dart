@@ -14,7 +14,7 @@ import '../../features/files/folder_page.dart';
 import '../../features/preferences/preference_choices.dart';
 import '../../features/preferences/preferences_controller.dart';
 import '../../features/preferences/preferences_page.dart';
-import '../../features/recommended/recommended_page.dart';
+import '../../features/suggested/suggested_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shares/shared_folder_page.dart';
 import '../../features/shares/shared_link_gate.dart';
@@ -133,8 +133,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
-            path: Routes.recommended,
-            pageBuilder: (_, _) => const NoTransitionPage(child: RecommendedPage()),
+            path: Routes.suggested,
+            pageBuilder: (_, _) => const NoTransitionPage(child: SuggestedPage()),
           ),
           GoRoute(
             path: Routes.starred,
