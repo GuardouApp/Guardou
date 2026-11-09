@@ -5,4 +5,8 @@ namespace Guardou.Infrastructure.Identity;
 internal sealed class ApplicationUser : IdentityUser
 {
     public required string DisplayName { get; set; }
+
+    public long? QuotaBytes { get; set; }
+
+    public long UsedBytes { get; set; }
 }

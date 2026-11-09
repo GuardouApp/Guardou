@@ -169,4 +169,20 @@ void main() {
     expect(item(container).status, UploadStatus.failed);
     expect(item(container).failure, UploadFailure.uploadInProgress);
   });
+
+  test('shows a full storage quota as a failure', () async {
+    when(() => service.start(any(), any(), any())).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(),
+        error: const ApiProblem(status: 413, codes: [ApiProblem.quotaExceededCode]),
+      ),
+    );
+    final container = await queue();
+
+    container.read(uploadQueueProvider.notifier).enqueue('root', [file('a.bin', 10)]);
+    await pumpEventQueue();
+
+    expect(item(container).status, UploadStatus.failed);
+    expect(item(container).failure, UploadFailure.quotaExceeded);
+  });
 }

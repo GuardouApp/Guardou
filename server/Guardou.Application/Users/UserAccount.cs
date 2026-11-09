@@ -7,7 +7,8 @@ public sealed record UserAccount(
     string Email,
     bool IsAdmin,
     bool HasPicture,
-    IReadOnlyList<string> ExternalLogins)
+    IReadOnlyList<string> ExternalLogins,
+    long? QuotaBytes)
 {
     internal UserProfile Profile => new(Username, DisplayName, Email, IsAdmin);
 }

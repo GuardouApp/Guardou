@@ -92,6 +92,12 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
         return Task.CompletedTask;
     }
 
+    public Task SetQuotaAsync(string id, long? quotaBytes)
+    {
+        Accounts[id] = Accounts[id] with { QuotaBytes = quotaBytes };
+        return Task.CompletedTask;
+    }
+
     public Task DeleteAsync(string id)
     {
         Accounts.Remove(id);
@@ -110,7 +116,7 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
 
     private static UserAccount AccountOf(string id, UserProfile profile)
     {
-        return new UserAccount(id, profile.Username, profile.DisplayName, profile.Email, profile.IsAdmin, HasPicture: false, []);
+        return new UserAccount(id, profile.Username, profile.DisplayName, profile.Email, profile.IsAdmin, HasPicture: false, [], QuotaBytes: null);
     }
 
     private UserAccountResult Add(UserProfile profile)

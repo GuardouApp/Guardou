@@ -1,3 +1,3 @@
 namespace Guardou.Application.Files;
 
-public sealed record StorageUsage(long UsedBytes, long TotalBytes);
+public sealed record StorageUsage(long UsedBytes, long TotalBytes, long? QuotaBytes);

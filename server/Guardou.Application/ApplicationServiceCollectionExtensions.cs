@@ -4,6 +4,7 @@ using Guardou.Application.Configuration;
 using Guardou.Application.Files;
 using Guardou.Application.Preferences;
 using Guardou.Application.Previews;
+using Guardou.Application.Quotas;
 using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
@@ -24,6 +25,8 @@ public static class ApplicationServiceCollectionExtensions
     {
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<TaskSignal>();
+        services.AddSingleton<StorageQuotaLocks>();
+        services.AddScoped<StorageReservations>();
         services.AddScoped<ITaskHandler, PreviewTaskHandler>();
         services.AddScoped<ITaskHandler, IndexTaskHandler>();
         AddSettings(services, new ServerSettingsSchema());

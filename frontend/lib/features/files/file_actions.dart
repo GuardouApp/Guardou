@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../api/generated/models/item_kind.dart';
 import '../../app/router/routes.dart';
+import '../../core/api/api_problem.dart';
 import '../../core/browser/browser_files.dart';
 import '../../core/layout/window_size_class.dart';
 import '../../core/status/operation_status.dart';
@@ -199,12 +200,18 @@ class FileActions {
       }
       return true;
     } on DioException catch (error) {
-      _show(ConflictSession.isConflict(error) ? _l10n.nameTaken : _l10n.genericError);
+      _show(_messageOf(error));
       return false;
     } finally {
       _refresh();
     }
   }
+
+  String _messageOf(DioException error) => switch (error) {
+    DioException(error: ApiProblem(isQuotaExceeded: true)) => _l10n.quotaExceeded,
+    _ when ConflictSession.isConflict(error) => _l10n.nameTaken,
+    _ => _l10n.genericError,
+  };
 
   void _refresh() => refreshFileViews(_container.invalidate);
 

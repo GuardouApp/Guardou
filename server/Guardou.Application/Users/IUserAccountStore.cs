@@ -24,5 +24,7 @@ public interface IUserAccountStore
 
     Task<UserAccountResult> UpdateAsync(string id, UserProfile profile, string? password);
 
+    Task SetQuotaAsync(string id, long? quotaBytes);
+
     Task DeleteAsync(string id);
 }

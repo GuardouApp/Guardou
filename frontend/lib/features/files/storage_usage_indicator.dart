@@ -40,22 +40,25 @@ class _StorageUsageBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final spacing = AppTokens.of(context).spacing;
-    final ratio = usage.totalBytes <= 0 ? 0.0 : usage.usedBytes / usage.totalBytes;
+    final limit = usage.quotaBytes ?? usage.totalBytes;
+    final ratio = limit <= 0 ? 1.0 : usage.usedBytes / limit;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(spacing, 0, spacing, spacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LinearProgressIndicator(value: ratio.clamp(0, 1), borderRadius: BorderRadius.circular(4)),
+          LinearProgressIndicator(
+            value: ratio.clamp(0, 1),
+            color: ratio >= 1 ? theme.colorScheme.error : null,
+            borderRadius: BorderRadius.circular(4),
+          ),
           const SizedBox(height: 4),
           Text(
-            l10n.storageUsage(
-              formatSize(usage.usedBytes, l10n.localeName),
-              formatSize(usage.totalBytes, l10n.localeName),
-            ),
-            style: Theme.of(context).textTheme.bodySmall,
+            l10n.storageUsage(formatSize(usage.usedBytes, l10n.localeName), formatSize(limit, l10n.localeName)),
+            style: theme.textTheme.bodySmall,
           ),
         ],
       ),

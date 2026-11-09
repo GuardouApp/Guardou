@@ -208,6 +208,7 @@ class UploadQueueController extends Notifier<UploadQueueState> {
   UploadFailure _failureOf(Object error) => switch (error) {
     DioException(error: ApiProblem(:final codes)) when codes.contains(ConflictSession.uploadInProgressCode) =>
       UploadFailure.uploadInProgress,
+    DioException(error: ApiProblem(isQuotaExceeded: true)) => UploadFailure.quotaExceeded,
     _ => UploadFailure.other,
   };
 

@@ -92,6 +92,17 @@ internal sealed class IdentityUserAccountStore(
         return user is null ? NotFound(id) : ToResult(await userManager.AddLoginAsync(user, LoginOf(provider, key)));
     }
 
+    public async Task SetQuotaAsync(string id, long? quotaBytes)
+    {
+        await context.Users
+            .Where(user => user.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.QuotaBytes, quotaBytes));
+        if (context.Users.Local.FirstOrDefault(user => user.Id == id) is { } tracked)
+        {
+            await context.Entry(tracked).ReloadAsync();
+        }
+    }
+
     public async Task RemoveLoginAsync(string id, string provider)
     {
         if (await userManager.FindByIdAsync(id) is not { } user)
@@ -205,7 +216,8 @@ internal sealed class IdentityUserAccountStore(
             user.Email ?? string.Empty,
             administrator,
             pictures.Contains(user.Id),
-            logins.Distinct().ToList());
+            logins.Distinct().ToList(),
+            user.QuotaBytes);
     }
 
     private static UserLoginInfo LoginOf(string provider, string key)

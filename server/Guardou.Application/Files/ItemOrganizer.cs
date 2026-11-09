@@ -1,4 +1,5 @@
 using Guardou.Application.Previews;
+using Guardou.Application.Quotas;
 using Guardou.Domain.Files;
 using Guardou.Domain.Tasks;
 
@@ -13,6 +14,7 @@ public sealed class ItemOrganizer
     private readonly ItemTree _tree;
     private readonly ItemEntryFactory _entries;
     private readonly PreviewTasks _previews;
+    private readonly StorageReservations _reservations;
     private readonly TimeProvider _time;
 
     internal ItemOrganizer(
@@ -23,6 +25,7 @@ public sealed class ItemOrganizer
         ItemTree tree,
         ItemEntryFactory entries,
         PreviewTasks previews,
+        StorageReservations reservations,
         TimeProvider time)
     {
         _store = store;
@@ -32,6 +35,7 @@ public sealed class ItemOrganizer
         _tree = tree;
         _entries = entries;
         _previews = previews;
+        _reservations = reservations;
         _time = time;
     }
 
@@ -105,14 +109,30 @@ public sealed class ItemOrganizer
             throw new InvalidItemRequestException("A folder cannot copy into itself.");
         }
 
-        string? name = await _placement.ResolveNameAsync(destination.Item, source.Item.Name, conflict, source, cancellationToken);
-        if (name is null)
-        {
-            return null;
-        }
+        long size = await ActiveSizeAsync(source.Item, cancellationToken);
+        Item? copy = await _reservations.ReserveAsync(
+            ownerId,
+            size,
+            () => PlaceCopyAsync(source, destination.Item, conflict, ownerId, cancellationToken),
+            cancellationToken);
+        return copy is null ? null : await _entries.CreateAsync(copy, ownerId, cancellationToken);
+    }
 
-        Item copy = await CopyTreeAsync(source.Item, destination.Item, name, ownerId, cancellationToken);
-        return await _entries.CreateAsync(copy, ownerId, cancellationToken);
+    private async Task<long> ActiveSizeAsync(Item item, CancellationToken cancellationToken)
+    {
+        IReadOnlyList<TreeNode> nodes = await _tree.ActiveSubtreeAsync(item, item.Name, cancellationToken);
+        return nodes.Sum(node => node.Item.Size);
+    }
+
+    private async Task<Item?> PlaceCopyAsync(
+        ItemPath source,
+        Item destination,
+        ConflictPolicy conflict,
+        string createdBy,
+        CancellationToken cancellationToken)
+    {
+        string? name = await _placement.ResolveNameAsync(destination, source.Item.Name, conflict, source, cancellationToken);
+        return name is null ? null : await CopyTreeAsync(source.Item, destination, name, createdBy, cancellationToken);
     }
 
     private async Task<Item> CopyTreeAsync(

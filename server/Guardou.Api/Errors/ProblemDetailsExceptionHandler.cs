@@ -1,4 +1,5 @@
 using Guardou.Application.Files;
+using Guardou.Application.Quotas;
 using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
@@ -47,6 +48,11 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             problem.Extensions[CodesExtension] = new[] { UploadInProgressException.Code };
         }
 
+        if (exception is QuotaExceededException)
+        {
+            problem.Extensions[CodesExtension] = new[] { QuotaExceededException.Code };
+        }
+
         return problem;
     }
 
@@ -68,6 +74,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             InvalidSettingsException => StatusCodes.Status400BadRequest,
             UploadNotFoundException => StatusCodes.Status404NotFound,
             UploadInProgressException => StatusCodes.Status409Conflict,
+            QuotaExceededException => StatusCodes.Status413PayloadTooLarge,
             _ => StatusCodes.Status500InternalServerError,
         };
     }

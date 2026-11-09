@@ -41,7 +41,7 @@ public sealed class UsersController(UserAccounts accounts, ISessionService sessi
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Create(UserRequest request)
     {
-        UserAccount account = await accounts.CreateAsync(ProfileOf(request), request.Password);
+        UserAccount account = await accounts.CreateAsync(ProfileOf(request), request.Password, request.QuotaBytes);
         return CreatedAtRoute("GetUser", new { id = account.Id }, account);
     }
 
@@ -54,7 +54,7 @@ public sealed class UsersController(UserAccounts accounts, ISessionService sessi
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<UserAccount> Update(string id, UserRequest request)
     {
-        UserAccount account = await accounts.UpdateAsync(id, ProfileOf(request), request.Password);
+        UserAccount account = await accounts.UpdateAsync(id, ProfileOf(request), request.Password, request.QuotaBytes);
         if (account.Id == User.UserId())
         {
             await sessions.RefreshAsync(account.Id);
