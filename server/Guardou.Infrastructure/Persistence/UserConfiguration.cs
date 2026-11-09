@@ -1,6 +1,7 @@
 using Guardou.Domain.Users;
 using Guardou.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Guardou.Infrastructure.Persistence;
@@ -17,5 +18,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<ApplicationUs
         builder.Property(user => user.Email).IsRequired();
         builder.Property(user => user.NormalizedEmail).IsRequired();
         builder.HasIndex(user => user.NormalizedEmail).IsUnique();
+        builder.Property(user => user.QuotaBytes).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+        builder.Property(user => user.UsedBytes).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
     }
 }

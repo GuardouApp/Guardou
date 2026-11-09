@@ -288,8 +288,14 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("QuotaBytes")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT");
+
+                    b.Property<long>("UsedBytes")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)

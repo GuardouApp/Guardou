@@ -21,7 +21,7 @@ public sealed class UserAccounts(
         return await store.FindAsync(id) ?? throw new UserNotFoundException(id);
     }
 
-    public async Task<UserAccount> CreateAsync(UserProfile profile, string? password)
+    public async Task<UserAccount> CreateAsync(UserProfile profile, string? password, long? quotaBytes)
     {
         if (password is null)
         {
@@ -29,11 +29,13 @@ public sealed class UserAccounts(
         }
 
         Ensure(await store.CreateAsync(profile, password));
-        return await store.FindByUsernameAsync(profile.Username)
+        UserAccount account = await store.FindByUsernameAsync(profile.Username)
             ?? throw new InvalidOperationException($"The user '{profile.Username}' was not created.");
+        await store.SetQuotaAsync(account.Id, quotaBytes);
+        return account with { QuotaBytes = quotaBytes };
     }
 
-    public async Task<UserAccount> UpdateAsync(string id, UserProfile profile, string? password)
+    public async Task<UserAccount> UpdateAsync(string id, UserProfile profile, string? password, long? quotaBytes)
     {
         UserAccount account = await GetAsync(id);
         if (account.IsAdmin && !profile.IsAdmin && await IsLastAdministratorAsync())
@@ -42,6 +44,7 @@ public sealed class UserAccounts(
         }
 
         Ensure(await store.UpdateAsync(id, profile, password));
+        await store.SetQuotaAsync(id, quotaBytes);
         return await GetAsync(id);
     }
 

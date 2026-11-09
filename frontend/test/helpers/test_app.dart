@@ -113,7 +113,7 @@ MockPreferencesService stubPreferences({UserPreferences preferences = testPrefer
   return service;
 }
 
-const testUsage = StorageUsage(usedBytes: 1024 * 1024, totalBytes: 4 * 1024 * 1024);
+const testUsage = StorageUsage(usedBytes: 1024 * 1024, totalBytes: 4 * 1024 * 1024, quotaBytes: null);
 
 const testRootId = 'root-id';
 

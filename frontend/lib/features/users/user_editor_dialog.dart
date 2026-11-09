@@ -8,6 +8,8 @@ import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/credential_validators.dart';
 import '../configuration/configuration_controller.dart';
+import '../settings/settings_section.dart';
+import 'quota_input.dart';
 import 'user_editor_controller.dart';
 import 'user_failure.dart';
 import 'users_service.dart';
@@ -34,6 +36,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
   late final _displayName = TextEditingController(text: widget.account?.displayName);
   late final _email = TextEditingController(text: widget.account?.email);
   final _password = TextEditingController();
+  late final _quota = TextEditingController(text: QuotaInput.format(widget.account?.quotaBytes));
   late var _isAdmin = widget.account?.isAdmin ?? false;
   late var _account = widget.account;
 
@@ -47,6 +50,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
     _displayName.dispose();
     _email.dispose();
     _password.dispose();
+    _quota.dispose();
     super.dispose();
   }
 
@@ -60,6 +64,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
       email: _email.text.trim(),
       password: _password.text.isEmpty ? null : _password.text,
       isAdmin: _isAdmin,
+      quotaBytes: QuotaInput.bytesOf(_quota.text),
     );
     final saved = await ref.read(userEditorControllerProvider.notifier).save(widget.account?.id, request);
     if (saved != null && mounted) {
@@ -99,54 +104,54 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
+              SettingsTextField(
+                label: l10n.loginUsername,
+                required: true,
                 controller: _username,
-                autofocus: true,
-                decoration: InputDecoration(labelText: l10n.loginUsername),
-                textInputAction: TextInputAction.next,
                 validator: (value) => validateUsername(l10n, value),
               ),
-              SizedBox(height: spacing),
-              TextFormField(
+              SettingsTextField(
+                label: l10n.displayName,
+                required: true,
                 controller: _displayName,
-                decoration: InputDecoration(labelText: l10n.displayName),
-                textInputAction: TextInputAction.next,
                 validator: (value) => validateDisplayName(l10n, value),
               ),
-              SizedBox(height: spacing),
-              TextFormField(
+              SettingsTextField(
+                label: l10n.registerEmail,
+                required: true,
                 controller: _email,
-                decoration: InputDecoration(labelText: l10n.registerEmail),
                 keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
                 validator: (value) => validateEmail(l10n, value),
               ),
-              SizedBox(height: spacing),
-              TextFormField(
+              SettingsTextField(
+                label: l10n.loginPassword,
+                description: _isNew ? null : l10n.userPasswordKeep,
+                required: _isNew,
                 controller: _password,
-                decoration: InputDecoration(
-                  labelText: l10n.loginPassword,
-                  helperText: _isNew ? null : l10n.userPasswordKeep,
-                  errorMaxLines: 5,
-                ),
-                autofillHints: const [AutofillHints.newPassword],
                 obscureText: true,
                 validator: (value) => _validatePassword(l10n, value),
               ),
-              SizedBox(height: spacing),
-              Text(l10n.userType, style: theme.textTheme.labelLarge),
-              const SizedBox(height: 8),
-              SegmentedButton<bool>(
-                segments: [
-                  ButtonSegment(value: false, icon: const Icon(LucideIcons.user), label: Text(l10n.userTypeUser)),
-                  ButtonSegment(
-                    value: true,
-                    icon: const Icon(LucideIcons.shieldCheck),
-                    label: Text(l10n.accountAdministrator),
-                  ),
-                ],
-                selected: {_isAdmin},
-                onSelectionChanged: (selection) => setState(() => _isAdmin = selection.single),
+              SettingsTextField(
+                label: l10n.userQuota,
+                description: l10n.userQuotaUnlimited,
+                controller: _quota,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) => QuotaInput.isValid(value ?? '') ? null : l10n.userQuotaInvalid,
+              ),
+              SettingsField(
+                label: l10n.userType,
+                child: SegmentedButton<bool>(
+                  segments: [
+                    ButtonSegment(value: false, icon: const Icon(LucideIcons.user), label: Text(l10n.userTypeUser)),
+                    ButtonSegment(
+                      value: true,
+                      icon: const Icon(LucideIcons.shieldCheck),
+                      label: Text(l10n.accountAdministrator),
+                    ),
+                  ],
+                  selected: {_isAdmin},
+                  onSelectionChanged: (selection) => setState(() => _isAdmin = selection.single),
+                ),
               ),
               if (_account case final account? when _oidcLinked) ...[
                 SizedBox(height: spacing),

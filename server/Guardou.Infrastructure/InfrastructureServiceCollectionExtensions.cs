@@ -7,6 +7,7 @@ using Guardou.Application.Search;
 using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
+using Guardou.Application.Quotas;
 using Guardou.Application.Uploads;
 using Guardou.Application.Users;
 using Guardou.Domain;
@@ -57,6 +58,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IItemStore, EfItemStore>();
+        services.AddScoped<StorageUsageCounter>();
+        services.AddScoped<IStorageQuotaStore, EfStorageQuotaStore>();
         services.AddScoped<ItemIndexWriter>();
         services.AddScoped<IItemIndexRebuilder>(provider => provider.GetRequiredService<ItemIndexWriter>());
         services.AddScoped<IItemIndex, EfItemIndex>();

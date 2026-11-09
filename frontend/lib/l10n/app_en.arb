@@ -650,5 +650,12 @@
   "uploadPanelExpand": "Expand",
   "cancelUploadsTitle": "Cancel all uploads?",
   "cancelUploadsMessage": "The uploads in progress stop. The completed files stay.",
-  "cancelUploads": "Cancel uploads"
+  "cancelUploads": "Cancel uploads",
+  "userQuota": "Quota (GB)",
+  "userQuotaUnlimited": "Leave empty for no limit.",
+  "userQuotaInvalid": "Enter a number that is 0 or more.",
+  "quotaExceeded": "Your storage quota is full.",
+  "uploadQuotaExceeded": "Not enough space.",
+  "userQuotaColumn": "Quota",
+  "userQuotaNoLimit": "No limit"
 }

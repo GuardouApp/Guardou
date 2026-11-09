@@ -1,4 +1,6 @@
+using Guardou.Application.Quotas;
 using Guardou.Domain.Files;
+using Guardou.Domain.Users;
 
 namespace Guardou.Application.Files;
 
@@ -8,13 +10,15 @@ public sealed class ItemBrowser
     private readonly IBlobStore _blobs;
     private readonly AccessibleItems _items;
     private readonly ItemEntryFactory _entries;
+    private readonly IStorageQuotaStore _quotas;
 
-    internal ItemBrowser(IItemStore store, IBlobStore blobs, AccessibleItems items, ItemEntryFactory entries)
+    internal ItemBrowser(IItemStore store, IBlobStore blobs, AccessibleItems items, ItemEntryFactory entries, IStorageQuotaStore quotas)
     {
         _store = store;
         _blobs = blobs;
         _items = items;
         _entries = entries;
+        _quotas = quotas;
     }
 
     public async Task<ItemDetails> GetAsync(string userId, ItemDetailsRequest request, CancellationToken cancellationToken)
@@ -52,7 +56,8 @@ public sealed class ItemBrowser
 
     public async Task<StorageUsage> GetUsageAsync(string ownerId, CancellationToken cancellationToken)
     {
-        return new StorageUsage(await _store.UsedBytesAsync(ownerId, cancellationToken), _blobs.TotalBytes());
+        StorageQuota quota = await _quotas.FindAsync(ownerId, cancellationToken);
+        return new StorageUsage(quota.UsedBytes, _blobs.TotalBytes(), quota.LimitBytes);
     }
 
     private static bool Matches(Item item, ItemFilter? only)

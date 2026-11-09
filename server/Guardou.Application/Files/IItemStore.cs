@@ -28,8 +28,6 @@ public interface IItemStore
 
     Task<IReadOnlyList<Item>> RecentAsync(string userId, ItemKind kind, int skip, int take, CancellationToken cancellationToken);
 
-    Task<long> UsedBytesAsync(string ownerId, CancellationToken cancellationToken);
-
     Task<IReadOnlyList<string>> StorageKeysAsync(string ownerId, CancellationToken cancellationToken);
 
     void Add(Item item);

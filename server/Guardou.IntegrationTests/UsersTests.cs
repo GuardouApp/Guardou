@@ -87,7 +87,7 @@ public sealed class UsersTests : SignedInTests
         await robert.LoginAsync("robert", NewPassword);
         ItemDetails details = await robert.GetItemAsync(file.Id);
 
-        Assert.Equal(new UserAccount(account.Id, "robert", "Robert", "robert@example.com", IsAdmin: true, HasPicture: false, updated.ExternalLogins), updated);
+        Assert.Equal(new UserAccount(account.Id, "robert", "Robert", "robert@example.com", IsAdmin: true, HasPicture: false, updated.ExternalLogins, QuotaBytes: null), updated);
         Assert.Empty(updated.ExternalLogins);
         Assert.Equal(HttpStatusCode.Unauthorized, oldSession.StatusCode);
         Assert.Equal("notes.txt", details.Entry.Name);

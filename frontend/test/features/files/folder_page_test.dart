@@ -93,6 +93,14 @@ void main() {
     expect(find.text('1 MB of 4 MB used'), findsOneWidget);
   });
 
+  testWidgets('shows the usage against the storage quota', (tester) async {
+    when(files.usage).thenAnswer((_) async => testUsage.copyWith(quotaBytes: 2 * 1024 * 1024));
+
+    await pumpFolder(tester, '/files');
+
+    expect(find.text('1 MB of 2 MB used'), findsOneWidget);
+  });
+
   testWidgets('opens a deep link and lists folders first', (tester) async {
     await pumpFolder(tester, '/folders/docs');
 

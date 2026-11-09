@@ -2,10 +2,11 @@ using Guardou.Application.Files;
 using Guardou.Domain.Files;
 using Guardou.Infrastructure.Indexing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Guardou.Infrastructure.Persistence;
 
-internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index) : IItemStore
+internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, StorageUsageCounter usage) : IItemStore
 {
     private DbSet<Item> Items => context.Set<Item>();
 
@@ -96,11 +97,6 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index) :
             .ToListAsync(cancellationToken);
     }
 
-    public Task<long> UsedBytesAsync(string ownerId, CancellationToken cancellationToken)
-    {
-        return Items.Where(item => item.OwnerId == ownerId).SumAsync(item => item.Size, cancellationToken);
-    }
-
     public async Task<IReadOnlyList<string>> StorageKeysAsync(string ownerId, CancellationToken cancellationToken)
     {
         List<string?> keys = await Items.Where(item => item.OwnerId == ownerId).Select(item => item.StorageKey).ToListAsync(cancellationToken);
@@ -117,8 +113,23 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index) :
         Items.Remove(item);
     }
 
-    public Task SaveAsync(CancellationToken cancellationToken)
+    public async Task SaveAsync(CancellationToken cancellationToken)
     {
-        return index.SaveAsync(cancellationToken);
+        IReadOnlyDictionary<string, long> changes = usage.PendingChanges();
+        if (changes.Count == 0)
+        {
+            await index.SaveAsync(cancellationToken);
+            return;
+        }
+
+        await using IDbContextTransaction? transaction = context.Database.CurrentTransaction is null
+            ? await context.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+        await usage.ApplyAsync(changes, cancellationToken);
+        await index.SaveAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
     }
 }

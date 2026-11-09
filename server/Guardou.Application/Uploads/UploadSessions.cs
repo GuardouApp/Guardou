@@ -1,4 +1,5 @@
 using Guardou.Application.Files;
+using Guardou.Application.Quotas;
 using Guardou.Domain.Files;
 
 namespace Guardou.Application.Uploads;
@@ -10,6 +11,7 @@ public sealed class UploadSessions
     private readonly OwnedUploads _owned;
     private readonly OwnedItems _items;
     private readonly IItemStore _store;
+    private readonly StorageReservations _reservations;
     private readonly TimeProvider _time;
 
     internal UploadSessions(
@@ -18,6 +20,7 @@ public sealed class UploadSessions
         OwnedUploads owned,
         OwnedItems items,
         IItemStore store,
+        StorageReservations reservations,
         TimeProvider time)
     {
         _uploads = uploads;
@@ -25,6 +28,7 @@ public sealed class UploadSessions
         _owned = owned;
         _items = items;
         _store = store;
+        _reservations = reservations;
         _time = time;
     }
 
@@ -47,10 +51,11 @@ public sealed class UploadSessions
             }
         }
 
-        string id = await _content.CreateAsync(request.Size, cancellationToken);
-        _uploads.Add(Upload.Create(id, ownerId, destination, request.Size, request.Modified, _time.GetUtcNow()));
-        await _uploads.SaveAsync(cancellationToken);
-        return new UploadSession(id);
+        return await _reservations.ReserveAsync(
+            ownerId,
+            request.Size,
+            () => CreateAsync(ownerId, destination, request, cancellationToken),
+            cancellationToken);
     }
 
     public async Task CancelAsync(string ownerId, string id, CancellationToken cancellationToken)
@@ -72,6 +77,18 @@ public sealed class UploadSessions
         Upload? upload = await _uploads.FindAsync(id, cancellationToken);
         upload?.RecordWrite(_time.GetUtcNow());
         await _uploads.SaveAsync(cancellationToken);
+    }
+
+    private async Task<UploadSession?> CreateAsync(
+        string ownerId,
+        UploadDestination destination,
+        UploadRequest request,
+        CancellationToken cancellationToken)
+    {
+        string id = await _content.CreateAsync(request.Size, cancellationToken);
+        _uploads.Add(Upload.Create(id, ownerId, destination, request.Size, request.Modified, _time.GetUtcNow()));
+        await _uploads.SaveAsync(cancellationToken);
+        return new UploadSession(id);
     }
 
     private async Task EnsureNoActiveUploadAsync(UploadDestination destination, CancellationToken cancellationToken)

@@ -5937,7 +5937,8 @@
       "StorageUsage": {
         "required": [
           "usedBytes",
-          "totalBytes"
+          "totalBytes",
+          "quotaBytes"
         ],
         "type": "object",
         "properties": {
@@ -5948,6 +5949,11 @@
           "totalBytes": {
             "type": "integer",
             "format": "int64"
+          },
+          "quotaBytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         }
       },
@@ -6137,7 +6143,8 @@
           "email",
           "isAdmin",
           "hasPicture",
-          "externalLogins"
+          "externalLogins",
+          "quotaBytes"
         ],
         "type": "object",
         "properties": {
@@ -6164,6 +6171,11 @@
             "items": {
               "type": "string"
             }
+          },
+          "quotaBytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         }
       },
@@ -6211,6 +6223,11 @@
           },
           "isAdmin": {
             "type": "boolean"
+          },
+          "quotaBytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         }
       },

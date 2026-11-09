@@ -355,5 +355,12 @@
   "uploadPanelExpand": "Expandir",
   "cancelUploadsTitle": "Cancelar todos os envios?",
   "cancelUploadsMessage": "Os envios em andamento param. Os arquivos concluídos ficam.",
-  "cancelUploads": "Cancelar envios"
+  "cancelUploads": "Cancelar envios",
+  "userQuota": "Cota (GB)",
+  "userQuotaUnlimited": "Deixe vazio para não ter limite.",
+  "userQuotaInvalid": "Insira um número igual ou maior que 0.",
+  "quotaExceeded": "Sua cota de armazenamento está cheia.",
+  "uploadQuotaExceeded": "Espaço insuficiente.",
+  "userQuotaColumn": "Cota",
+  "userQuotaNoLimit": "Sem limite"
 }

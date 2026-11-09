@@ -12,6 +12,7 @@ import '../../core/widgets/user_avatar.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/session_controller.dart';
 import '../files/folder_states.dart';
+import '../files/file_presentation.dart';
 import 'user_actions.dart';
 import 'users_controller.dart';
 
@@ -104,6 +105,7 @@ class _UserTable extends ConsumerWidget {
                       Text(l10n.loginUsername, style: headerStyle),
                       Text(l10n.registerEmail, style: headerStyle),
                       Text(l10n.userType, style: headerStyle),
+                      Text(l10n.userQuotaColumn, style: headerStyle),
                     ],
                   ),
                 ),
@@ -122,6 +124,7 @@ class _UserTable extends ConsumerWidget {
                               _NameLink(user: user, isCurrent: user.id == currentId),
                               Text(user.email, overflow: TextOverflow.ellipsis),
                               Text(user.isAdmin ? l10n.accountAdministrator : l10n.userTypeUser),
+                              _QuotaText(quotaBytes: user.quotaBytes),
                             ],
                             trailing: _UserMenu(user: user, isCurrent: user.id == currentId),
                           ),
@@ -141,7 +144,7 @@ class _UserTable extends ConsumerWidget {
 class _TableRow extends StatelessWidget {
   const _TableRow({required this.cells, this.trailing});
 
-  static const _flex = [2, 3, 2];
+  static const _flex = [2, 3, 2, 2];
   static const _trailingWidth = 56.0;
 
   final List<Widget> cells;
@@ -191,6 +194,23 @@ class _NameLink extends StatelessWidget {
   }
 }
 
+class _QuotaText extends StatelessWidget {
+  const _QuotaText({required this.quotaBytes});
+
+  static const _unlimited = '∞';
+
+  final int? quotaBytes;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return switch (quotaBytes) {
+      final int bytes => Text(formatSize(bytes, l10n.localeName)),
+      null => Text(_unlimited, semanticsLabel: l10n.userQuotaNoLimit),
+    };
+  }
+}
+
 class _UserList extends ConsumerWidget {
   const _UserList({required this.users});
 
@@ -215,7 +235,13 @@ class _UserList extends ConsumerWidget {
               ].join(' · '),
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: _UserMenu(user: user, isCurrent: user.id == currentId),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _QuotaText(quotaBytes: user.quotaBytes),
+                _UserMenu(user: user, isCurrent: user.id == currentId),
+              ],
+            ),
             onTap: () => unawaited(UserActions(context).edit(user)),
           ),
       ],
