@@ -44,8 +44,7 @@ The installation guide can be found [here](https://guardou.app/docs/overview/qui
 
 ## Disclaimer
 
-Guardou is in early-stage development. Breaking changes can happen. For this reason, it is only recommended for personal/home use.
-
+Guardou is in early-stage development breaking changes are expected. 
 If you decide to use it, follow the [3-2-1](https://www.backblaze.com/blog/the-3-2-1-backup-strategy/) backup strategy.
 
 ## AI Disclaimer
