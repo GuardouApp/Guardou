@@ -9,10 +9,10 @@ import '../files/folder_states.dart';
 import '../files/item_browser.dart';
 import '../files/recent_items.dart';
 
-class RecommendedPage extends ConsumerWidget {
-  const RecommendedPage({super.key});
+class SuggestedPage extends ConsumerWidget {
+  const SuggestedPage({super.key});
 
-  static const layoutKey = Routes.recommended;
+  static const layoutKey = Routes.suggested;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +21,7 @@ class RecommendedPage extends ConsumerWidget {
       scope: layoutKey,
       layoutKey: layoutKey,
       items: recentItemsProvider,
-      header: ItemsHeader(title: Text(l10n.navigationRecommended), layoutKey: layoutKey),
+      header: ItemsHeader(title: Text(l10n.navigationSuggested), layoutKey: layoutKey),
       empty: FolderMessage(
         icon: FluentIcons.clock_24_regular,
         title: l10n.recentEmptyTitle,

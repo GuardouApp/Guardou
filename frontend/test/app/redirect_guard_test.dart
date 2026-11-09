@@ -64,7 +64,7 @@ void main() {
     });
 
     test('shows the server error page when loading fails', () {
-      expect(resolve('/recommended', configuration: AsyncError<Object?>(Exception(), StackTrace.empty)), '/500');
+      expect(resolve('/suggested', configuration: AsyncError<Object?>(Exception(), StackTrace.empty)), '/500');
       expect(resolve('/500', configuration: AsyncError<Object?>(Exception(), StackTrace.empty)), isNull);
     });
 

@@ -5903,7 +5903,7 @@
       "StartPage": {
         "enum": [
           "files",
-          "recommended",
+          "suggested",
           "starred",
           "shared"
         ],
