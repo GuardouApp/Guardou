@@ -1,7 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -173,7 +173,7 @@ class ItemMoreButton extends StatelessWidget {
         tooltip: AppLocalizations.of(context).moreActions,
         visualDensity: VisualDensity.compact,
         onPressed: () => interactions.onMore(entry, anchor),
-        icon: const Icon(LucideIcons.ellipsisVertical, size: 18),
+        icon: const Icon(FluentIcons.more_vertical_24_regular, size: 18),
       ),
     );
   }

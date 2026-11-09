@@ -18,13 +18,10 @@ void main() {
   final docs = testEntry('docs', id: 'docs-id', parentId: null, kind: ItemKind.folder, canModify: false);
   final inner = testEntry('inner', id: 'inner-id', parentId: docs.id, kind: ItemKind.folder, canModify: false);
   final first = testEntry('a-photo.mp4', id: 'first-id', parentId: inner.id, canModify: false, mimeType: 'video/mp4');
-  final second = testEntry(
-    'b-song.mp3',
-    id: 'second-id',
-    parentId: inner.id,
-    canModify: false,
-    mimeType: 'audio/mpeg',
-  ).copyWith(creator: const ItemCreator(id: 'zoe-id', displayName: 'Zoe Owner', hasPicture: false));
+  final second = testEntry('b-song.mp3', id: 'second-id', parentId: inner.id, canModify: false, mimeType: 'audio/mpeg')
+      .copyWith(
+        creator: const ItemCreator(id: 'zoe-id', displayName: 'Zoe Owner', hasPicture: false),
+      );
   const docsCrumb = Breadcrumb(id: 'docs-id', name: 'docs');
   const innerCrumb = Breadcrumb(id: 'inner-id', name: 'inner');
 
@@ -129,7 +126,9 @@ void main() {
         first.id: testFolder(first, const [], ancestors: const [docsCrumb, innerCrumb], shared: true),
       },
     );
-    when(() => files.viewUri(any())).thenAnswer((invocation) => Uri.parse('/view/${invocation.positionalArguments.single}'));
+    when(
+      () => files.viewUri(any()),
+    ).thenAnswer((invocation) => Uri.parse('/view/${invocation.positionalArguments.single}'));
     return pumpRoutedApp(
       tester,
       location: location,

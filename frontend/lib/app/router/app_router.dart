@@ -11,8 +11,10 @@ import '../../features/errors/error_page.dart';
 import '../../features/errors/loading_page.dart';
 import '../../features/files/file_route_page.dart';
 import '../../features/files/folder_page.dart';
-import '../../features/home/home_page.dart';
+import '../../features/preferences/preference_choices.dart';
+import '../../features/preferences/preferences_controller.dart';
 import '../../features/preferences/preferences_page.dart';
+import '../../features/recommended/recommended_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shares/shared_folder_page.dart';
 import '../../features/shares/shared_link_gate.dart';
@@ -38,7 +40,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ref.read(sessionControllerProvider).value?.isAdmin ?? false ? null : Routes.forbidden;
 
   final router = GoRouter(
-    initialLocation: Routes.home,
+    initialLocation: Routes.root,
     refreshListenable: refresh,
     redirect: (context, state) => resolveRedirect(
       configuration: ref.read(configurationControllerProvider),
@@ -48,7 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ),
     errorBuilder: (context, state) => const ErrorPage(kind: ErrorKind.notFound),
     routes: [
-      GoRoute(path: Routes.root, redirect: (_, _) => Routes.home),
+      GoRoute(path: Routes.root, redirect: (_, _) => _startPageOf(ref)),
       GoRoute(path: Routes.loading, builder: (_, _) => const LoadingPage()),
       GoRoute(
         path: Routes.login,
@@ -131,8 +133,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
-            path: Routes.home,
-            pageBuilder: (_, _) => const NoTransitionPage(child: HomePage()),
+            path: Routes.recommended,
+            pageBuilder: (_, _) => const NoTransitionPage(child: RecommendedPage()),
           ),
           GoRoute(
             path: Routes.starred,
@@ -186,3 +188,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 Page<void> _folderPage(String folderId) => NoTransitionPage(
   child: FolderPage(key: ValueKey(folderId), folderId: folderId),
 );
+
+Future<String> _startPageOf(Ref ref) async {
+  try {
+    final preferences = await ref.read(preferencesControllerProvider.future);
+    return preferences?.startPage.path ?? Routes.files;
+  } on Exception {
+    return Routes.files;
+  }
+}

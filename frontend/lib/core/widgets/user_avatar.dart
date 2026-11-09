@@ -30,7 +30,9 @@ class UserAvatar extends ConsumerWidget {
       return initial;
     }
     final revision = ref.watch(pictureRevisionProvider);
-    final picture = pictureUri ?? Uri.parse(ref.watch(apiBaseUrlProvider)).replace(pathSegments: ['api', 'users', userId, 'picture']);
+    final picture =
+        pictureUri ??
+        Uri.parse(ref.watch(apiBaseUrlProvider)).replace(pathSegments: ['api', 'users', userId, 'picture']);
     final url = picture.replace(queryParameters: revision == 0 ? null : {PictureRevision.parameter: '$revision'});
     return ClipOval(
       child: Image.network(

@@ -21,23 +21,23 @@ void main() {
     when(files.recent).thenAnswer((_) async => [photos, zeta, alpha]);
   });
 
-  Future<ProviderContainer> pumpHome(WidgetTester tester, {Size size = const Size(1280, 800)}) => pumpRoutedApp(
+  Future<ProviderContainer> pumpRecommended(WidgetTester tester, {Size size = const Size(1280, 800)}) => pumpRoutedApp(
     tester,
-    location: Routes.home,
+    location: Routes.recommended,
     size: size,
     overrides: serviceOverrides(auth: MockAuthService(), files: files),
   );
 
   testWidgets('sorts the recent folders and files like a folder', (tester) async {
-    await pumpHome(tester);
+    await pumpRecommended(tester);
 
-    expect(find.text('Home'), findsWidgets);
+    expect(find.text('Recommended'), findsWidgets);
     expect(tester.getTopLeft(find.text('photos')).dy, lessThan(tester.getTopLeft(find.text('alpha.txt')).dy));
     expect(tester.getTopLeft(find.text('alpha.txt')).dy, lessThan(tester.getTopLeft(find.text('zeta.txt')).dy));
   });
 
   testWidgets('selects more than one item', (tester) async {
-    await pumpHome(tester);
+    await pumpRecommended(tester);
 
     await tester.tap(find.text('alpha.txt'));
     await tester.pumpAndSettle();
@@ -53,7 +53,7 @@ void main() {
   testWidgets('shows an empty state in portrait', (tester) async {
     when(files.recent).thenAnswer((_) async => []);
 
-    await pumpHome(tester, size: portrait);
+    await pumpRecommended(tester, size: portrait);
 
     expect(find.text('No recent items'), findsOneWidget);
     expect(find.text('Folders and files that you add or open appear here.'), findsOneWidget);

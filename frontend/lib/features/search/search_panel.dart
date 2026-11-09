@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 import '../../api/generated/models/item_entry.dart';
 import '../../app/theme/app_tokens.dart';
@@ -85,7 +85,7 @@ class _SearchResultTile extends StatelessWidget {
         l10n.fileSummary(formatDate(entry.modified, l10n.localeName), formatSize(entry.size, l10n.localeName)),
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: entry.permissions.canModify ? null : Icon(LucideIcons.users, semanticLabel: l10n.readOnly),
+      trailing: entry.permissions.canModify ? null : Icon(FluentIcons.people_24_regular, semanticLabel: l10n.readOnly),
       onTap: () => onOpen(entry),
     );
   }
