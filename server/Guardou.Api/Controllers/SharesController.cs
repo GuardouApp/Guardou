@@ -1,11 +1,13 @@
 using Guardou.Api.ActionResults;
 using Guardou.Api.Authentication;
+using Guardou.Api.RateLimiting;
 using Guardou.Application.Files;
 using Guardou.Application.Shares;
 using Guardou.Domain.Previews;
 using Guardou.Infrastructure.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Guardou.Api.Controllers;
 
@@ -49,9 +51,11 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared, Di
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(ShareRateLimits.Details)]
     [HttpGet("api/shares/{token}", Name = "GetSharedItem")]
     [ProducesResponseType<ItemEntry>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public Task<ItemEntry> GetSharedItem(string token, CancellationToken cancellationToken)
     {
         return shared.GetAsync(token, cancellationToken);
@@ -67,19 +71,23 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared, Di
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(ShareRateLimits.Details)]
     [HttpGet(SharedItemRoute, Name = "GetSharedItemDetails")]
     [ProducesResponseType<ItemDetails>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public Task<ItemDetails> GetSharedItemDetails(string token, string id, CancellationToken cancellationToken)
     {
         return shared.GetDetailsAsync(token, id, cancellationToken);
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(ShareRateLimits.Download)]
     [HttpGet(SharedItemRoute + "/download", Name = "DownloadSharedItem")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> DownloadSharedItem(string token, string id, CancellationToken cancellationToken)
     {
         FileDownload? file = await shared.TryOpenFileAsync(token, id, cancellationToken);
@@ -92,31 +100,37 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared, Di
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(ShareRateLimits.Content)]
     [HttpGet(SharedItemRoute + "/view", Name = "ViewSharedItem")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> ViewSharedItem(string token, string id, CancellationToken cancellationToken)
     {
         return this.View(await shared.OpenFileAsync(token, id, cancellationToken));
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(ShareRateLimits.Details)]
     [HttpGet(SharedItemRoute + "/creator/picture", Name = "GetSharedItemCreatorPicture")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> GetSharedItemCreatorPicture(string token, string id, CancellationToken cancellationToken)
     {
         return this.Picture(await shared.OpenCreatorPictureAsync(token, id, cancellationToken));
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(ShareRateLimits.Content)]
     [HttpGet(SharedItemRoute + "/preview", Name = "GetSharedItemPreview")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> GetSharedItemPreview(
         string token,
         string id,
