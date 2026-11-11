@@ -8,6 +8,7 @@ using Guardou.Api.Filters;
 using Guardou.Api.Hosting;
 using Guardou.Api.OpenApi;
 using Guardou.Api.Proxies;
+using Guardou.Api.RateLimiting;
 using Guardou.Application;
 using Guardou.Domain;
 using Guardou.Infrastructure;
@@ -60,6 +61,7 @@ public static class WebServer
             options.Cookie.Name = Product.CookieName("antiforgery");
         });
         services.AddProblemDetails();
+        ShareRateLimits.Add(services);
         services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
         services.AddOpenApi(options =>
         {
@@ -93,6 +95,7 @@ public static class WebServer
         app.UseStaticFiles(staticFiles);
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseRateLimiter();
 
         app.MapControllers();
         app.MapUploadContent();
