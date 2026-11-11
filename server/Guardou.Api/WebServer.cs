@@ -7,6 +7,7 @@ using Guardou.Api.Errors;
 using Guardou.Api.Filters;
 using Guardou.Api.Hosting;
 using Guardou.Api.OpenApi;
+using Guardou.Api.Proxies;
 using Guardou.Application;
 using Guardou.Domain;
 using Guardou.Infrastructure;
@@ -39,6 +40,7 @@ public static class WebServer
     private static void AddServices(IServiceCollection services)
     {
         services.AddHostedService<StartupInitializer>();
+        ForwardedHeadersSetup.Add(services);
         services.AddApplication();
         services.AddInfrastructure();
         services.AddWebInfrastructure();
@@ -83,6 +85,7 @@ public static class WebServer
 
     private static void UsePipeline(WebApplication app)
     {
+        app.UseForwardedHeaders();
         app.UseExceptionHandler();
         app.UseStatusCodePages();
         app.UseDefaultFiles();

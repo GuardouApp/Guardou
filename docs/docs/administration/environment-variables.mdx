@@ -14,6 +14,7 @@ Set the variables in the `.env` file next to `docker-compose.yaml`. Then run `do
 | `DATA_PATH` |         | Required. The host folder for files, database and thumbnails.     |
 | `PUID`      | `1000`  | The user ID that Guardou runs as. It must have write access to `DATA_PATH`. |
 | `PGID`      | `1000`  | The group ID that Guardou runs as.                                 |
+| `TRUSTED_PROXIES` |   | The IP addresses or CIDR networks of the reverse proxies, separated by spaces. See [Reverse Proxy](./reverse-proxy). |
 
 ## Settings
 

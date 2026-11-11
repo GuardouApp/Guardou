@@ -11,3 +11,14 @@ Guardou listens on HTTP port `2286`. Use a reverse proxy for HTTPS.
 
 - Set **External URL** under **Admin → Settings → Server**, or `EXTERNAL_URL`.
 - Permit request bodies at least as large as the upload chunk size (`UPLOAD_CHUNK_SIZE_MB`, default 64 MB).
+- Set `TRUSTED_PROXIES` to the addresses of the proxy. Then Guardou uses the `X-Forwarded-For` and `X-Forwarded-Proto` headers: the cookies get the `Secure` flag and the rate limits use the client address.
+
+## Trusted proxies
+
+`TRUSTED_PROXIES` is a list of IP addresses or CIDR networks, separated by spaces. Guardou ignores the forwarded headers from other addresses.
+
+```env
+TRUSTED_PROXIES=172.18.0.0/16
+```
+
+When the proxy runs in Docker on the same network, use the subnet of that network (`docker network inspect <network>`).

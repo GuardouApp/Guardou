@@ -1,3 +1,4 @@
+using Guardou.Api.Proxies;
 using Guardou.Application.Settings;
 
 namespace Guardou.Api.Configuration;
@@ -15,6 +16,7 @@ internal static class EnvironmentVariableMap
         [SettingsVariables.OidcClientSecret] = Override(nameof(SettingsOverrides.OidcClientSecret)),
         [SettingsVariables.OidcScopes] = Override(nameof(SettingsOverrides.OidcScopes)),
         [SettingsVariables.OidcUserClaim] = Override(nameof(SettingsOverrides.OidcUserClaim)),
+        [ProxyOptions.TrustedProxiesVariable] = $"{ProxyOptions.Section}:{nameof(ProxyOptions.TrustedProxies)}",
     };
 
     private static string Override(string property)
