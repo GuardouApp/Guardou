@@ -5,7 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Guardou.Infrastructure.Persistence;
 
-internal sealed class DatabaseMigrator(AppDbContext context, IndexDbContext index, ItemIndexWriter indexWriter, StoragePaths paths)
+internal sealed class DatabaseMigrator(
+    AppDbContext context,
+    IndexDbContext index,
+    ItemIndexWriter indexWriter,
+    EfSettingsStore settings,
+    StoragePaths paths)
     : IDatabaseMigrator
 {
     private const string WriteAheadLog = "PRAGMA journal_mode=WAL;";
@@ -16,6 +21,7 @@ internal sealed class DatabaseMigrator(AppDbContext context, IndexDbContext inde
         await MigrateAsync(context, cancellationToken);
         await MigrateAsync(index, cancellationToken);
         await indexWriter.RebuildIfEmptyAsync(cancellationToken);
+        await settings.ProtectStoredSecretsAsync(cancellationToken);
     }
 
     private static async Task MigrateAsync(DbContext database, CancellationToken cancellationToken)

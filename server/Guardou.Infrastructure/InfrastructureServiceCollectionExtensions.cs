@@ -79,7 +79,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUploadStore, EfUploadStore>();
         services.AddScoped<ITaskStore, EfTaskStore>();
         services.AddScoped<ITaskQueueSettingsStore, EfTaskQueueSettingsStore>();
-        services.AddScoped<ISettingsStore, EfSettingsStore>();
+        services.AddScoped<EfSettingsStore>();
+        services.AddScoped<ISettingsStore>(provider => provider.GetRequiredService<EfSettingsStore>());
+        services.AddSingleton<SettingsSecrets>();
+        services.AddDataProtection().SetApplicationName(Product.Name).PersistKeysToDbContext<AppDbContext>();
         services.AddScoped<IPreferencesStore, EfPreferencesStore>();
         services.AddOptions<SettingsOverrides>().BindConfiguration(SettingsOverrides.Section);
         services.AddSingleton<OidcSettingsSnapshot>();
@@ -109,8 +112,6 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<OidcSignOut>();
         services.ConfigureApplicationCookie(SessionCookie.Configure);
         services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
-
-        services.AddDataProtection().SetApplicationName(Product.Name).PersistKeysToDbContext<AppDbContext>();
 
         services.AddHealthChecks().AddDbContextCheck<AppDbContext>().AddDbContextCheck<IndexDbContext>();
         services.AddScoped<ISessionService, IdentitySessionService>();
