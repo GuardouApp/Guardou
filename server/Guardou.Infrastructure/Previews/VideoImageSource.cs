@@ -22,7 +22,7 @@ internal sealed class VideoImageSource : IImageSource
         return Extensions.Contains(extension) && _probe.IsAvailable && _decoder.IsAvailable;
     }
 
-    public async Task<SourceImage> ReadAsync(string path, CancellationToken cancellationToken)
+    public async Task<ISourceImage> ReadAsync(string path, CancellationToken cancellationToken)
     {
         double seek = SeekSeconds(await DurationAsync(path, cancellationToken));
         byte[] frame = await TryFrameAtAsync(path, seek, cancellationToken);
@@ -32,7 +32,7 @@ internal sealed class VideoImageSource : IImageSource
         }
 
         return frame.Length > 0
-            ? new SourceImage(frame, TiffOrientation.Normal)
+            ? new BufferSourceImage(frame, TiffOrientation.Normal)
             : throw new InvalidDataException("The video has no frame.");
     }
 

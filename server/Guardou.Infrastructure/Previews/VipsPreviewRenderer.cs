@@ -29,7 +29,7 @@ internal sealed class VipsPreviewRenderer(IEnumerable<IImageSource> sources, Loc
         CancellationToken cancellationToken)
     {
         IImageSource source = SourceFor(fileName) ?? throw new InvalidDataException($"The file '{fileName}' has no preview.");
-        SourceImage image = await source.ReadAsync(blobs.PathOf(storageKey), cancellationToken);
+        using ISourceImage image = await source.ReadAsync(blobs.PathOf(storageKey), cancellationToken);
         return PreviewSizes.All.ToDictionary(size => size, size => Encode(image, size));
     }
 
@@ -39,10 +39,10 @@ internal sealed class VipsPreviewRenderer(IEnumerable<IImageSource> sources, Loc
         return _sources.FirstOrDefault(source => source.Supports(extension));
     }
 
-    private static byte[] Encode(SourceImage image, PreviewSize size)
+    private static byte[] Encode(ISourceImage image, PreviewSize size)
     {
         int edge = PreviewSizes.MaximumEdge(size);
-        using Image thumbnail = Image.ThumbnailBuffer(image.Content, edge, height: edge, size: Enums.Size.Down);
+        using Image thumbnail = image.Thumbnail(edge);
         using Image oriented = Orient(thumbnail, image.Orientation);
         return oriented.WebpsaveBuffer(q: Quality, keep: Enums.ForeignKeep.None);
     }
