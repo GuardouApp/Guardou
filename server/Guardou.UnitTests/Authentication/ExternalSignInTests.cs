@@ -68,6 +68,20 @@ public sealed class ExternalSignInTests
     }
 
     [Fact]
+    public async Task DoesNotLinkByEmailWhenTheOptionIsDisabled()
+    {
+        await ConfigureAsync(Configured with { AutoCreateUsers = false, LinkByEmail = false });
+        await _store.CreateAsync(new UserProfile("alice", "Alice", "alice@example.com", IsAdmin: false), "password");
+        _sessions.ExternalLogin = LoginOf(("email", "alice@example.com"), ("email_verified", "true"));
+
+        ExternalSignInStatus status = await SignInAsync();
+
+        Assert.Equal(ExternalSignInStatus.NoAccount, status);
+        Assert.Empty(_store.ByUsername("alice").ExternalLogins);
+        Assert.Null(_sessions.SignedInUserId);
+    }
+
+    [Fact]
     public async Task LinksAnExistingUserWithAVerifiedEmail()
     {
         await ConfigureAsync(Configured with { AutoCreateUsers = false });

@@ -11,4 +11,5 @@ public static class SettingsVariables
     public const string OidcClientSecret = "OIDC_CLIENT_SECRET";
     public const string OidcScopes = "OIDC_SCOPES";
     public const string OidcUserClaim = "OIDC_USER_CLAIM";
+    public const string OidcLinkByEmail = "OIDC_LINK_BY_EMAIL";
 }

@@ -21,4 +21,6 @@ public sealed class SettingsOverrides
     public string? OidcScopes { get; set; }
 
     public string? OidcUserClaim { get; set; }
+
+    public bool? OidcLinkByEmail { get; set; }
 }

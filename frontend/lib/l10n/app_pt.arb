@@ -251,6 +251,7 @@
   "oidcSettingsDescription": "Entrar com um provedor OpenID Connect",
   "oidcClientRequired": "Defina a URL do emissor e o ID do cliente juntos.",
   "oidcAutoCreateUsers": "Criar usuários no primeiro login",
+  "oidcLinkByEmail": "Vincular usuários existentes com o mesmo e-mail verificado no primeiro login",
   "oidcPasswordLogin": "Permitir o login com senha",
   "settingsReset": "Resetar",
   "settingsRestoreDefaults": "Redefinir para a configuração padrão",

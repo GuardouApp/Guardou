@@ -345,26 +345,36 @@ class SettingsChoiceField<T> extends StatelessWidget {
 }
 
 class SettingsSwitch extends StatelessWidget {
-  const SettingsSwitch({super.key, required this.label, required this.value, required this.onChanged});
+  const SettingsSwitch({super.key, required this.label, required this.value, required this.onChanged, this.lockedBy});
 
   final String label;
   final bool value;
   final ValueChanged<bool>? onChanged;
+  final String? lockedBy;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final variable = lockedBy;
+    final reason = variable == null ? null : AppLocalizations.of(context).settingsLocked(variable);
 
     return Padding(
       padding: EdgeInsets.only(top: AppTokens.of(context).spacing * 1.25),
       child: MergeSemantics(
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(label, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(label, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+                ),
+                const SizedBox(width: 16),
+                Switch(value: value, onChanged: reason == null ? onChanged : null),
+              ],
             ),
-            const SizedBox(width: 16),
-            Switch(value: value, onChanged: onChanged),
+            if (reason != null)
+              Text(reason, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           ],
         ),
       ),

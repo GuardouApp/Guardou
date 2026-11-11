@@ -16,6 +16,7 @@ internal static class EnvironmentVariableMap
         [SettingsVariables.OidcClientSecret] = Override(nameof(SettingsOverrides.OidcClientSecret)),
         [SettingsVariables.OidcScopes] = Override(nameof(SettingsOverrides.OidcScopes)),
         [SettingsVariables.OidcUserClaim] = Override(nameof(SettingsOverrides.OidcUserClaim)),
+        [SettingsVariables.OidcLinkByEmail] = Override(nameof(SettingsOverrides.OidcLinkByEmail)),
         [ProxyOptions.TrustedProxiesVariable] = $"{ProxyOptions.Section}:{nameof(ProxyOptions.TrustedProxies)}",
     };
 

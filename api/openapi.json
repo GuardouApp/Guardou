@@ -5727,6 +5727,10 @@
           },
           "passwordLogin": {
             "type": "boolean"
+          },
+          "linkByEmail": {
+            "type": "boolean",
+            "default": true
           }
         }
       },
@@ -5739,6 +5743,7 @@
           "userClaim",
           "autoCreateUsers",
           "passwordLogin",
+          "linkByEmail",
           "redirectUri",
           "postLogoutRedirectUri",
           "locked"
@@ -5769,6 +5774,9 @@
             "type": "boolean"
           },
           "passwordLogin": {
+            "type": "boolean"
+          },
+          "linkByEmail": {
             "type": "boolean"
           },
           "redirectUri": {

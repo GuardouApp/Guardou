@@ -27,6 +27,7 @@ void main() {
     userClaim: 'preferred_username',
     autoCreateUsers: true,
     passwordLogin: true,
+    linkByEmail: true,
     redirectUri: 'http://localhost/api/auth/oidc/callback',
     postLogoutRedirectUri: 'http://localhost/login',
     locked: [],
@@ -308,6 +309,39 @@ void main() {
         ),
       ),
     ).called(1);
+  });
+
+  testWidgets('disables the account link by email', (tester) async {
+    when(() => settings.changeOidcSettings(any())).thenAnswer((_) async => oidc);
+    await pumpSettings(tester);
+    await expand(tester, 'Single sign-on (OIDC)');
+
+    await tapVisible(tester, toggle('Link existing users with the same verified email at the first sign-in'));
+    await tapVisible(tester, button('Save').hitTestable());
+
+    final change = verify(() => settings.changeOidcSettings(captureAny())).captured.single as OidcSettingsChange;
+    expect(change.linkByEmail, isFalse);
+  });
+
+  testWidgets('shows a locked switch as disabled with the reason', (tester) async {
+    when(settings.oidcSettings).thenAnswer(
+      (_) async => oidc.copyWith(
+        linkByEmail: false,
+        locked: const [LockedSetting(field: 'linkByEmail', variable: 'OIDC_LINK_BY_EMAIL')],
+      ),
+    );
+    await pumpSettings(tester);
+    await expand(tester, 'Single sign-on (OIDC)');
+
+    final linkByEmail = toggle('Link existing users with the same verified email at the first sign-in');
+    await reveal(tester, linkByEmail);
+    expect(tester.widget<Switch>(linkByEmail).onChanged, isNull);
+    expect(
+      find.text(
+        'Set by the environment variable OIDC_LINK_BY_EMAIL. To change it, change the variable and restart the server.',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('requires the client ID with the issuer', (tester) async {

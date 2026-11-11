@@ -9,7 +9,8 @@ public sealed record OidcSettings(
     IReadOnlyList<string> Scopes,
     string UserClaim,
     bool AutoCreateUsers,
-    bool PasswordLogin) : ISettings<OidcSettings>
+    bool PasswordLogin,
+    bool LinkByEmail = true) : ISettings<OidcSettings>
 {
     public const string Provider = "oidc";
     public const string OpenIdScope = "openid";
@@ -23,7 +24,8 @@ public sealed record OidcSettings(
         Scopes: [OpenIdScope, "profile", "email"],
         UserClaim: "preferred_username",
         AutoCreateUsers: true,
-        PasswordLogin: true);
+        PasswordLogin: true,
+        LinkByEmail: true);
 
     public bool IsConfigured => Issuer is not null && ClientId is not null;
 

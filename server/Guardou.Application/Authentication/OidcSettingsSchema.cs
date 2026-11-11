@@ -30,6 +30,10 @@ internal sealed class OidcSettingsSchema : ISettingsSchema<OidcSettings>
             new(SettingsVariables.OidcUserClaim, overrides => overrides.OidcUserClaim is not null, (target, source) => target with { UserClaim = source.UserClaim })),
         new(nameof(OidcSettings.AutoCreateUsers), settings => Text(settings.AutoCreateUsers)),
         new(nameof(OidcSettings.PasswordLogin), settings => Text(settings.PasswordLogin)),
+        new(
+            nameof(OidcSettings.LinkByEmail),
+            settings => Text(settings.LinkByEmail),
+            new(SettingsVariables.OidcLinkByEmail, overrides => overrides.OidcLinkByEmail is not null, (target, source) => target with { LinkByEmail = source.LinkByEmail })),
     ];
 
     public static string? Issuer(string? value)
@@ -56,6 +60,7 @@ internal sealed class OidcSettingsSchema : ISettingsSchema<OidcSettings>
             ClientSecret = SettingsText.Optional(overrides.OidcClientSecret),
             Scopes = overrides.OidcScopes is { } scopes ? Scopes([scopes]) : initial.Scopes,
             UserClaim = overrides.OidcUserClaim is { } claim ? SettingsText.Required(claim, "user claim") : initial.UserClaim,
+            LinkByEmail = overrides.OidcLinkByEmail ?? initial.LinkByEmail,
         };
     }
 

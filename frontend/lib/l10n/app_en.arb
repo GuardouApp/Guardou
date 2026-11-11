@@ -445,6 +445,7 @@
   "oidcSettingsDescription": "Sign in with an OpenID Connect provider",
   "oidcClientRequired": "Set the issuer URL and the client ID together.",
   "oidcAutoCreateUsers": "Create users at the first sign-in",
+  "oidcLinkByEmail": "Link existing users with the same verified email at the first sign-in",
   "oidcPasswordLogin": "Allow the password login",
   "externalUrl": "External URL",
   "oidcIssuer": "issuer_url",

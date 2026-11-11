@@ -26,7 +26,7 @@ public sealed class ExternalSignIn(
             return ExternalSignInStatus.Failed;
         }
 
-        UserAccount? account = await FindAsync(identity);
+        UserAccount? account = await FindAsync(identity, oidc.LinkByEmail);
         if (account is null && !oidc.AutoCreateUsers)
         {
             return ExternalSignInStatus.NoAccount;
@@ -42,14 +42,15 @@ public sealed class ExternalSignIn(
         return ExternalSignInStatus.SignedIn;
     }
 
-    private async Task<UserAccount?> FindAsync(ExternalIdentity identity)
+    private async Task<UserAccount?> FindAsync(ExternalIdentity identity, bool linkByEmail)
     {
         if (await store.FindByLoginAsync(OidcSettings.Provider, identity.Key) is { } linked)
         {
             return linked;
         }
 
-        if (!identity.EmailVerified
+        if (!linkByEmail
+            || !identity.EmailVerified
             || identity.Email is null
             || await store.FindByEmailAsync(identity.Email) is not { } account
             || account.ExternalLogins.Contains(OidcSettings.Provider))

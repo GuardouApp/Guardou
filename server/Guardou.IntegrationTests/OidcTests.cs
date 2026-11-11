@@ -2,9 +2,11 @@ using System.Net;
 using System.Net.Http.Json;
 using Guardou.Application.Authentication;
 using Guardou.Application.Configuration;
+using Guardou.Application.Settings;
 using Guardou.Application.Users;
 using Guardou.Domain.Authentication;
 using Guardou.Domain.Settings;
+using Guardou.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Guardou.IntegrationTests;
@@ -31,6 +33,19 @@ public sealed class OidcTests : SignedInTests
         Assert.DoesNotContain("secret", json, StringComparison.Ordinal);
         Assert.True(view?.ClientSecretSet);
         Assert.Equal("http://localhost/api/auth/oidc/callback", view?.RedirectUri);
+    }
+
+    [Fact]
+    public async Task KeepsTheLinkByEmailForStoredSettingsWithoutTheField()
+    {
+        await using AsyncServiceScope scope = Factory.Services.CreateAsyncScope();
+        AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Set<StoredSetting>().Add(new StoredSetting(OidcSettings.Key, """{"scopes":["openid"],"userClaim":"sub"}"""));
+        await context.SaveChangesAsync(CancellationToken);
+
+        OidcSettings? settings = await scope.ServiceProvider.GetRequiredService<ISettingsStore>().FindAsync<OidcSettings>(CancellationToken);
+
+        Assert.True(settings?.LinkByEmail);
     }
 
     [Fact]

@@ -66,6 +66,7 @@ Go to **Admin → Settings → Single sign-on (OIDC)**, fill in the fields and c
 | `user_claim`                      | `OIDC_USER_CLAIM`    | `preferred_username`                |
 | Create users at the first sign-in |                      | On                                  |
 | Allow the password login          |                      | On                                  |
+| Link existing users with the same verified email at the first sign-in | `OIDC_LINK_BY_EMAIL` | On (`true`) |
 
 :::tip
 
@@ -87,7 +88,7 @@ OIDC_CLIENT_SECRET=example-secret
 At each sign-in, Guardou finds the user in this order:
 
 1. A user that is already linked to the account.
-2. A user with the same email, if the provider sends `email_verified: true`. Guardou links the two.
+2. A user with the same email, if the provider sends `email_verified: true`. Guardou links the two. To disable this, turn off **Link existing users with the same verified email at the first sign-in**, or set `OIDC_LINK_BY_EMAIL=false`.
 3. A new user, if **Create users at the first sign-in** is on.
 
 To remove the link, go to **Admin → Users**, edit the user and click **Unlink**.

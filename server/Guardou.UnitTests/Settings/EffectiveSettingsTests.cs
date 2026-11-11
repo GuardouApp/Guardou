@@ -33,6 +33,17 @@ public sealed class EffectiveSettingsTests
     }
 
     [Fact]
+    public async Task TheEnvironmentDisablesTheLinkByEmail()
+    {
+        EffectiveSettings<OidcSettings> effective = TestSettings.Oidc(_store, new SettingsOverrides { OidcLinkByEmail = false });
+
+        OidcSettings settings = await effective.GetAsync(CancellationToken);
+
+        Assert.False(settings.LinkByEmail);
+        Assert.Equal([new LockedSetting("linkByEmail", SettingsVariables.OidcLinkByEmail)], effective.Locked);
+    }
+
+    [Fact]
     public void ListsTheLockedFields()
     {
         IReadOnlyList<LockedSetting> locked = TestSettings.Oidc(_store, Overrides).Locked;

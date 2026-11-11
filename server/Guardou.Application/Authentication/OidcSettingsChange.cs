@@ -9,4 +9,5 @@ public sealed record OidcSettingsChange(
     [Required] IReadOnlyList<string> Scopes,
     [Required] string UserClaim,
     bool AutoCreateUsers,
-    bool PasswordLogin);
+    bool PasswordLogin,
+    bool LinkByEmail = true);

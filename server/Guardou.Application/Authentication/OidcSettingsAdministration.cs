@@ -58,6 +58,7 @@ public sealed class OidcSettingsAdministration(
             effective.UserClaim,
             effective.AutoCreateUsers,
             effective.PasswordLogin,
+            effective.LinkByEmail,
             OidcEndpoints.Callback(origin),
             OidcEndpoints.SignedOut(origin),
             settings.Locked);
@@ -72,7 +73,8 @@ public sealed class OidcSettingsAdministration(
             OidcSettingsSchema.Scopes(change.Scopes),
             SettingsText.Required(change.UserClaim, "user claim"),
             change.AutoCreateUsers,
-            change.PasswordLogin);
+            change.PasswordLogin,
+            change.LinkByEmail);
     }
 
     private static OidcSettings Validate(OidcSettings effective)

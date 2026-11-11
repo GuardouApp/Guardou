@@ -10,6 +10,7 @@ public sealed record OidcSettingsView(
     string UserClaim,
     bool AutoCreateUsers,
     bool PasswordLogin,
+    bool LinkByEmail,
     string RedirectUri,
     string PostLogoutRedirectUri,
     IReadOnlyList<LockedSetting> Locked);

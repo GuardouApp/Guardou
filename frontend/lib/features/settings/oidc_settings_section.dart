@@ -46,6 +46,7 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
   final _userClaim = TextEditingController();
   var _autoCreateUsers = true;
   var _passwordLogin = true;
+  var _linkByEmail = true;
 
   bool get _configured => _issuer.text.trim().isNotEmpty && _clientId.text.trim().isNotEmpty;
 
@@ -67,6 +68,7 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
     _userClaim.text = value.userClaim;
     _autoCreateUsers = value.autoCreateUsers;
     _passwordLogin = value.passwordLogin;
+    _linkByEmail = value.linkByEmail;
   }
 
   @override
@@ -84,6 +86,7 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
           userClaim: _userClaim.text.trim(),
           autoCreateUsers: _autoCreateUsers,
           passwordLogin: _passwordLogin || !_configured,
+          linkByEmail: _linkByEmail,
         ),
       );
 
@@ -141,6 +144,12 @@ class _OidcSettingsFormState extends ConsumerState<_OidcSettingsForm>
             label: l10n.oidcAutoCreateUsers,
             value: _autoCreateUsers,
             onChanged: (value) => setState(() => _autoCreateUsers = value),
+          ),
+          SettingsSwitch(
+            label: l10n.oidcLinkByEmail,
+            value: _linkByEmail,
+            lockedBy: locked('linkByEmail'),
+            onChanged: (value) => setState(() => _linkByEmail = value),
           ),
           SettingsSwitch(
             label: l10n.oidcPasswordLogin,
