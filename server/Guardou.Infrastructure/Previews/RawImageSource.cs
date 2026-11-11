@@ -16,14 +16,14 @@ internal sealed class RawImageSource : IImageSource
         return Extensions.Contains(extension);
     }
 
-    public async Task<SourceImage> ReadAsync(string path, CancellationToken cancellationToken)
+    public async Task<ISourceImage> ReadAsync(string path, CancellationToken cancellationToken)
     {
         byte[] content = await SourceFile.ReadAsync(path, cancellationToken);
         ReadOnlyMemory<byte> jpeg = EmbeddedJpeg.FindLargest(content)
             ?? throw new InvalidDataException("The RAW file has no embedded JPEG preview.");
         byte[] preview = jpeg.ToArray();
         int orientation = HasOrientation(preview) ? TiffOrientation.Normal : TiffOrientation.Read(content);
-        return new SourceImage(preview, orientation);
+        return new BufferSourceImage(preview, orientation);
     }
 
     private static bool HasOrientation(byte[] jpeg)

@@ -16,12 +16,20 @@ internal sealed class PdfImageSource(StoragePaths paths) : IImageSource
         return extension.Equals(Extension, StringComparison.OrdinalIgnoreCase) && _renderer.IsAvailable;
     }
 
-    public async Task<SourceImage> ReadAsync(string path, CancellationToken cancellationToken)
+    public async Task<ISourceImage> ReadAsync(string path, CancellationToken cancellationToken)
     {
-        using ScratchDirectory scratch = new(paths.TemporaryDirectory);
-        string root = scratch.Combine(OutputRoot);
-        string edge = PreviewSizes.MaximumEdge(PreviewSize.Large).ToString(CultureInfo.InvariantCulture);
-        await _renderer.RunAsync(["-png", "-singlefile", "-f", "1", "-l", "1", "-scale-to", edge, path, root], cancellationToken);
-        return new SourceImage(await File.ReadAllBytesAsync(root + ".png", cancellationToken), TiffOrientation.Normal);
+        ScratchDirectory scratch = new(paths.TemporaryDirectory);
+        try
+        {
+            string root = scratch.Combine(OutputRoot);
+            string edge = PreviewSizes.MaximumEdge(PreviewSize.Large).ToString(CultureInfo.InvariantCulture);
+            await _renderer.RunAsync(["-png", "-singlefile", "-f", "1", "-l", "1", "-scale-to", edge, path, root], cancellationToken);
+            return new FileSourceImage(root + ".png", scratch);
+        }
+        catch
+        {
+            scratch.Dispose();
+            throw;
+        }
     }
 }
