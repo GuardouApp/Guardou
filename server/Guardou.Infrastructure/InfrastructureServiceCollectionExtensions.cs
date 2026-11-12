@@ -91,7 +91,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IImageSource, VideoImageSource>();
         services.AddSingleton<IPreviewRenderer, VipsPreviewRenderer>();
         services.AddSingleton<IPreviewCache, FilePreviewCache>();
-        services.AddHttpClient<ProfilePictureDownloader>(client => client.Timeout = ProfilePictureDownloader.Timeout);
+        services.AddHttpClient<ProfilePictureDownloader>(client => client.Timeout = ProfilePictureDownloader.Timeout)
+            .ConfigurePrimaryHttpMessageHandler(PublicAddressConnector.CreateHandler);
         services.AddSingleton<IProfilePictureStore, FileProfilePictureStore>();
         return services;
     }
