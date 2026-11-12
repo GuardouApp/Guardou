@@ -1,6 +1,7 @@
 using Guardou.Application.Files;
 using Guardou.Domain.Files;
 using Guardou.Infrastructure.Indexing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -8,6 +9,8 @@ namespace Guardou.Infrastructure.Persistence;
 
 internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, StorageUsageCounter usage) : IItemStore
 {
+    private const int UniqueConstraintFailed = 2067;
+
     private DbSet<Item> Items => context.Set<Item>();
 
     public Task<Item?> FindAsync(string ownerId, Guid id, CancellationToken cancellationToken)
@@ -132,6 +135,22 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, S
     }
 
     public async Task SaveAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ItemChangedException();
+        }
+        catch (DbUpdateException exception) when (exception.InnerException is SqliteException { SqliteExtendedErrorCode: UniqueConstraintFailed })
+        {
+            throw new ItemConflictException("An item with the same name already exists in the folder.");
+        }
+    }
+
+    private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         IReadOnlyDictionary<string, long> changes = usage.PendingChanges();
         if (changes.Count == 0)

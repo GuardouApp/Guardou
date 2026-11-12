@@ -61,6 +61,10 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.Property<long?>("Trashed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId")

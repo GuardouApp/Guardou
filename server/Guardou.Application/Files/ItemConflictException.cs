@@ -1,7 +1,9 @@
 namespace Guardou.Application.Files;
 
-public sealed class ItemConflictException(string name)
-    : Exception($"An item with the name '{name}' already exists in the destination.")
+public sealed class ItemConflictException(string message) : Exception(message)
 {
-    public string Name { get; } = name;
+    public static ItemConflictException ForName(string name)
+    {
+        return new ItemConflictException($"An item with the name '{name}' already exists in the destination.");
+    }
 }
