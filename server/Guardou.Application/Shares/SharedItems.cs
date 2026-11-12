@@ -17,6 +17,7 @@ public sealed class SharedItems
     private readonly ItemDownloads _downloads;
     private readonly ItemPreviews _previews;
     private readonly IProfilePictureStore _pictures;
+    private readonly TimeProvider _time;
 
     internal SharedItems(
         IShareStore shares,
@@ -26,7 +27,8 @@ public sealed class SharedItems
         ItemBrowser browser,
         ItemDownloads downloads,
         ItemPreviews previews,
-        IProfilePictureStore pictures)
+        IProfilePictureStore pictures,
+        TimeProvider time)
     {
         _shares = shares;
         _store = store;
@@ -36,6 +38,7 @@ public sealed class SharedItems
         _downloads = downloads;
         _previews = previews;
         _pictures = pictures;
+        _time = time;
     }
 
     public async Task<ItemEntry> GetAsync(string token, CancellationToken cancellationToken)
@@ -95,7 +98,12 @@ public sealed class SharedItems
 
     internal async Task<Item> FindRootAsync(string token, CancellationToken cancellationToken)
     {
-        Share share = (ShareToken.IsValid(token) ? await _shares.FindByTokenAsync(token, cancellationToken) : null) ?? throw NotFound();
+        Share? share = ShareToken.IsValid(token) ? await _shares.FindByTokenAsync(token, cancellationToken) : null;
+        if (share is null || !share.IsActive(_time.GetUtcNow()))
+        {
+            throw NotFound();
+        }
+
         Item item = await _store.FindAnyAsync(share.ItemId, cancellationToken) ?? throw NotFound();
         ItemPath? path = await _items.TryFindActiveAsync(item.OwnerId, item.Id, cancellationToken);
         return path?.Item ?? throw NotFound();

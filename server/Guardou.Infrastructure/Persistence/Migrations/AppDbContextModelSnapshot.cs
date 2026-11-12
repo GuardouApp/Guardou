@@ -174,6 +174,9 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                     b.Property<long>("Created")
                         .HasColumnType("INTEGER");
 
+                    b.Property<long?>("Expires")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("ItemId")
                         .HasColumnType("TEXT");
 
