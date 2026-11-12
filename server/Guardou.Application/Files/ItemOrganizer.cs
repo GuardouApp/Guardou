@@ -1,3 +1,4 @@
+using Guardou.Application.Persistence;
 using Guardou.Application.Previews;
 using Guardou.Application.Quotas;
 using Guardou.Domain.Files;
@@ -15,6 +16,7 @@ public sealed class ItemOrganizer
     private readonly ItemEntryFactory _entries;
     private readonly PreviewTasks _previews;
     private readonly StorageReservations _reservations;
+    private readonly IWriteTransactions _transactions;
     private readonly TimeProvider _time;
 
     internal ItemOrganizer(
@@ -26,6 +28,7 @@ public sealed class ItemOrganizer
         ItemEntryFactory entries,
         PreviewTasks previews,
         StorageReservations reservations,
+        IWriteTransactions transactions,
         TimeProvider time)
     {
         _store = store;
@@ -36,6 +39,7 @@ public sealed class ItemOrganizer
         _entries = entries;
         _previews = previews;
         _reservations = reservations;
+        _transactions = transactions;
         _time = time;
     }
 
@@ -71,6 +75,19 @@ public sealed class ItemOrganizer
         ConflictPolicy conflict,
         CancellationToken cancellationToken)
     {
+        Item? item = await _transactions.RunAsync(
+            () => PlaceMovedAsync(ownerId, id, destinationId, conflict, cancellationToken),
+            cancellationToken);
+        return item is null ? null : await _entries.CreateAsync(item, ownerId, cancellationToken);
+    }
+
+    private async Task<Item?> PlaceMovedAsync(
+        string ownerId,
+        string id,
+        string destinationId,
+        ConflictPolicy conflict,
+        CancellationToken cancellationToken)
+    {
         ItemPath source = await _items.FindModifiableAsync(ownerId, id, cancellationToken);
         ItemPath destination = await _items.FindActiveFolderAsync(ownerId, destinationId, cancellationToken);
         Item item = source.Item;
@@ -81,7 +98,7 @@ public sealed class ItemOrganizer
 
         if (item.ParentId == destination.Item.Id)
         {
-            return await _entries.CreateAsync(item, ownerId, cancellationToken);
+            return item;
         }
 
         string? name = await _placement.ResolveNameAsync(destination.Item, item.Name, conflict, source, cancellationToken);
@@ -92,7 +109,7 @@ public sealed class ItemOrganizer
 
         item.MoveTo(destination.Item, name);
         await _store.SaveAsync(cancellationToken);
-        return await _entries.CreateAsync(item, ownerId, cancellationToken);
+        return item;
     }
 
     public async Task<ItemEntry?> CopyAsync(

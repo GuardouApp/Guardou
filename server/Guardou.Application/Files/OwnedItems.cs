@@ -26,10 +26,11 @@ internal sealed class OwnedItems(IItemStore store)
     {
         Item? item = await store.FindAsync(ownerId, id, cancellationToken);
         List<Item> ancestors = [];
+        HashSet<Guid> visited = [id];
         Item? current = item;
         while (current is { Trashed: null, ParentId: { } parentId })
         {
-            current = await store.FindAsync(ownerId, parentId, cancellationToken);
+            current = visited.Add(parentId) ? await store.FindAsync(ownerId, parentId, cancellationToken) : null;
             if (current is not null)
             {
                 ancestors.Insert(0, current);
