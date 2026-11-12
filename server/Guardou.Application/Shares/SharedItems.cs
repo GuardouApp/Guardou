@@ -70,7 +70,7 @@ public sealed class SharedItems
     public async Task<Stream?> OpenPreviewAsync(string token, string id, PreviewSize size, CancellationToken cancellationToken)
     {
         ItemAccess shared = await FindAsync(token, id, cancellationToken);
-        return await _previews.OpenAsync(shared.Item.OwnerId, id, size, cancellationToken);
+        return await _previews.OpenAnonymousAsync(shared.Item.OwnerId, id, size, cancellationToken);
     }
 
     public async Task<ProfilePicture?> OpenCreatorPictureAsync(string token, string id, CancellationToken cancellationToken)
