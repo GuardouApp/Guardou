@@ -46,8 +46,9 @@ public sealed class ItemOrganizer
     public async Task<ItemEntry> CreateFolderAsync(string ownerId, string parentId, string name, CancellationToken cancellationToken)
     {
         ItemPath parent = await _items.FindActiveFolderAsync(ownerId, parentId, cancellationToken);
-        await _placement.ResolveNameAsync(parent.Item, ItemPlacement.ValidName(name), ConflictPolicy.Fail, null, cancellationToken);
-        Item folder = Item.CreateFolder(parent.Item, name, ownerId, _time.GetUtcNow());
+        string validName = ItemPlacement.ValidName(name);
+        await _placement.ResolveNameAsync(parent.Item, validName, ConflictPolicy.Fail, null, cancellationToken);
+        Item folder = Item.CreateFolder(parent.Item, validName, ownerId, _time.GetUtcNow());
         _store.Add(folder);
         await _store.SaveAsync(cancellationToken);
         return await _entries.CreateAsync(folder, ownerId, cancellationToken);
@@ -58,10 +59,11 @@ public sealed class ItemOrganizer
         ItemPath path = await _items.FindModifiableAsync(ownerId, id, cancellationToken);
         Item item = path.Item;
         Item parent = path.Ancestors[^1];
-        if (item.Name != ItemPlacement.ValidName(name))
+        string validName = ItemPlacement.ValidName(name);
+        if (item.Name != validName)
         {
-            await _placement.ResolveNameAsync(parent, name, ConflictPolicy.Fail, path, cancellationToken);
-            item.Rename(name, _time.GetUtcNow());
+            await _placement.ResolveNameAsync(parent, validName, ConflictPolicy.Fail, path, cancellationToken);
+            item.Rename(validName, _time.GetUtcNow());
             await _store.SaveAsync(cancellationToken);
         }
 

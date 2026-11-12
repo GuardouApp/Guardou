@@ -29,7 +29,9 @@ internal sealed class ItemPlacement(IItemStore store, ShareCleanup shares, TimeP
 
     public static string ValidName(string name)
     {
-        return ItemName.IsValid(name) ? name : throw new InvalidItemRequestException($"The name '{name}' is not valid.");
+        return ItemName.TryNormalize(name) is { } normalized && ItemName.IsValid(normalized)
+            ? normalized
+            : throw new InvalidItemRequestException($"The name '{name}' is not valid.");
     }
 
     private async Task<string> FreeNameAsync(Item folder, string name, CancellationToken cancellationToken)

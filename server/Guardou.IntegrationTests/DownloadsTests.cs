@@ -88,6 +88,21 @@ public sealed class DownloadsTests : SignedInTests
         Assert.Equal(HttpStatusCode.BadRequest, empty.StatusCode);
     }
 
+    [Fact]
+    public async Task NumbersZipNamesThatAreEqualWithoutCase()
+    {
+        ItemEntry docs = await Client.CreateFolderEntryAsync(ItemsApi.Root, "docs");
+        await Client.UploadEntryAsync(docs.Id, "Report.txt", "a");
+        await Client.UploadEntryAsync(docs.Id, "report.txt", "b");
+        ItemEntry folder = await Client.CreateFolderEntryAsync(ItemsApi.Root, "Docs");
+
+        HttpResponseMessage single = await Client.GetAsync($"/api/items/{docs.Id}/download", CancellationToken);
+        HttpResponseMessage selection = await Client.GetAsync($"/api/items/archive?ids={docs.Id}&ids={folder.Id}", CancellationToken);
+
+        Assert.Equal(["docs/", "docs/Report.txt", "docs/report (1).txt"], await EntriesAsync(single));
+        Assert.Equal(["Docs (1)/", "docs/", "docs/Report.txt", "docs/report (1).txt"], await EntriesAsync(selection));
+    }
+
     private static async Task<IReadOnlyList<string>> EntriesAsync(HttpResponseMessage response)
     {
         await using Stream content = await response.Content.ReadAsStreamAsync(CancellationToken);
