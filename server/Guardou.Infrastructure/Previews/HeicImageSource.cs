@@ -17,11 +17,19 @@ internal sealed class HeicImageSource(StoragePaths paths) : IImageSource
         return Extensions.Contains(extension) && _decoder.IsAvailable;
     }
 
-    public async Task<SourceImage> ReadAsync(string path, CancellationToken cancellationToken)
+    public async Task<ISourceImage> ReadAsync(string path, CancellationToken cancellationToken)
     {
-        using ScratchDirectory scratch = new(paths.TemporaryDirectory);
-        string output = scratch.Combine(OutputName);
-        await _decoder.RunAsync(["--quality", Quality, path, output], cancellationToken);
-        return new SourceImage(await File.ReadAllBytesAsync(output, cancellationToken), TiffOrientation.Normal);
+        ScratchDirectory scratch = new(paths.TemporaryDirectory);
+        try
+        {
+            string output = scratch.Combine(OutputName);
+            await _decoder.RunAsync(["--quality", Quality, path, output], cancellationToken);
+            return new FileSourceImage(output, scratch);
+        }
+        catch
+        {
+            scratch.Dispose();
+            throw;
+        }
     }
 }

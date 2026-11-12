@@ -4,5 +4,5 @@ internal interface IImageSource
 {
     bool Supports(string extension);
 
-    Task<SourceImage> ReadAsync(string path, CancellationToken cancellationToken);
+    Task<ISourceImage> ReadAsync(string path, CancellationToken cancellationToken);
 }

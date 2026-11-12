@@ -13,8 +13,8 @@ internal sealed class VipsImageSource : IImageSource
         return Extensions.Contains(extension);
     }
 
-    public async Task<SourceImage> ReadAsync(string path, CancellationToken cancellationToken)
+    public Task<ISourceImage> ReadAsync(string path, CancellationToken cancellationToken)
     {
-        return new SourceImage(await SourceFile.ReadAsync(path, cancellationToken), TiffOrientation.Normal);
+        return Task.FromResult<ISourceImage>(new FileSourceImage(path));
     }
 }
