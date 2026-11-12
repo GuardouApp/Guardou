@@ -163,18 +163,14 @@ internal sealed class ItemIndexWriter(AppDbContext app, IndexDbContext index, IM
 
     private async Task<List<IndexNode>> LoadSubtreeAsync(Item root, string rootPath, CancellationToken cancellationToken)
     {
-        List<IndexNode> nodes = [new IndexNode(root, rootPath)];
-        List<IndexNode> level = nodes;
-        while (level.Where(node => node.Item.IsFolder).ToDictionary(node => node.Item.Id, node => node.Path) is { Count: > 0 } folders)
+        List<Item> items = await ItemTreeQueries.Subtree(Items, root.Id, includeTrashed: false).AsNoTracking().ToListAsync(cancellationToken);
+        Dictionary<Guid, string> paths = [];
+        List<IndexNode> nodes = [];
+        foreach (Item item in ItemTreeQueries.BreadthFirst(root.Id, items))
         {
-            List<Guid?> parentIds = folders.Keys.Select(id => (Guid?)id).ToList();
-            List<Item> children = await Items.AsNoTracking()
-                .Where(item => parentIds.Contains(item.ParentId) && item.Trashed == null)
-                .ToListAsync(cancellationToken);
-            level = children
-                .Select(child => new IndexNode(child, IndexPath.Of(folders.GetValueOrDefault(child.ParentId ?? Guid.Empty), child.Id)))
-                .ToList();
-            nodes.AddRange(level);
+            string path = item.Id == root.Id || item.ParentId is not { } parentId ? rootPath : IndexPath.Of(paths[parentId], item.Id);
+            paths[item.Id] = path;
+            nodes.Add(new IndexNode(item, path));
         }
 
         return nodes;

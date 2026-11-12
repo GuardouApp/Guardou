@@ -162,22 +162,16 @@ public sealed class ItemOrganizer
         List<string> written = [];
         CopyContext context = new(createdBy, _time.GetUtcNow(), written);
         List<Item> copies = [];
+        Dictionary<Guid, Item> copiesBySource = [];
         try
         {
-            Item copy = await CopyItemAsync(source, destination, name, context, cancellationToken);
-            copies.Add(copy);
-            Queue<(Item Source, Item Copy)> folders = new([(source, copy)]);
-            while (folders.TryDequeue(out (Item Source, Item Copy) folder))
+            foreach (Item item in await _store.ActiveSubtreeAsync(source.Id, cancellationToken))
             {
-                foreach (Item child in await _store.ChildrenAsync(folder.Source.Id, cancellationToken))
-                {
-                    Item childCopy = await CopyItemAsync(child, folder.Copy, child.Name, context, cancellationToken);
-                    copies.Add(childCopy);
-                    if (child.IsFolder)
-                    {
-                        folders.Enqueue((child, childCopy));
-                    }
-                }
+                Item copy = item.Id == source.Id || item.ParentId is not { } parentId
+                    ? await CopyItemAsync(item, destination, name, context, cancellationToken)
+                    : await CopyItemAsync(item, copiesBySource[parentId], item.Name, context, cancellationToken);
+                copiesBySource[item.Id] = copy;
+                copies.Add(copy);
             }
 
             await _store.SaveAsync(cancellationToken);
