@@ -90,6 +90,7 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared, Di
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadSharedItem(string token, string id, CancellationToken cancellationToken)
     {
         FileDownload? file = await shared.TryOpenFileAsync(token, id, cancellationToken);
@@ -106,6 +107,7 @@ public sealed class SharesController(ItemSharing sharing, SharedItems shared, Di
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ViewSharedItem(string token, string id, CancellationToken cancellationToken)
     {
         return this.View(await shared.OpenFileAsync(token, id, cancellationToken));

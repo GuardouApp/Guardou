@@ -12,6 +12,7 @@ internal sealed class PreviewTaskHandler(IItemStore items, IPreviewRenderer rend
     public async Task ExecuteAsync(QueuedTask task, CancellationToken cancellationToken)
     {
         if (await items.FindAnyAsync(task.ItemId, cancellationToken) is not { StorageKey: { } key } item
+            || item.IsCopying
             || cache.Contains(item.OwnerId, item.Id))
         {
             return;

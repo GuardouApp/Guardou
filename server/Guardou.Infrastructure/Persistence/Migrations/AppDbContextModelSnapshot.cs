@@ -23,6 +23,9 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CopySourceKey")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("Created")
                         .HasColumnType("INTEGER");
 
@@ -66,6 +69,9 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CopySourceKey")
+                        .HasFilter("\"CopySourceKey\" IS NOT NULL");
 
                     b.HasIndex("OwnerId")
                         .IsUnique()

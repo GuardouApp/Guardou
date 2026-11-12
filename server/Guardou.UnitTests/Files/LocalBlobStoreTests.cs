@@ -50,6 +50,26 @@ public sealed class LocalBlobStoreTests : IDisposable
     }
 
     [Fact]
+    public async Task CopyReplacesAnIncompleteTarget()
+    {
+        await WriteAsync("owner/a.txt", "hello");
+        await WriteAsync("owner/b.txt", "partial");
+        await File.WriteAllTextAsync(_data.Combine("files", "owner", "b.txt.part"), "stale", CancellationToken);
+
+        await _store.CopyAsync("owner/a.txt", "owner/b.txt", CancellationToken);
+
+        Assert.Equal("hello", await File.ReadAllTextAsync(_data.Combine("files", "owner", "b.txt"), CancellationToken));
+        Assert.False(File.Exists(_data.Combine("files", "owner", "b.txt.part")));
+    }
+
+    [Fact]
+    public void ExistsAndDeleteAcceptMissingBlobs()
+    {
+        Assert.False(_store.Exists("owner/2030/01/01/missing.txt"));
+        _store.Delete("owner/2030/01/01/missing.txt");
+    }
+
+    [Fact]
     public async Task DoesNotOverwriteBlobs()
     {
         await WriteAsync("owner/a.txt", "hello");

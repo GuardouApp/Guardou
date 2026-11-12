@@ -35,6 +35,7 @@ class ItemIndicators extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (entry.processing) _Indicator(icon: FluentIcons.arrow_sync_24_filled, label: l10n.itemProcessing),
         if (entry.sharedByMe) _Indicator(icon: FluentIcons.people_24_filled, label: l10n.itemSharedByMe),
         if (entry.starred) _Indicator(icon: FluentIcons.star_24_filled, label: l10n.navigationStarred),
       ],

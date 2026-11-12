@@ -1,9 +1,11 @@
+using Guardou.Api.Hosting;
 using Guardou.Infrastructure.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Guardou.IntegrationTests;
 
@@ -27,6 +29,15 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
     internal Action<IServiceCollection> TestServices { get; init; } = _ => { };
 
     internal IReadOnlyDictionary<string, string> Settings { get; init; } = new Dictionary<string, string>();
+
+    internal static TestServerFactory WithoutTaskWorkers()
+    {
+        return new TestServerFactory
+        {
+            TestServices = services => services.Remove(services.Single(descriptor =>
+                descriptor.ServiceType == typeof(IHostedService) && descriptor.ImplementationType == typeof(TaskWorkerPool))),
+        };
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

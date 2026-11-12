@@ -53,6 +53,11 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             problem.Extensions[CodesExtension] = new[] { ItemChangedException.Code };
         }
 
+        if (exception is CopyPendingException)
+        {
+            problem.Extensions[CodesExtension] = new[] { CopyPendingException.Code };
+        }
+
         if (exception is QuotaExceededException)
         {
             problem.Extensions[CodesExtension] = new[] { QuotaExceededException.Code };
@@ -71,6 +76,7 @@ internal sealed partial class ProblemDetailsExceptionHandler(
             ItemNotFoundException => StatusCodes.Status404NotFound,
             ItemConflictException => StatusCodes.Status409Conflict,
             ItemChangedException => StatusCodes.Status409Conflict,
+            CopyPendingException => StatusCodes.Status409Conflict,
             ShareNotFoundException => StatusCodes.Status404NotFound,
             UserAccountRejectedException => StatusCodes.Status400BadRequest,
             UserNotFoundException => StatusCodes.Status404NotFound,

@@ -29,6 +29,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<StorageReservations>();
         services.AddScoped<ITaskHandler, PreviewTaskHandler>();
         services.AddScoped<ITaskHandler, IndexTaskHandler>();
+        services.AddScoped<ITaskHandler, CopyTaskHandler>();
         AddSettings(services, new ServerSettingsSchema());
         AddSettings(services, new OidcSettingsSchema());
         services.AddSingleton<IValidateOptions<SettingsOverrides>, SettingsOverridesValidation>();
@@ -68,6 +69,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<PreviewTasks>());
         AddScopedWithInternalConstructor<IndexTasks>(services);
         services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<IndexTasks>());
+        services.AddScoped<CopyTasks>();
+        services.AddScoped<ITaskProducer>(provider => provider.GetRequiredService<CopyTasks>());
         AddScopedWithInternalConstructor<ItemPreviews>(services);
         AddScopedWithInternalConstructor<ItemSharing>(services);
         AddScopedWithInternalConstructor<SharedItems>(services);

@@ -153,6 +153,7 @@ internal sealed class ItemEntryFactory(
             sharedByMe,
             _creators[item.CreatedBy],
             HasPreview(item),
+            item.IsCopying,
             new ItemPermissions(CanModify: !item.IsRoot, CanAddChildren: item.IsFolder));
     }
 

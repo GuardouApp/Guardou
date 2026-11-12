@@ -214,6 +214,7 @@ class FileActions {
 
   String _messageOf(DioException error) => switch (error) {
     DioException(error: ApiProblem(isQuotaExceeded: true)) => _l10n.quotaExceeded,
+    DioException(error: ApiProblem(isCopyPending: true)) => _l10n.copyPending,
     _ when ConflictSession.isConflict(error) => _l10n.nameTaken,
     _ => _l10n.genericError,
   };

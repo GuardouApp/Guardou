@@ -13,13 +13,14 @@ void main() {
   final both = testEntry('both.txt', sharedByMe: true, starred: true);
   final private = testEntry('private.txt');
   final sharedFolder = testEntry('shared folder', kind: ItemKind.folder, sharedByMe: true, starred: true);
+  final copying = testEntry('copying.txt', processing: true, sharedByMe: true);
 
   late MockFilesService files;
 
   setUp(() {
     files = stubFiles(
       folders: {
-        Routes.rootFolderId: testFolder(testRoot, [both, private, shared, sharedFolder]),
+        Routes.rootFolderId: testFolder(testRoot, [both, copying, private, shared, sharedFolder]),
       },
     );
   });
@@ -42,7 +43,21 @@ void main() {
     expect(tester.getCenter(star).dy, closeTo(tester.getCenter(find.text('both.txt')).dy, 1));
     expect(
       find.byWidgetPredicate((widget) => widget is Icon && widget.semanticLabel == 'Shared by you'),
-      findsNWidgets(3),
+      findsNWidgets(4),
+    );
+  });
+
+  testWidgets('shows the processing mark before the other marks', (tester) async {
+    await pumpFiles(tester);
+
+    final name = find.ancestor(of: find.text('copying.txt'), matching: find.byType(ItemName));
+    final processing = find.descendant(of: name, matching: find.byIcon(FluentIcons.arrow_sync_24_filled));
+    final shared = find.descendant(of: name, matching: find.byIcon(FluentIcons.people_24_filled));
+    expect(processing, findsOneWidget);
+    expect(tester.getTopRight(processing).dx, lessThanOrEqualTo(tester.getTopLeft(shared).dx));
+    expect(
+      find.byWidgetPredicate((widget) => widget is Icon && widget.semanticLabel == 'Copy in progress'),
+      findsOneWidget,
     );
   });
 
@@ -64,6 +79,6 @@ void main() {
       expect(tester.getTopRight(shared).dx, lessThanOrEqualTo(tester.getTopLeft(star).dx));
       expect(tester.getTopRight(star).dx, lessThanOrEqualTo(tester.getTopLeft(more).dx));
     }
-    expect(find.byType(ItemIndicators), findsNWidgets(4));
+    expect(find.byType(ItemIndicators), findsNWidgets(5));
   });
 }

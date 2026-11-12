@@ -30,6 +30,7 @@ public sealed class ItemDownloads
     public async Task<FileDownload?> TryOpenFileAsync(string userId, string id, CancellationToken cancellationToken)
     {
         Item item = (await _items.FindActiveAsync(userId, id, cancellationToken)).Item;
+        RequireContent(item);
         return item.StorageKey is { } key
             ? new FileDownload(item.Name, _mimeTypes.MimeTypeOf(item.Name), item.Modified, _blobs.OpenRead(key))
             : null;
@@ -53,6 +54,8 @@ public sealed class ItemDownloads
             nodes.AddRange(await _tree.ActiveSubtreeAsync(item, name, cancellationToken));
         }
 
+        nodes.ForEach(node => RequireContent(node.Item));
+
         return new ItemArchive(ArchiveName(roots), nodes);
     }
 
@@ -62,6 +65,14 @@ public sealed class ItemDownloads
         foreach (TreeNode node in archive.Nodes)
         {
             await WriteEntryAsync(zip, node, cancellationToken);
+        }
+    }
+
+    private static void RequireContent(Item item)
+    {
+        if (item.IsCopying)
+        {
+            throw new CopyPendingException();
         }
     }
 

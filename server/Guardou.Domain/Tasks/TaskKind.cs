@@ -4,4 +4,5 @@ public enum TaskKind
 {
     Preview,
     SearchIndex,
+    Copy,
 }

@@ -8,6 +8,8 @@ public interface IBlobStore
 
     Stream OpenRead(string key);
 
+    bool Exists(string key);
+
     void Delete(string key);
 
     long TotalBytes();

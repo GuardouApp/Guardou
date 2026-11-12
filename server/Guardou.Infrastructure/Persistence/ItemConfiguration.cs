@@ -10,6 +10,7 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
 {
     private const string ActiveFilter = "\"Trashed\" IS NULL";
     private const string RootFilter = "\"ParentId\" IS NULL";
+    private const string CopyingFilter = "\"CopySourceKey\" IS NOT NULL";
 
     public const string Version = "Version";
 
@@ -19,6 +20,7 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.HasKey(item => item.Id);
         builder.Ignore(item => item.IsRoot);
         builder.Ignore(item => item.IsFolder);
+        builder.Ignore(item => item.IsCopying);
         builder.Property(item => item.Name).HasMaxLength(ItemName.MaximumLength);
         builder.Property(item => item.Kind).HasConversion<string>();
         builder.Property(item => item.Created).HasConversion<DateTimeOffsetToBinaryConverter>();
@@ -37,5 +39,6 @@ internal sealed class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.HasIndex(item => item.OwnerId).IsUnique().HasFilter(RootFilter);
         builder.HasIndex(item => new { item.OwnerId, item.Trashed });
         builder.HasIndex(item => new { item.OwnerId, item.Starred });
+        builder.HasIndex(item => item.CopySourceKey).HasFilter(CopyingFilter);
     }
 }
