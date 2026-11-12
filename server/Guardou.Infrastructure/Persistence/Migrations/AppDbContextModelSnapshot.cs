@@ -63,11 +63,15 @@ namespace Guardou.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
-
                     b.HasIndex("OwnerId")
                         .IsUnique()
                         .HasFilter("\"ParentId\" IS NULL");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("Trashed");
+
+                    b.HasIndex("CreatedBy", "Kind");
 
                     b.HasIndex("OwnerId", "Starred");
 
