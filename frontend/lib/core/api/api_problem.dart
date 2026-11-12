@@ -20,10 +20,13 @@ class ApiProblem implements Exception {
   final List<String> codes;
 
   static const quotaExceededCode = 'quotaExceeded';
+  static const copyPendingCode = 'copyPending';
 
   bool get isUnauthorized => status == 401;
 
   bool get isQuotaExceeded => codes.contains(quotaExceededCode);
+
+  bool get isCopyPending => codes.contains(copyPendingCode);
 
   @override
   String toString() => 'ApiProblem($status, $title)';

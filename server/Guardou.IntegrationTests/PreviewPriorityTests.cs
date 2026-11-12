@@ -1,12 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
-using Guardou.Api.Hosting;
 using Guardou.Application.Files;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
 using Guardou.Domain.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Guardou.IntegrationTests;
 
@@ -55,14 +52,6 @@ public sealed class PreviewPriorityTests : SignedInTests
 
     private protected override TestServerFactory CreateFactory()
     {
-        return new TestServerFactory
-        {
-            TestServices = services =>
-            {
-                ServiceDescriptor workers = services.Single(descriptor =>
-                    descriptor.ServiceType == typeof(IHostedService) && descriptor.ImplementationType == typeof(TaskWorkerPool));
-                services.Remove(workers);
-            },
-        };
+        return TestServerFactory.WithoutTaskWorkers();
     }
 }

@@ -17,6 +17,7 @@ public sealed class DownloadsController(ItemDownloads downloads) : ControllerBas
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Download(string id, CancellationToken cancellationToken)
     {
         FileDownload? file = await downloads.TryOpenFileAsync(User.UserId(), id, cancellationToken);
@@ -34,6 +35,7 @@ public sealed class DownloadsController(ItemDownloads downloads) : ControllerBas
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> View(string id, CancellationToken cancellationToken)
     {
         return this.View(await downloads.OpenFileAsync(User.UserId(), id, cancellationToken));
@@ -44,6 +46,7 @@ public sealed class DownloadsController(ItemDownloads downloads) : ControllerBas
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public Task<IActionResult> Archive([FromQuery] IReadOnlyList<string> ids, CancellationToken cancellationToken)
     {
         return ArchiveAsync(ids, cancellationToken);

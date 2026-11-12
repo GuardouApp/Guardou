@@ -240,6 +240,7 @@ public sealed class ItemsTests : SignedInTests
         await Client.UploadEntryAsync(reports.Id, "a.txt", "a");
 
         ItemEntry copy = await ItemsApi.ReadEntryAsync(await Client.TransferAsync("copy", docs.Id, ItemsApi.Root, ConflictPolicy.Rename));
+        await Client.WaitForIdleQueuesAsync();
         ItemDetails copiedDocs = await Client.GetItemAsync(copy.Id);
         ItemDetails copiedReports = await Client.GetItemAsync(Assert.Single(copiedDocs.Items ?? []).Id);
         ItemEntry copiedFile = Assert.Single(copiedReports.Items ?? []);

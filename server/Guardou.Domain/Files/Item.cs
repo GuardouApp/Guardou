@@ -52,6 +52,10 @@ public sealed class Item
 
     public bool Starred { get; private set; }
 
+    public string? CopySourceKey { get; private set; }
+
+    public bool IsCopying => CopySourceKey is not null;
+
     public bool IsRoot => ParentId is null;
 
     public bool IsFolder => Kind == ItemKind.Folder;
@@ -80,6 +84,13 @@ public sealed class Item
             now,
             file.Modified,
             null);
+    }
+
+    public static Item CreateCopy(Item parent, StoredFile file, string sourceKey, string createdBy, DateTimeOffset now)
+    {
+        Item copy = CreateFile(parent, file, createdBy, now);
+        copy.CopySourceKey = sourceKey;
+        return copy;
     }
 
     public void Rename(string name, DateTimeOffset now)

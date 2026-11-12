@@ -46,6 +46,11 @@ public sealed class ItemPreviews
             return content;
         }
 
+        if (item.IsCopying)
+        {
+            return null;
+        }
+
         if (await _tasks.FindStateAsync(TaskKind.Preview, item.Id, cancellationToken) == TaskState.Failed)
         {
             throw new ItemNotFoundException($"The preview of the item '{id}' failed.");

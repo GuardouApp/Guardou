@@ -72,7 +72,7 @@ public sealed class ItemBrowser
 
     private async Task<string?> ReadTextAsync(Item item, CancellationToken cancellationToken)
     {
-        if (item.Size > TextContentReader.SizeLimit || item.StorageKey is not { } key)
+        if (item.Size > TextContentReader.SizeLimit || item.IsCopying || item.StorageKey is not { } key)
         {
             return null;
         }

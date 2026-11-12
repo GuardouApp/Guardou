@@ -18,18 +18,21 @@ String taskStateLabel(TaskState state, AppLocalizations l10n) => switch (state) 
 String queueTitle(TaskKind kind, AppLocalizations l10n) => switch (kind) {
   TaskKind.preview => l10n.queuePreviewTitle,
   TaskKind.searchIndex => l10n.queueIndexTitle,
+  TaskKind.copy => l10n.queueCopyTitle,
   TaskKind.$unknown => l10n.valueMissing,
 };
 
 String queueDescription(TaskKind kind, AppLocalizations l10n) => switch (kind) {
   TaskKind.preview => l10n.queuePreviewDescription,
   TaskKind.searchIndex => l10n.queueIndexDescription,
+  TaskKind.copy => l10n.queueCopyDescription,
   TaskKind.$unknown => '',
 };
 
 IconData queueIcon(TaskKind kind) => switch (kind) {
   TaskKind.preview => FluentIcons.image_multiple_24_regular,
   TaskKind.searchIndex => FluentIcons.document_search_24_regular,
+  TaskKind.copy => FluentIcons.copy_24_regular,
   TaskKind.$unknown => FluentIcons.task_list_ltr_24_regular,
 };
 

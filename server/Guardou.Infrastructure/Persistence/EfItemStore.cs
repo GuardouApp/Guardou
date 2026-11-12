@@ -118,6 +118,19 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, S
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Guid>> CopyingFileIdsAsync(CancellationToken cancellationToken)
+    {
+        return await Items.Where(item => item.CopySourceKey != null).Select(item => item.Id).ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> CompleteCopyAsync(Guid id, CancellationToken cancellationToken)
+    {
+        int updated = await Items
+            .Where(item => item.Id == id && item.CopySourceKey != null)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.CopySourceKey, (string?)null), cancellationToken);
+        return updated > 0;
+    }
+
     public async Task<IReadOnlyList<string>> StorageKeysAsync(string ownerId, CancellationToken cancellationToken)
     {
         List<string?> keys = await Items.Where(item => item.OwnerId == ownerId).Select(item => item.StorageKey).ToListAsync(cancellationToken);

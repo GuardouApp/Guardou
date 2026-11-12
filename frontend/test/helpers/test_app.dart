@@ -132,6 +132,7 @@ ItemEntry testEntry(
   bool sharedByMe = false,
   bool canModify = true,
   bool hasPreview = false,
+  bool processing = false,
   String mimeType = 'text/plain',
 }) {
   final date = modified ?? DateTime.utc(2026, 1, 1);
@@ -150,6 +151,7 @@ ItemEntry testEntry(
     sharedByMe: sharedByMe,
     creator: ItemCreator(id: testUser.id, displayName: testUser.displayName, hasPicture: testUser.hasPicture),
     hasPreview: hasPreview,
+    processing: processing,
     permissions: ItemPermissions(canModify: canModify, canAddChildren: kind == ItemKind.folder),
   );
 }

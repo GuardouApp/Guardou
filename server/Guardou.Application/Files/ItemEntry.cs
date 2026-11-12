@@ -17,4 +17,5 @@ public sealed record ItemEntry(
     bool SharedByMe,
     ItemCreator Creator,
     bool HasPreview,
+    bool Processing,
     ItemPermissions Permissions);

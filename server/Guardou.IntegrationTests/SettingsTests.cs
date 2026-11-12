@@ -11,6 +11,7 @@ public sealed class SettingsTests : SignedInTests
     [
         new(TaskKind.Preview, TaskQueueSettings.DefaultConcurrency),
         new(TaskKind.SearchIndex, TaskQueueSettings.DefaultConcurrency),
+        new(TaskKind.Copy, TaskQueueSettings.DefaultConcurrency),
     ];
 
     [Fact]
@@ -27,7 +28,7 @@ public sealed class SettingsTests : SignedInTests
         HttpResponseMessage response = await PutTaskSettingsAsync([new TaskConcurrency(TaskKind.Preview, 5)]);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5), Defaults[1]], await GetTaskSettingsAsync(Client));
+        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5), Defaults[1], Defaults[2]], await GetTaskSettingsAsync(Client));
     }
 
     [Fact]
@@ -41,7 +42,7 @@ public sealed class SettingsTests : SignedInTests
             CancellationToken);
 
         Assert.Equal(Defaults, defaults);
-        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5), Defaults[1]], await GetTaskSettingsAsync(Client));
+        Assert.Equal([new TaskConcurrency(TaskKind.Preview, 5), Defaults[1], Defaults[2]], await GetTaskSettingsAsync(Client));
     }
 
     [Theory]

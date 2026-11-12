@@ -1,43 +1,38 @@
 using Guardou.Application.Persistence;
-using Guardou.Application.Previews;
 using Guardou.Application.Quotas;
 using Guardou.Domain.Files;
-using Guardou.Domain.Tasks;
 
 namespace Guardou.Application.Files;
 
 public sealed class ItemOrganizer
 {
     private readonly IItemStore _store;
-    private readonly IBlobStore _blobs;
     private readonly OwnedItems _items;
     private readonly ItemPlacement _placement;
     private readonly ItemTree _tree;
     private readonly ItemEntryFactory _entries;
-    private readonly PreviewTasks _previews;
+    private readonly CopyTasks _copies;
     private readonly StorageReservations _reservations;
     private readonly IWriteTransactions _transactions;
     private readonly TimeProvider _time;
 
     internal ItemOrganizer(
         IItemStore store,
-        IBlobStore blobs,
         OwnedItems items,
         ItemPlacement placement,
         ItemTree tree,
         ItemEntryFactory entries,
-        PreviewTasks previews,
+        CopyTasks copies,
         StorageReservations reservations,
         IWriteTransactions transactions,
         TimeProvider time)
     {
         _store = store;
-        _blobs = blobs;
         _items = items;
         _placement = placement;
         _tree = tree;
         _entries = entries;
-        _previews = previews;
+        _copies = copies;
         _reservations = reservations;
         _transactions = transactions;
         _time = time;
@@ -129,12 +124,18 @@ public sealed class ItemOrganizer
         }
 
         long size = await ActiveSizeAsync(source.Item, cancellationToken);
-        Item? copy = await _reservations.ReserveAsync(
+        IReadOnlyList<Item>? copies = await _reservations.ReserveAsync(
             ownerId,
             size,
             () => PlaceCopyAsync(source, destination.Item, conflict, ownerId, cancellationToken),
             cancellationToken);
-        return copy is null ? null : await _entries.CreateAsync(copy, ownerId, cancellationToken);
+        if (copies is null)
+        {
+            return null;
+        }
+
+        await _copies.EnqueueAsync(copies, cancellationToken);
+        return await _entries.CreateAsync(copies[0], ownerId, cancellationToken);
     }
 
     private async Task<long> ActiveSizeAsync(Item item, CancellationToken cancellationToken)
@@ -143,7 +144,7 @@ public sealed class ItemOrganizer
         return nodes.Sum(node => node.Item.Size);
     }
 
-    private async Task<Item?> PlaceCopyAsync(
+    private async Task<IReadOnlyList<Item>?> PlaceCopyAsync(
         ItemPath source,
         Item destination,
         ConflictPolicy conflict,
@@ -154,67 +155,43 @@ public sealed class ItemOrganizer
         return name is null ? null : await CopyTreeAsync(source.Item, destination, name, createdBy, cancellationToken);
     }
 
-    private async Task<Item> CopyTreeAsync(
+    private async Task<IReadOnlyList<Item>> CopyTreeAsync(
         Item source,
         Item destination,
         string name,
         string createdBy,
         CancellationToken cancellationToken)
     {
-        List<string> written = [];
-        CopyContext context = new(createdBy, _time.GetUtcNow(), written);
+        CopyContext context = new(createdBy, _time.GetUtcNow());
         List<Item> copies = [];
         Dictionary<Guid, Item> copiesBySource = [];
-        try
+        foreach (Item item in await _store.ActiveSubtreeAsync(source.Id, cancellationToken))
         {
-            foreach (Item item in await _store.ActiveSubtreeAsync(source.Id, cancellationToken))
-            {
-                Item copy = item.Id == source.Id || item.ParentId is not { } parentId
-                    ? await CopyItemAsync(item, destination, name, context, cancellationToken)
-                    : await CopyItemAsync(item, copiesBySource[parentId], item.Name, context, cancellationToken);
-                copiesBySource[item.Id] = copy;
-                copies.Add(copy);
-            }
-
-            await _store.SaveAsync(cancellationToken);
-        }
-        catch
-        {
-            written.ForEach(_blobs.Delete);
-            throw;
+            Item copy = item.Id == source.Id || item.ParentId is not { } parentId
+                ? CopyItem(item, destination, name, context)
+                : CopyItem(item, copiesBySource[parentId], item.Name, context);
+            copiesBySource[item.Id] = copy;
+            copies.Add(copy);
         }
 
-        await _previews.EnqueueAsync(copies, TaskPriority.Normal, cancellationToken);
-        return copies[0];
+        await _store.SaveAsync(cancellationToken);
+        return copies;
     }
 
-    private async Task<Item> CopyItemAsync(
-        Item source,
-        Item parent,
-        string name,
-        CopyContext context,
-        CancellationToken cancellationToken)
+    private Item CopyItem(Item source, Item parent, string name, CopyContext context)
     {
-        Item copy = source.StorageKey is { } sourceKey
-            ? Item.CreateFile(parent, await CopyBlobAsync(source, sourceKey, name, context.Written, cancellationToken), context.CreatedBy, context.Now)
+        Item copy = source.StorageKey is { } storageKey
+            ? Item.CreateCopy(parent, NewFile(source, name), source.CopySourceKey ?? storageKey, context.CreatedBy, context.Now)
             : Item.CreateFolder(parent, name, context.CreatedBy, context.Now);
         _store.Add(copy);
         return copy;
     }
 
-    private async Task<StoredFile> CopyBlobAsync(
-        Item source,
-        string sourceKey,
-        string name,
-        List<string> written,
-        CancellationToken cancellationToken)
+    private static StoredFile NewFile(Item source, string name)
     {
         Guid id = Guid.CreateVersion7();
-        string key = StorageKey.For(source.OwnerId, id, name, source.Modified);
-        await _blobs.CopyAsync(sourceKey, key, cancellationToken);
-        written.Add(key);
-        return new StoredFile(id, name, source.Size, key, source.Modified);
+        return new StoredFile(id, name, source.Size, StorageKey.For(source.OwnerId, id, name, source.Modified), source.Modified);
     }
 
-    private sealed record CopyContext(string CreatedBy, DateTimeOffset Now, List<string> Written);
+    private sealed record CopyContext(string CreatedBy, DateTimeOffset Now);
 }

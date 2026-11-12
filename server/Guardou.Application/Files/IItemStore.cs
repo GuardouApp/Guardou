@@ -32,6 +32,10 @@ public interface IItemStore
 
     Task<IReadOnlyList<Item>> RecentAsync(string userId, ItemKind kind, int skip, int take, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<Guid>> CopyingFileIdsAsync(CancellationToken cancellationToken);
+
+    Task<bool> CompleteCopyAsync(Guid id, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<string>> StorageKeysAsync(string ownerId, CancellationToken cancellationToken);
 
     void Add(Item item);
