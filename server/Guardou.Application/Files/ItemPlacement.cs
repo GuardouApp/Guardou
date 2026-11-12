@@ -23,7 +23,7 @@ internal sealed class ItemPlacement(IItemStore store, ShareCleanup shares, TimeP
             ConflictPolicy.Skip => null,
             ConflictPolicy.Rename => await FreeNameAsync(folder, name, cancellationToken),
             ConflictPolicy.Replace when source is null || !source.Contains(existing.Id) => await ReplaceAsync(existing, cancellationToken),
-            _ => throw new ItemConflictException(name),
+            _ => throw ItemConflictException.ForName(name),
         };
     }
 
