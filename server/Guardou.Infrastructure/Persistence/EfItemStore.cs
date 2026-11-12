@@ -42,9 +42,25 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, S
         return await Items.Where(item => item.ParentId == parentId && item.Trashed == null).ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Item>> ChildrenWithTrashAsync(Guid parentId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Item>> AncestryAsync(string ownerId, Guid id, CancellationToken cancellationToken)
     {
-        return await Items.Where(item => item.ParentId == parentId).ToListAsync(cancellationToken);
+        return await ItemTreeQueries.Ancestry(Items, ownerId, id).ToListAsync(cancellationToken);
+    }
+
+    public Task<IReadOnlyList<Item>> SubtreeAsync(Guid rootId, CancellationToken cancellationToken)
+    {
+        return LoadSubtreeAsync(rootId, includeTrashed: true, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<Item>> ActiveSubtreeAsync(Guid rootId, CancellationToken cancellationToken)
+    {
+        return LoadSubtreeAsync(rootId, includeTrashed: false, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<Item>> LoadSubtreeAsync(Guid rootId, bool includeTrashed, CancellationToken cancellationToken)
+    {
+        List<Item> items = await ItemTreeQueries.Subtree(Items, rootId, includeTrashed).ToListAsync(cancellationToken);
+        return ItemTreeQueries.BreadthFirst(rootId, items);
     }
 
     public async Task<IReadOnlyList<Item>> StarredAsync(string ownerId, CancellationToken cancellationToken)
