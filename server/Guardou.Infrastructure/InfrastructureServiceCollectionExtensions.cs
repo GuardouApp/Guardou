@@ -57,6 +57,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
+        services.AddScoped<ItemNameNormalizer>();
         services.AddScoped<IItemStore, EfItemStore>();
         services.AddScoped<IWriteTransactions, EfWriteTransactions>();
         services.AddScoped<StorageUsageCounter>();

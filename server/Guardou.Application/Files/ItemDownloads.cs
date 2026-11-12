@@ -44,10 +44,11 @@ public sealed class ItemDownloads
 
         List<Item> roots = [];
         List<TreeNode> nodes = [];
+        CaseInsensitiveNames rootNames = new();
         foreach (string id in ids)
         {
             Item item = (await _items.FindActiveAsync(userId, id, cancellationToken)).Item;
-            string name = item.IsRoot ? DefaultArchiveName : item.Name;
+            string name = rootNames.Claim(item.IsRoot ? DefaultArchiveName : item.Name);
             roots.Add(item);
             nodes.AddRange(await _tree.ActiveSubtreeAsync(item, name, cancellationToken));
         }
