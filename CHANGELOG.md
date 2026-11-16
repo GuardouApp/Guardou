@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.0](https://github.com/GuardouApp/Guardou/compare/v0.12.0...v0.13.0) (2026-11-16)
+
+
+### Features
+
+* copy files as a background task ([#73](https://github.com/GuardouApp/Guardou/issues/73)) ([90d97b9](https://github.com/GuardouApp/Guardou/commit/90d97b9d1b54291053b77139fabaf1360b1942b3))
+
+
+### Bug Fixes
+
+* upload queue order ([47fba30](https://github.com/GuardouApp/Guardou/commit/47fba3050d35b1120b46ebe365ab522945112cf3))
+
 ## [0.12.0](https://github.com/GuardouApp/Guardou/compare/v0.11.0...v0.12.0) (2026-11-12)
 
 
