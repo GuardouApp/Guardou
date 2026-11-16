@@ -15,7 +15,15 @@ enum UploadStatus {
   failed;
 
   bool get isPending => this == queued || this == uploading || this == paused;
+
+  UploadGroup get group => switch (this) {
+    uploading => UploadGroup.uploading,
+    queued || paused => UploadGroup.waiting,
+    completed || skipped || cancelled || failed => UploadGroup.finished,
+  };
 }
+
+enum UploadGroup { uploading, waiting, finished }
 
 enum UploadFailure { uploadInProgress, quotaExceeded, other }
 
@@ -96,6 +104,10 @@ class UploadQueueState {
 
   final List<UploadItem> items;
   final UploadConflictRequest? conflict;
+
+  List<UploadItem> get displayOrder => [
+    for (final group in UploadGroup.values) ...items.where((item) => item.status.group == group),
+  ];
 
   bool get isActive => items.any((item) => item.status.isPending);
 

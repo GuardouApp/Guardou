@@ -73,6 +73,7 @@ class _UploadPanelState extends ConsumerState<UploadPanel> {
     if (state.items.isEmpty) {
       return const SizedBox.shrink();
     }
+    final items = state.displayOrder;
     final tokens = AppTokens.of(context);
     final colors = Theme.of(context).colorScheme;
     final radius = Radius.circular(tokens.panelRadius);
@@ -101,9 +102,8 @@ class _UploadPanelState extends ConsumerState<UploadPanel> {
               child: ListView.builder(
                 shrinkWrap: true,
                 padding: EdgeInsets.only(bottom: tokens.spacing / 2),
-                itemCount: state.items.length,
-                itemBuilder: (context, index) =>
-                    _UploadRow(item: state.items[index], alwaysShowActions: widget.compact),
+                itemCount: items.length,
+                itemBuilder: (context, index) => _UploadRow(item: items[index], alwaysShowActions: widget.compact),
               ),
             ),
           ],

@@ -67,6 +67,25 @@ void main() {
     expect(find.text('1 KB of 2 KB'), findsOneWidget);
   });
 
+  testWidgets('shows the uploading, then the waiting, then the finished uploads', (tester) async {
+    await pumpPanel(
+      tester,
+      UploadQueueState(
+        items: [
+          const UploadItem(id: 0, name: 'done.bin', size: 10).completed(testEntry('done.bin')),
+          const UploadItem(id: 1, name: 'queued.bin', size: 10),
+          const UploadItem(id: 2, name: 'failed.bin', size: 10).failed(UploadFailure.other),
+          const UploadItem(id: 3, name: 'uploading.bin', size: 10, status: UploadStatus.uploading),
+          const UploadItem(id: 4, name: 'paused.bin', size: 10, status: UploadStatus.paused),
+        ],
+      ),
+    );
+
+    final names = ['uploading.bin', 'queued.bin', 'paused.bin', 'done.bin', 'failed.bin'];
+    final tops = [for (final name in names) tester.getTopLeft(find.text(name)).dy];
+    expect(tops, orderedEquals([...tops]..sort()));
+  });
+
   testWidgets('shows nothing when the queue is empty', (tester) async {
     await pumpPanel(tester, const UploadQueueState());
 
