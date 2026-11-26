@@ -9,4 +9,6 @@ internal sealed class ApplicationUser : IdentityUser
     public long? QuotaBytes { get; set; }
 
     public long UsedBytes { get; set; }
+
+    public bool PasswordChangeRequired { get; set; }
 }

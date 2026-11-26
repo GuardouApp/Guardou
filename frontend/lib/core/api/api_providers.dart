@@ -18,7 +18,10 @@ final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(baseUrl: ref.watch(apiBaseUrlProvider)));
   dio.interceptors.addAll([
     ref.watch(antiforgeryInterceptorProvider),
-    AuthenticationInterceptor(() => ref.read(sessionControllerProvider.notifier).expire()),
+    AuthenticationInterceptor(
+      onUnauthorized: () => ref.read(sessionControllerProvider.notifier).expire(),
+      onPasswordChangeRequired: () => ref.read(sessionControllerProvider.notifier).requirePasswordChange(),
+    ),
     ProblemDetailsInterceptor(),
   ]);
   ref.onDispose(dio.close);

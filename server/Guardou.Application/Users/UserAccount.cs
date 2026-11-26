@@ -8,7 +8,10 @@ public sealed record UserAccount(
     bool IsAdmin,
     bool HasPicture,
     IReadOnlyList<string> ExternalLogins,
-    long? QuotaBytes)
+    long? QuotaBytes,
+    bool HasPassword,
+    bool PasswordChangeRequired,
+    bool LockedOut)
 {
     internal UserProfile Profile => new(Username, DisplayName, Email, IsAdmin);
 }

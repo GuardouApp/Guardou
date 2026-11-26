@@ -98,6 +98,30 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
         return Task.CompletedTask;
     }
 
+    public Task SetPasswordChangeRequiredAsync(string id, bool required)
+    {
+        Accounts[id] = Accounts[id] with { PasswordChangeRequired = required };
+        return Task.CompletedTask;
+    }
+
+    public Task<UserAccountResult> ChangePasswordAsync(string id, string currentPassword, string newPassword)
+    {
+        if (!Passwords.TryGetValue(id, out string? password) || password != currentPassword)
+        {
+            return Task.FromResult(UserAccountResult.Failure("PasswordMismatch", "Incorrect password."));
+        }
+
+        Passwords[id] = newPassword;
+        Accounts[id] = Accounts[id] with { PasswordChangeRequired = false };
+        return Task.FromResult(UserAccountResult.Success);
+    }
+
+    public Task UnlockAsync(string id)
+    {
+        Accounts[id] = Accounts[id] with { LockedOut = false };
+        return Task.CompletedTask;
+    }
+
     public Task DeleteAsync(string id)
     {
         Accounts.Remove(id);
@@ -116,7 +140,7 @@ internal sealed class FakeUserAccountStore : IUserAccountStore
 
     private static UserAccount AccountOf(string id, UserProfile profile)
     {
-        return new UserAccount(id, profile.Username, profile.DisplayName, profile.Email, profile.IsAdmin, HasPicture: false, [], QuotaBytes: null);
+        return new UserAccount(id, profile.Username, profile.DisplayName, profile.Email, profile.IsAdmin, HasPicture: false, [], QuotaBytes: null, HasPassword: false, PasswordChangeRequired: false, LockedOut: false);
     }
 
     private UserAccountResult Add(UserProfile profile)

@@ -22,6 +22,8 @@ class UserEditorController extends Notifier<AsyncValue<void>> {
 
   Future<UserAccount?> removeOidcLogin(String id) => _run(() => _users.removeOidcLogin(id));
 
+  Future<UserAccount?> unlock(String id) => _run(() => _users.unlock(id));
+
   Future<UserAccount?> _run(Future<UserAccount> Function() action) async {
     state = const AsyncLoading();
     try {

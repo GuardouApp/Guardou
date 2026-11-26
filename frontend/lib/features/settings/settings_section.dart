@@ -237,6 +237,9 @@ class SettingsTextField extends StatelessWidget {
     this.obscureText = false,
     this.inputFormatters,
     this.lockedBy,
+    this.autofillHints,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   final String label;
@@ -249,6 +252,9 @@ class SettingsTextField extends StatelessWidget {
   final bool obscureText;
   final List<TextInputFormatter>? inputFormatters;
   final String? lockedBy;
+  final Iterable<String>? autofillHints;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +271,9 @@ class SettingsTextField extends StatelessWidget {
         keyboardType: keyboardType,
         obscureText: obscureText,
         inputFormatters: inputFormatters,
-        autofillHints: obscureText ? const [] : null,
+        autofillHints: autofillHints ?? (obscureText ? const [] : null),
+        textInputAction: textInputAction,
+        onFieldSubmitted: onFieldSubmitted,
         decoration: settingsInputDecoration(context).copyWith(
           helperText: reason,
           helperMaxLines: 3,

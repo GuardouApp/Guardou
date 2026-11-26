@@ -6,6 +6,7 @@ public sealed record RuntimeConfiguration(
     string ApplicationName,
     IReadOnlyList<AuthenticationMethod> AuthenticationMethods,
     bool RegistrationOpen,
+    bool SignupOpen,
     PasswordPolicy PasswordPolicy,
     int TrashRetentionDays,
     int UploadConcurrency,

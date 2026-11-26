@@ -20,26 +20,27 @@ void main() {
     MockBrowserLocation? location,
     String? redirect,
     String? oidcError,
+    bool signupOpen = false,
   }) => pumpTestApp(
     tester,
     size: size,
     overrides: serviceOverrides(
       auth: auth,
       user: null,
-      configuration: testConfiguration.copyWith(authenticationMethods: methods),
+      configuration: testConfiguration.copyWith(authenticationMethods: methods, signupOpen: signupOpen),
       location: location,
     ),
     child: LoginPage(redirect: redirect, oidcError: oidcError),
   );
 
   Future<void> submit(WidgetTester tester) async {
-    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), 'admin');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'secret-password');
+    await tester.enterText(settingsField('Username'), 'admin');
+    await tester.enterText(settingsField('Password'), 'secret-password');
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
   }
 
-  void loginFailsWith(int status) {
+  void loginFailsWith(int status, {List<String> codes = const []}) {
     final options = RequestOptions(path: '/api/auth/login');
     when(
       () => auth.login(
@@ -51,7 +52,7 @@ void main() {
       DioException(
         requestOptions: options,
         response: Response<Object?>(requestOptions: options, statusCode: status),
-        error: ApiProblem(status: status),
+        error: ApiProblem(status: status, codes: codes),
       ),
     );
   }
@@ -130,7 +131,7 @@ void main() {
     await pumpLogin(tester, size: const Size(390, 844), methods: const [AuthenticationMethod.oidc]);
 
     expect(find.widgetWithText(FilledButton, 'Sign in with single sign-on'), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'Username'), findsNothing);
+    expect(settingsField('Username'), findsNothing);
     expect(find.text('or'), findsNothing);
   });
 
@@ -147,5 +148,38 @@ void main() {
     await submit(tester);
 
     expect(find.text('The password login is disabled. Use single sign-on.'), findsOneWidget);
+  });
+
+  testWidgets('shows a message when the account is locked', (tester) async {
+    loginFailsWith(403, codes: const ['lockedOut']);
+    await pumpLogin(tester);
+
+    await submit(tester);
+
+    expect(
+      find.text('Too many failed sign-ins. The account is locked for some minutes. Try again later.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows a message when the login is rate limited', (tester) async {
+    loginFailsWith(429);
+    await pumpLogin(tester);
+
+    await submit(tester);
+
+    expect(find.text('Too many attempts. Wait one minute, then try again.'), findsOneWidget);
+  });
+
+  testWidgets('hides the sign-up link while the sign-up is closed', (tester) async {
+    await pumpLogin(tester);
+
+    expect(find.text('Create an account'), findsNothing);
+  });
+
+  testWidgets('shows the sign-up link while the sign-up is open in portrait', (tester) async {
+    await pumpLogin(tester, size: const Size(390, 844), signupOpen: true);
+
+    expect(find.text('Create an account'), findsOneWidget);
   });
 }

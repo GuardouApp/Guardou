@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/admin/admin_shell.dart';
 import '../../features/auth/login_page.dart';
+import '../../features/auth/password_change_page.dart';
 import '../../features/auth/register_page.dart';
 import '../../features/auth/session_controller.dart';
 import '../../features/configuration/configuration_controller.dart';
@@ -46,6 +47,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       configuration: ref.read(configurationControllerProvider),
       session: ref.read(sessionControllerProvider),
       registrationOpen: ref.read(configurationControllerProvider).value?.registrationOpen ?? false,
+      signUpOpen: ref.read(configurationControllerProvider).value?.signupOpen ?? false,
+      passwordChangeRequired: ref.read(sessionControllerProvider).value?.passwordChangeRequired ?? false,
       location: state.uri,
     ),
     errorBuilder: (context, state) => const ErrorPage(kind: ErrorKind.notFound),
@@ -59,7 +62,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           oidcError: state.uri.queryParameters[Routes.oidcErrorParameter],
         ),
       ),
-      GoRoute(path: Routes.register, builder: (_, _) => const RegisterPage()),
+      GoRoute(
+        path: Routes.register,
+        builder: (_, _) => const RegisterPage(kind: RegistrationKind.firstAdministrator),
+      ),
+      GoRoute(
+        path: Routes.signUp,
+        builder: (_, _) => const RegisterPage(kind: RegistrationKind.signUp),
+      ),
+      GoRoute(path: Routes.passwordChange, builder: (_, _) => const PasswordChangePage()),
       GoRoute(
         path: Routes.forbidden,
         builder: (_, _) => const ErrorPage(kind: ErrorKind.forbidden),

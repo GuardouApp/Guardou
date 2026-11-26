@@ -30,14 +30,15 @@ String? validatePassword(AppLocalizations l10n, PasswordPolicy? policy, String? 
     return null;
   }
   final messages = [
-    for (final rule in brokenPasswordRules(policy, value ?? ''))
-      switch (rule) {
-        PasswordRule.minimumLength => l10n.registerPasswordMinimumLength(policy.minimumLength),
-        PasswordRule.digit => l10n.registerPasswordDigit,
-        PasswordRule.lowercase => l10n.registerPasswordLowercase,
-        PasswordRule.uppercase => l10n.registerPasswordUppercase,
-        PasswordRule.nonAlphanumeric => l10n.registerPasswordNonAlphanumeric,
-      },
+    for (final rule in brokenPasswordRules(policy, value ?? '')) passwordRuleMessage(l10n, policy, rule),
   ];
   return messages.isEmpty ? null : messages.join('\n');
 }
+
+String passwordRuleMessage(AppLocalizations l10n, PasswordPolicy policy, PasswordRule rule) => switch (rule) {
+  PasswordRule.minimumLength => l10n.registerPasswordMinimumLength(policy.minimumLength),
+  PasswordRule.digit => l10n.registerPasswordDigit,
+  PasswordRule.lowercase => l10n.registerPasswordLowercase,
+  PasswordRule.uppercase => l10n.registerPasswordUppercase,
+  PasswordRule.nonAlphanumeric => l10n.registerPasswordNonAlphanumeric,
+};

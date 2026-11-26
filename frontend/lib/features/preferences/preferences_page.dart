@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../auth/session_controller.dart';
 import '../settings/settings_layout.dart';
 import 'general_section.dart';
+import 'password_section.dart';
 import 'upload_section.dart';
 
-class PreferencesPage extends StatelessWidget {
+class PreferencesPage extends ConsumerWidget {
   const PreferencesPage({super.key});
 
   @override
-  Widget build(BuildContext context) => SettingsLayout(
-    title: AppLocalizations.of(context).accountSettings,
-    sections: const [GeneralSection(), UploadSection()],
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasPassword = ref.watch(sessionControllerProvider).value?.hasPassword ?? false;
+    return SettingsLayout(
+      title: AppLocalizations.of(context).accountSettings,
+      sections: [const GeneralSection(), const UploadSection(), if (hasPassword) const PasswordSection()],
+    );
+  }
 }

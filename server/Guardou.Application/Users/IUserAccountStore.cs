@@ -26,5 +26,11 @@ public interface IUserAccountStore
 
     Task SetQuotaAsync(string id, long? quotaBytes);
 
+    Task SetPasswordChangeRequiredAsync(string id, bool required);
+
+    Task<UserAccountResult> ChangePasswordAsync(string id, string currentPassword, string newPassword);
+
+    Task UnlockAsync(string id);
+
     Task DeleteAsync(string id);
 }

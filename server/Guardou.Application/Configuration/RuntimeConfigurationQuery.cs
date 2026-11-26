@@ -9,6 +9,7 @@ namespace Guardou.Application.Configuration;
 
 public sealed class RuntimeConfigurationQuery(
     Registration registration,
+    SignUp signUp,
     EffectiveSettings<OidcSettings> oidcSettings,
     EffectiveSettings<ServerSettings> server)
 {
@@ -20,6 +21,7 @@ public sealed class RuntimeConfigurationQuery(
             Product.Name,
             MethodsOf(oidc),
             await registration.IsOpenAsync(),
+            await signUp.IsOpenAsync(cancellationToken),
             PasswordPolicy.Default,
             settings.TrashRetentionDays,
             settings.UploadConcurrency,

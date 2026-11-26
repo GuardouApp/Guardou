@@ -15,10 +15,23 @@ bool isValidUsername(String username) => _username.hasMatch(username);
 
 bool isValidEmail(String email) => _email.hasMatch(email);
 
+List<PasswordRule> passwordRules(PasswordPolicy policy) => [
+  PasswordRule.minimumLength,
+  if (policy.requireDigit) PasswordRule.digit,
+  if (policy.requireLowercase) PasswordRule.lowercase,
+  if (policy.requireUppercase) PasswordRule.uppercase,
+  if (policy.requireNonAlphanumeric) PasswordRule.nonAlphanumeric,
+];
+
+bool isPasswordRuleMet(PasswordPolicy policy, PasswordRule rule, String password) => switch (rule) {
+  PasswordRule.minimumLength => password.length >= policy.minimumLength,
+  PasswordRule.digit => _digit.hasMatch(password),
+  PasswordRule.lowercase => _lowercase.hasMatch(password),
+  PasswordRule.uppercase => _uppercase.hasMatch(password),
+  PasswordRule.nonAlphanumeric => _nonAlphanumeric.hasMatch(password),
+};
+
 List<PasswordRule> brokenPasswordRules(PasswordPolicy policy, String password) => [
-  if (password.length < policy.minimumLength) PasswordRule.minimumLength,
-  if (policy.requireDigit && !_digit.hasMatch(password)) PasswordRule.digit,
-  if (policy.requireLowercase && !_lowercase.hasMatch(password)) PasswordRule.lowercase,
-  if (policy.requireUppercase && !_uppercase.hasMatch(password)) PasswordRule.uppercase,
-  if (policy.requireNonAlphanumeric && !_nonAlphanumeric.hasMatch(password)) PasswordRule.nonAlphanumeric,
+  for (final rule in passwordRules(policy))
+    if (!isPasswordRuleMet(policy, rule, password)) rule,
 ];

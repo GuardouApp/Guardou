@@ -72,7 +72,7 @@ public sealed class OidcFlowTests : IAsyncLifetime
         HttpResponseMessage picture = await client.GetAsync($"/api/users/{me?.Id}/picture", CancellationToken);
 
         Assert.Equal("/files", completed.Headers.Location?.OriginalString);
-        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, "caroldoe", "Carol Doe", "carol@example.com", IsAdmin: false, HasPicture: true), me);
+        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, "caroldoe", "Carol Doe", "carol@example.com", IsAdmin: false, HasPicture: true, HasPassword: false, PasswordChangeRequired: false), me);
         Assert.Equal("image/webp", picture.Content.Headers.ContentType?.MediaType);
 
         await client.RefreshAntiforgeryTokenAsync();

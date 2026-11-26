@@ -5,4 +5,5 @@ public sealed record ServerSettingsView(
     int TrashRetentionDays,
     int UploadConcurrency,
     int UploadChunkSizeMb,
+    bool Signup,
     IReadOnlyList<LockedSetting> Locked);

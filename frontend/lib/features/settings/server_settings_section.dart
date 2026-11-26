@@ -48,6 +48,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
   final _trashRetention = TextEditingController();
   final _uploadConcurrency = TextEditingController();
   final _uploadChunkSize = TextEditingController();
+  late bool _signup;
 
   @override
   ServerSettingsView get saved => widget.settings;
@@ -64,6 +65,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
     _trashRetention.text = '${value.trashRetentionDays}';
     _uploadConcurrency.text = '${value.uploadConcurrency}';
     _uploadChunkSize.text = '${value.uploadChunkSizeMb}';
+    _signup = value.signup;
   }
 
   @override
@@ -78,6 +80,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
           trashRetentionDays: int.parse(_trashRetention.text),
           uploadConcurrency: int.parse(_uploadConcurrency.text),
           uploadChunkSizeMb: int.parse(_uploadChunkSize.text),
+          signup: _signup,
         ),
       );
 
@@ -113,6 +116,21 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
     lockedBy: lockedVariable(widget.settings.locked, field),
     validator: (value) => _validateRange(AppLocalizations.of(context), value, minimum, maximum),
   );
+
+  Widget _signupSwitch(AppLocalizations l10n) {
+    final variable = lockedVariable(widget.settings.locked, 'signup');
+    return SettingsField(
+      label: l10n.signUpSetting,
+      description: variable == null ? l10n.signUpSettingDescription : l10n.settingsLocked(variable),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Switch(
+          value: _signup,
+          onChanged: variable == null ? (value) => setState(() => _signup = value) : null,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +173,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
             minimum: _minimumChunkSize,
             maximum: _maximumChunkSize,
           ),
+          _signupSwitch(l10n),
           settingsActions(),
         ],
       ),

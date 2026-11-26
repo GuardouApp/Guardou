@@ -19,7 +19,7 @@ public sealed class RegistrationTests
         CurrentUser? me = await client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, "alice", "Alice", "alice@example.com", IsAdmin: true, HasPicture: false), me);
+        Assert.Equal(new CurrentUser(me?.Id ?? string.Empty, "alice", "Alice", "alice@example.com", IsAdmin: true, HasPicture: false, HasPassword: true, PasswordChangeRequired: false), me);
         Assert.NotEmpty(me?.Id ?? string.Empty);
     }
 

@@ -1,3 +1,4 @@
+using Guardou.Infrastructure.Identity;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,7 +11,7 @@ internal sealed class AntiforgeryValidationFilter(IAntiforgery antiforgery, Prob
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        if (await antiforgery.IsRequestValidAsync(context.HttpContext))
+        if (!RequiresValidation(context.HttpContext) || await antiforgery.IsRequestValidAsync(context.HttpContext))
         {
             return;
         }
@@ -20,5 +21,11 @@ internal sealed class AntiforgeryValidationFilter(IAntiforgery antiforgery, Prob
             StatusCodes.Status400BadRequest,
             title: "The antiforgery token is missing or invalid.");
         context.Result = new ObjectResult(problem) { StatusCode = problem.Status };
+    }
+
+    public static bool RequiresValidation(HttpContext context)
+    {
+        return !SessionSchemes.UsesBearer(context.Request)
+            && context.GetEndpoint()?.Metadata.GetMetadata<IAntiforgeryMetadata>() is not { RequiresValidation: false };
     }
 }

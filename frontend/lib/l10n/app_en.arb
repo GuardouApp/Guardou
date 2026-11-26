@@ -681,5 +681,34 @@
   "copyPending": "The copy is not complete. Try again later.",
   "uploadQuotaExceeded": "Not enough space.",
   "userQuotaColumn": "Quota",
-  "userQuotaNoLimit": "No limit"
+  "userQuotaNoLimit": "No limit",
+  "loginLockedOut": "Too many failed sign-ins. The account is locked for some minutes. Try again later.",
+  "rateLimited": "Too many attempts. Wait one minute, then try again.",
+  "signUpTitle": "Create an account for {applicationName}",
+  "@signUpTitle": {
+    "placeholders": {
+      "applicationName": {
+        "type": "String"
+      }
+    }
+  },
+  "signUpLink": "Create an account",
+  "signUpSignInInstead": "Sign in instead",
+  "signUpClosed": "The sign-up is closed.",
+  "signUpSetting": "Sign-up",
+  "signUpSettingDescription": "Let visitors create user accounts. This works only when the password login is enabled.",
+  "passwordRuleMet": "Done",
+  "passwordCurrent": "Current password",
+  "passwordNew": "New password",
+  "passwordCurrentWrong": "The current password is wrong.",
+  "passwordChangeTitle": "Change your password",
+  "passwordChangeRequired": "An administrator requires a new password before you continue.",
+  "passwordChangeSubmit": "Change password",
+  "passwordChanged": "The password is changed.",
+  "passwordSettings": "Password",
+  "passwordSettingsDescription": "Change the password of your account",
+  "userPasswordChangeRequired": "Require a password change at the next sign-in",
+  "userPasswordChangeWithoutPassword": "This user has no password. Set a password to require a change.",
+  "userLockedOut": "Locked after too many failed sign-ins",
+  "userUnlock": "Unlock"
 }

@@ -48,11 +48,17 @@ public static class InfrastructureServiceCollectionExtensions
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddUserValidator<UsernameValidator>()
-            .AddUserValidator<DisplayNameValidator>();
-        services.Configure<IdentityOptions>(identity =>
+            .AddUserValidator<DisplayNameValidator>()
+            .AddClaimsPrincipalFactory<SessionClaimsFactory>();
+        services.AddOptions<AuthenticationLimits>()
+            .BindConfiguration(AuthenticationLimits.Section)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddOptions<IdentityOptions>().Configure<IOptions<AuthenticationLimits>>((identity, limits) =>
         {
             identity.User.RequireUniqueEmail = true;
             ApplyPasswordPolicy(identity.Password, PasswordPolicy.Default);
+            ApplyLockout(identity.Lockout, limits.Value);
         });
 
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
@@ -101,8 +107,7 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddWebInfrastructure(this IServiceCollection services)
     {
         new IdentityBuilder(typeof(ApplicationUser), typeof(IdentityRole), services).AddSignInManager();
-        AuthenticationBuilder authentication = services.AddAuthentication(IdentityConstants.ApplicationScheme);
-        authentication.AddIdentityCookies();
+        AuthenticationBuilder authentication = services.AddAuthentication(SessionSchemes.SelectDefault).AddSessions();
         authentication.AddOpenIdConnect(OidcSettings.Provider, _ => { });
         services.AddSingleton<IConfigureOptions<OpenIdConnectOptions>, OidcOptionsSetup>();
         services.AddSingleton<IOptionsChangeTokenSource<OpenIdConnectOptions>>(provider => provider.GetRequiredService<OidcSettingsSnapshot>());
@@ -121,6 +126,13 @@ public static class InfrastructureServiceCollectionExtensions
     private static string ConnectionString(string databaseFile)
     {
         return new SqliteConnectionStringBuilder { DataSource = databaseFile }.ToString();
+    }
+
+    private static void ApplyLockout(LockoutOptions lockout, AuthenticationLimits limits)
+    {
+        lockout.AllowedForNewUsers = true;
+        lockout.MaxFailedAccessAttempts = limits.LockoutMaxAttempts;
+        lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(limits.LockoutMinutes);
     }
 
     private static void ApplyPasswordPolicy(PasswordOptions password, PasswordPolicy policy)

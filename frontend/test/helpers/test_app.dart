@@ -28,6 +28,7 @@ import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/core/browser/browser_embeds.dart';
 import 'package:guardou/core/browser/browser_files.dart';
 import 'package:guardou/core/browser/browser_location.dart';
+import 'package:guardou/features/settings/settings_section.dart';
 import 'package:guardou/features/auth/auth_service.dart';
 import 'package:guardou/features/configuration/configuration_service.dart';
 import 'package:guardou/features/files/files_service.dart';
@@ -80,6 +81,7 @@ const testConfiguration = RuntimeConfiguration(
   applicationName: 'Guardou',
   authenticationMethods: [AuthenticationMethod.password],
   registrationOpen: false,
+  signupOpen: false,
   passwordPolicy: PasswordPolicy(
     minimumLength: 12,
     requireDigit: false,
@@ -99,6 +101,8 @@ const testUser = CurrentUser(
   email: 'admin@example.com',
   isAdmin: true,
   hasPicture: false,
+  hasPassword: true,
+  passwordChangeRequired: false,
 );
 
 const testPreferences = UserPreferences(
@@ -114,6 +118,11 @@ MockPreferencesService stubPreferences({UserPreferences preferences = testPrefer
   when(service.defaults).thenAnswer((_) async => testPreferences);
   return service;
 }
+
+Finder settingsField(String label) => find.descendant(
+  of: find.byWidgetPredicate((widget) => widget is SettingsTextField && widget.label == label),
+  matching: find.byType(TextFormField),
+);
 
 const testUsage = StorageUsage(usedBytes: 1024 * 1024, totalBytes: 4 * 1024 * 1024, quotaBytes: null);
 

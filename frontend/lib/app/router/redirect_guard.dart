@@ -17,6 +17,8 @@ String? resolveRedirect({
   required AsyncValue<Object?> configuration,
   required AsyncValue<Object?> session,
   required bool registrationOpen,
+  required bool signUpOpen,
+  required bool passwordChangeRequired,
   required Uri location,
 }) {
   final path = location.path;
@@ -33,10 +35,13 @@ String? resolveRedirect({
   }
   if (session.value == null) {
     final signInPage = registrationOpen ? Routes.register : Routes.login;
-    if (path == signInPage || Routes.errorPages.contains(path)) {
+    if (path == signInPage || Routes.errorPages.contains(path) || (signUpOpen && path == Routes.signUp)) {
       return null;
     }
     return _withRedirect(signInPage, target);
+  }
+  if (passwordChangeRequired) {
+    return path == Routes.passwordChange ? null : _withRedirect(Routes.passwordChange, target);
   }
   if (Routes.entryPages.contains(path)) {
     return target ?? Routes.root;

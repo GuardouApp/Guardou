@@ -4,5 +4,6 @@ public enum PasswordLoginStatus
 {
     SignedIn,
     InvalidCredentials,
+    LockedOut,
     Disabled,
 }

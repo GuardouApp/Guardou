@@ -12,16 +12,38 @@ void main() {
 
   setUp(() => auth = MockAuthService());
 
-  Future<void> pumpRegister(WidgetTester tester, {Size size = const Size(1280, 800)}) => pumpTestApp(
+  Future<void> pumpRegister(
+    WidgetTester tester, {
+    Size size = const Size(1280, 800),
+    RegistrationKind kind = RegistrationKind.firstAdministrator,
+  }) => pumpTestApp(
     tester,
     size: size,
     overrides: serviceOverrides(
       auth: auth,
       user: null,
-      configuration: testConfiguration.copyWith(registrationOpen: true),
+      configuration: testConfiguration.copyWith(registrationOpen: kind == RegistrationKind.firstAdministrator),
     ),
-    child: const RegisterPage(),
+    child: RegisterPage(kind: kind),
   );
+
+  void signUpFailsWith(int status) {
+    final options = RequestOptions(path: '/api/auth/signup');
+    when(
+      () => auth.signUp(
+        username: any(named: 'username'),
+        displayName: any(named: 'displayName'),
+        email: any(named: 'email'),
+        password: any(named: 'password'),
+      ),
+    ).thenThrow(
+      DioException(
+        requestOptions: options,
+        response: Response<Object?>(requestOptions: options, statusCode: status),
+        error: ApiProblem(status: status),
+      ),
+    );
+  }
 
   Future<void> fill(
     WidgetTester tester, {
@@ -30,11 +52,13 @@ void main() {
     String email = 'alice@example.com',
     String password = 'long-password',
   }) async {
-    await tester.enterText(find.widgetWithText(TextFormField, 'Username'), username);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Display name'), displayName);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Email'), email);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), password);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Confirm the password'), password);
+    await tester.enterText(settingsField('Username'), username);
+    await tester.enterText(settingsField('Display name'), displayName);
+    await tester.enterText(settingsField('Email'), email);
+    await tester.enterText(settingsField('Password'), password);
+    await tester.enterText(settingsField('Confirm the password'), password);
+    await tester.ensureVisible(find.text('Create account'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();
   }
@@ -46,16 +70,15 @@ void main() {
     expect(find.text('No account exists yet. The first account becomes the administrator.'), findsOneWidget);
   });
 
-  testWidgets('shows password errors only after the field loses focus', (tester) async {
+  testWidgets('updates the password hints while the user types', (tester) async {
     await pumpRegister(tester);
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'short');
-    await tester.pump();
-    expect(find.text('Use at least 12 characters.'), findsNothing);
-
-    await tester.tap(find.widgetWithText(TextFormField, 'Confirm the password'));
-    await tester.pump();
     expect(find.text('Use at least 12 characters.'), findsOneWidget);
+    expect(find.bySemanticsLabel('Done'), findsNothing);
+
+    await tester.enterText(settingsField('Password'), 'long-password');
+    await tester.pump();
+    expect(find.bySemanticsLabel('Done'), findsOneWidget);
   });
 
   testWidgets('validates the username and the password policy', (tester) async {
@@ -65,7 +88,7 @@ void main() {
 
     expect(find.text('Use only letters and digits.'), findsOneWidget);
     expect(find.text('Enter a valid email address.'), findsOneWidget);
-    expect(find.text('Use at least 12 characters.'), findsOneWidget);
+    expect(find.text('Use at least 12 characters.'), findsNWidgets(2));
     verifyNever(
       () => auth.register(
         username: any(named: 'username'),
@@ -89,6 +112,39 @@ void main() {
       () =>
           auth.register(username: 'alice', displayName: 'Alice', email: 'alice@example.com', password: 'long-password'),
     ).called(1);
+  });
+
+  testWidgets('signs up a new user', (tester) async {
+    when(
+      () => auth.signUp(username: 'alice', displayName: 'Alice', email: 'alice@example.com', password: 'long-password'),
+    ).thenAnswer((_) async => testUser);
+    await pumpRegister(tester, kind: RegistrationKind.signUp, size: const Size(390, 844));
+
+    expect(find.text('Create an account for Guardou'), findsOneWidget);
+    expect(find.text('Sign in instead'), findsOneWidget);
+    await fill(tester);
+
+    verify(
+      () => auth.signUp(username: 'alice', displayName: 'Alice', email: 'alice@example.com', password: 'long-password'),
+    ).called(1);
+  });
+
+  testWidgets('shows a message when the sign-up is closed', (tester) async {
+    signUpFailsWith(403);
+    await pumpRegister(tester, kind: RegistrationKind.signUp);
+
+    await fill(tester);
+
+    expect(find.text('The sign-up is closed.'), findsOneWidget);
+  });
+
+  testWidgets('shows a message when the sign-up is rate limited', (tester) async {
+    signUpFailsWith(429);
+    await pumpRegister(tester, kind: RegistrationKind.signUp);
+
+    await fill(tester);
+
+    expect(find.text('Too many attempts. Wait one minute, then try again.'), findsOneWidget);
   });
 
   testWidgets('shows a message when an account already exists', (tester) async {

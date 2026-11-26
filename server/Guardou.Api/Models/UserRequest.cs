@@ -9,4 +9,5 @@ public sealed record UserRequest(
     [Required, EmailAddress] string Email,
     string? Password,
     bool IsAdmin,
-    [Range(typeof(long), "0", "9223372036854775807")] long? QuotaBytes = null);
+    [Range(typeof(long), "0", "9223372036854775807")] long? QuotaBytes = null,
+    bool PasswordChangeRequired = false);

@@ -3,6 +3,8 @@ abstract final class Routes {
   static const loading = '/loading';
   static const login = '/login';
   static const register = '/register';
+  static const signUp = '/signup';
+  static const passwordChange = '/password';
   static const suggested = '/suggested';
   static const files = '/files';
   static const folders = '/folders';
@@ -26,7 +28,7 @@ abstract final class Routes {
   static const tokenParameter = 'token';
   static const rootFolderId = 'root';
 
-  static const entryPages = {loading, login, register};
+  static const entryPages = {loading, login, register, signUp, passwordChange};
   static const errorPages = {forbidden, serverError};
 
   static String folder(String id) => id == rootFolderId ? files : '$folders/${Uri.encodeComponent(id)}';

@@ -8,10 +8,15 @@ internal sealed class FakeSessionService : ISessionService
 
     public string? SignedInUserId { get; private set; }
 
-    public Task<bool> SignInAsync(string username, string password, bool persistent)
+    public Task<PasswordLoginStatus> SignInAsync(string username, string password, SessionType type, bool persistent)
     {
         SignedInUserId = username;
-        return Task.FromResult(true);
+        return Task.FromResult(PasswordLoginStatus.SignedIn);
+    }
+
+    public Task<bool> RefreshTokenAsync(string refreshToken)
+    {
+        return Task.FromResult(false);
     }
 
     public Task<ExternalLogin?> ReadExternalLoginAsync()

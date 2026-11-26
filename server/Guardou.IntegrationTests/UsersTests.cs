@@ -49,7 +49,7 @@ public sealed class UsersTests : SignedInTests
         HttpResponseMessage root = await client.GetAsync("/api/items/root", CancellationToken);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Equal(new CurrentUser(carol.Id, "carol", "Carol", "carol@example.com", IsAdmin: true, HasPicture: false), me);
+        Assert.Equal(new CurrentUser(carol.Id, "carol", "Carol", "carol@example.com", IsAdmin: true, HasPicture: false, HasPassword: true, PasswordChangeRequired: false), me);
         Assert.Equal(HttpStatusCode.OK, root.StatusCode);
     }
 
@@ -87,7 +87,7 @@ public sealed class UsersTests : SignedInTests
         await robert.LoginAsync("robert", NewPassword);
         ItemDetails details = await robert.GetItemAsync(file.Id);
 
-        Assert.Equal(new UserAccount(account.Id, "robert", "Robert", "robert@example.com", IsAdmin: true, HasPicture: false, updated.ExternalLogins, QuotaBytes: null), updated);
+        Assert.Equal(new UserAccount(account.Id, "robert", "Robert", "robert@example.com", IsAdmin: true, HasPicture: false, updated.ExternalLogins, QuotaBytes: null, HasPassword: true, PasswordChangeRequired: false, LockedOut: false), updated);
         Assert.Empty(updated.ExternalLogins);
         Assert.Equal(HttpStatusCode.Unauthorized, oldSession.StatusCode);
         Assert.Equal("notes.txt", details.Entry.Name);
@@ -186,7 +186,7 @@ public sealed class UsersTests : SignedInTests
         CurrentUser? me = await Client.GetFromJsonAsync<CurrentUser>("/api/auth/me", CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(new CurrentUser(admin.Id, "root", "Root", "root@example.com", IsAdmin: true, HasPicture: false), me);
+        Assert.Equal(new CurrentUser(admin.Id, "root", "Root", "root@example.com", IsAdmin: true, HasPicture: false, HasPassword: true, PasswordChangeRequired: false), me);
     }
 
     [Fact]

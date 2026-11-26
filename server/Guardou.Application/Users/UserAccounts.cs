@@ -21,21 +21,21 @@ public sealed class UserAccounts(
         return await store.FindAsync(id) ?? throw new UserNotFoundException(id);
     }
 
-    public async Task<UserAccount> CreateAsync(UserProfile profile, string? password, long? quotaBytes)
+    public async Task<UserAccount> CreateAsync(UserProfile profile, UserSecurity security)
     {
-        if (password is null)
+        if (security.Password is null)
         {
             throw Rejected(UserAccountErrorCodes.PasswordRequired, "A password is required to create a user.");
         }
 
-        Ensure(await store.CreateAsync(profile, password));
+        Ensure(await store.CreateAsync(profile, security.Password));
         UserAccount account = await store.FindByUsernameAsync(profile.Username)
             ?? throw new InvalidOperationException($"The user '{profile.Username}' was not created.");
-        await store.SetQuotaAsync(account.Id, quotaBytes);
-        return account with { QuotaBytes = quotaBytes };
+        await ApplyAsync(account.Id, security);
+        return await GetAsync(account.Id);
     }
 
-    public async Task<UserAccount> UpdateAsync(string id, UserProfile profile, string? password, long? quotaBytes)
+    public async Task<UserAccount> UpdateAsync(string id, UserProfile profile, UserSecurity security)
     {
         UserAccount account = await GetAsync(id);
         if (account.IsAdmin && !profile.IsAdmin && await IsLastAdministratorAsync())
@@ -43,8 +43,20 @@ public sealed class UserAccounts(
             throw Rejected(UserAccountErrorCodes.LastAdministrator, "The last admin cannot become a user.");
         }
 
-        Ensure(await store.UpdateAsync(id, profile, password));
-        await store.SetQuotaAsync(id, quotaBytes);
+        if (security.PasswordChangeRequired && !account.HasPassword && security.Password is null)
+        {
+            throw Rejected(UserAccountErrorCodes.PasswordChangeWithoutPassword, "A user without a password cannot be required to change it.");
+        }
+
+        Ensure(await store.UpdateAsync(id, profile, security.Password));
+        await ApplyAsync(id, security);
+        return await GetAsync(id);
+    }
+
+    public async Task<UserAccount> UnlockAsync(string id)
+    {
+        UserAccount account = await GetAsync(id);
+        await store.UnlockAsync(account.Id);
         return await GetAsync(id);
     }
 
@@ -72,6 +84,12 @@ public sealed class UserAccounts(
         UserAccount account = await GetAsync(id);
         await store.RemoveLoginAsync(account.Id, provider);
         return await GetAsync(id);
+    }
+
+    private async Task ApplyAsync(string id, UserSecurity security)
+    {
+        await store.SetQuotaAsync(id, security.QuotaBytes);
+        await store.SetPasswordChangeRequiredAsync(id, security.PasswordChangeRequired);
     }
 
     private async Task<bool> IsLastAdministratorAsync()

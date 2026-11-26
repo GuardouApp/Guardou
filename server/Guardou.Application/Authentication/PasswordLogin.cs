@@ -8,17 +8,13 @@ public sealed class PasswordLogin(EffectiveSettings<OidcSettings> settings, ISes
     public async Task<PasswordLoginStatus> SignInAsync(
         string username,
         string password,
+        SessionType type,
         bool persistent,
         CancellationToken cancellationToken)
     {
         OidcSettings oidc = await settings.GetAsync(cancellationToken);
-        if (!oidc.AllowsPasswordLogin)
-        {
-            return PasswordLoginStatus.Disabled;
-        }
-
-        return await sessions.SignInAsync(username, password, persistent)
-            ? PasswordLoginStatus.SignedIn
-            : PasswordLoginStatus.InvalidCredentials;
+        return oidc.AllowsPasswordLogin
+            ? await sessions.SignInAsync(username, password, type, persistent)
+            : PasswordLoginStatus.Disabled;
     }
 }
