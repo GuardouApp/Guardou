@@ -29,6 +29,16 @@ Delete user removes the user and all files of the user. You cannot undo this act
 
 :::
 
+## Sign-up
+
+By default, only admins create users. To let visitors create `user` accounts, enable **Sign-up** under **Admin → Settings → Server**, or set `SIGNUP_ENABLED=true`. The login page then shows **Create an account**. Sign-up works only when the password login is enabled.
+
+## Passwords
+
+- Users change their password under **Account settings → Password**.
+- **Require a password change at the next sign-in** in the user dialog makes the user set a new password before they can continue.
+- After `LOCKOUT_MAX_ATTEMPTS` failed logins (default 5), the account is locked for `LOCKOUT_MINUTES` (default 15). The user dialog shows the lock. **Unlock** ends it immediately.
+
 ## Quotas
 
 Set **Quota (GB)** in the user dialog. Leave it empty for no limit.

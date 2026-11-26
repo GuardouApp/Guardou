@@ -30,6 +30,31 @@ class SessionController extends AsyncNotifier<CurrentUser?> {
     );
   }
 
+  Future<void> signUp({
+    required String username,
+    required String displayName,
+    required String email,
+    required String password,
+  }) async {
+    state = AsyncData(
+      await ref
+          .read(authServiceProvider)
+          .signUp(username: username, displayName: displayName, email: email, password: password),
+    );
+  }
+
+  Future<void> changePassword({required String currentPassword, required String newPassword}) async {
+    state = AsyncData(
+      await ref.read(authServiceProvider).changePassword(currentPassword: currentPassword, newPassword: newPassword),
+    );
+  }
+
+  void requirePasswordChange() {
+    if (state.value case final user? when !user.passwordChangeRequired) {
+      state = AsyncData(user.copyWith(passwordChangeRequired: true));
+    }
+  }
+
   void loginWithOidc({String? returnUrl}) =>
       ref.read(browserLocationProvider).assign(ref.read(authServiceProvider).oidcLogin(returnUrl: returnUrl));
 

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../api/generated/models/authentication_method.dart';
 import '../../app/router/redirect_guard.dart';
+import '../../app/router/routes.dart';
 import '../../app/theme/app_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../configuration/configuration_controller.dart';
+import '../settings/settings_section.dart';
 import 'auth_card.dart';
 import 'auth_form_controller.dart';
 import 'session_controller.dart';
@@ -97,22 +100,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ),
         if (passwordLogin) ...[
-          TextFormField(
+          SettingsTextField(
+            label: l10n.loginUsername,
+            required: true,
             controller: _username,
-            decoration: InputDecoration(labelText: l10n.loginUsername),
             autofillHints: const [AutofillHints.username],
             textInputAction: TextInputAction.next,
             validator: _required,
           ),
-          SizedBox(height: spacing),
-          TextFormField(
+          SettingsTextField(
+            label: l10n.loginPassword,
+            required: true,
             controller: _password,
-            decoration: InputDecoration(labelText: l10n.loginPassword),
             autofillHints: const [AutofillHints.password],
             obscureText: true,
             onFieldSubmitted: (_) => _submit(),
             validator: _required,
           ),
+          SizedBox(height: spacing / 2),
           CheckboxListTile(
             value: _rememberMe,
             onChanged: (value) => setState(() => _rememberMe = value ?? false),
@@ -121,6 +126,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             contentPadding: EdgeInsets.zero,
           ),
           FilledButton(onPressed: submission.isLoading ? null : _submit, child: Text(l10n.loginSubmit)),
+        ],
+        if (configuration?.signupOpen ?? false) ...[
+          SizedBox(height: spacing / 2),
+          TextButton(onPressed: () => context.go(Routes.signUp), child: Text(l10n.signUpLink)),
         ],
       ],
     );

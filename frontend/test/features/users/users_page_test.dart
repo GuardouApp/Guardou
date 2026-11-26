@@ -5,7 +5,6 @@ import 'package:guardou/api/generated/models/current_user.dart';
 import 'package:guardou/api/generated/models/user_account.dart';
 import 'package:guardou/api/generated/models/user_request.dart';
 import 'package:guardou/app/router/app_router.dart';
-import 'package:guardou/features/settings/settings_section.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/test_app.dart';
@@ -21,6 +20,9 @@ void main() {
     hasPicture: false,
     externalLogins: [],
     quotaBytes: null,
+    hasPassword: true,
+    passwordChangeRequired: false,
+    lockedOut: false,
   );
   const bob = UserAccount(
     id: 'bob-id',
@@ -31,6 +33,9 @@ void main() {
     hasPicture: false,
     externalLogins: [],
     quotaBytes: 2 * gigabyte,
+    hasPassword: true,
+    passwordChangeRequired: false,
+    lockedOut: false,
   );
   const compact = Size(390, 844);
 
@@ -61,11 +66,6 @@ void main() {
 
   String locationOf(ProviderContainer container) =>
       container.read(appRouterProvider).routerDelegate.currentConfiguration.uri.path;
-
-  Finder field(String label) => find.descendant(
-    of: find.byWidgetPredicate((widget) => widget is SettingsTextField && widget.label == label),
-    matching: find.byType(TextFormField),
-  );
 
   Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
@@ -108,6 +108,8 @@ void main() {
       email: 'bob@example.com',
       isAdmin: false,
       hasPicture: false,
+      hasPassword: true,
+      passwordChangeRequired: false,
     );
     final container = await pumpUsers(tester, user: user);
 
@@ -130,16 +132,19 @@ void main() {
       hasPicture: false,
       externalLogins: [],
       quotaBytes: null,
+      hasPassword: true,
+      passwordChangeRequired: false,
+      lockedOut: false,
     );
     when(() => users.create(any())).thenAnswer((_) async => carol);
     await pumpUsers(tester);
 
     await tester.tap(find.text('Create user'));
     await tester.pumpAndSettle();
-    await tester.enterText(field('Username'), 'carol');
-    await tester.enterText(field('Display name'), ' Carol Doe ');
-    await tester.enterText(field('Email'), 'carol@example.com');
-    await tester.enterText(field('Password'), 'long-password');
+    await tester.enterText(settingsField('Username'), 'carol');
+    await tester.enterText(settingsField('Display name'), ' Carol Doe ');
+    await tester.enterText(settingsField('Email'), 'carol@example.com');
+    await tester.enterText(settingsField('Password'), 'long-password');
     await tapVisible(
       tester,
       find.descendant(of: find.byType(SegmentedButton<bool>), matching: find.text('Administrator')),
@@ -167,9 +172,9 @@ void main() {
 
     await tester.tap(find.text('Create user'));
     await tester.pumpAndSettle();
-    await tester.enterText(field('Username'), 'carol');
-    await tester.enterText(field('Display name'), 'Carol');
-    await tester.enterText(field('Email'), 'carol@example.com');
+    await tester.enterText(settingsField('Username'), 'carol');
+    await tester.enterText(settingsField('Display name'), 'Carol');
+    await tester.enterText(settingsField('Email'), 'carol@example.com');
     await tester.tap(find.widgetWithText(FilledButton, 'Create'));
     await tester.pumpAndSettle();
 
@@ -185,7 +190,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Edit user'), findsOneWidget);
     expect(find.text('Leave empty to keep the current password.'), findsOneWidget);
-    await tester.enterText(field('Username'), 'robert');
+    await tester.enterText(settingsField('Username'), 'robert');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 
@@ -205,6 +210,37 @@ void main() {
     expect(find.text('User saved'), findsOneWidget);
   });
 
+  testWidgets('requires a password change for a user', (tester) async {
+    when(() => users.update('bob-id', any())).thenAnswer((_) async => bob.copyWith(passwordChangeRequired: true));
+    await pumpUsers(tester, size: compact);
+
+    await tester.tap(find.text('bob'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(Switch));
+    await tester.tap(find.byType(Switch));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    final request = verify(() => users.update('bob-id', captureAny())).captured.single as UserRequest;
+    expect(request.passwordChangeRequired, isTrue);
+  });
+
+  testWidgets('unlocks a locked user', (tester) async {
+    when(users.list).thenAnswer((_) async => [admin, bob.copyWith(lockedOut: true)]);
+    when(() => users.unlock('bob-id')).thenAnswer((_) async => bob);
+    await pumpUsers(tester);
+
+    await tester.tap(find.text('bob'));
+    await tester.pumpAndSettle();
+    expect(find.text('Locked after too many failed sign-ins'), findsOneWidget);
+    await tester.ensureVisible(find.text('Unlock'));
+    await tester.tap(find.text('Unlock'));
+    await tester.pumpAndSettle();
+
+    verify(() => users.unlock('bob-id')).called(1);
+    expect(find.text('Locked after too many failed sign-ins'), findsNothing);
+  });
+
   testWidgets('shows the quota of each user', (tester) async {
     await pumpUsers(tester);
 
@@ -219,17 +255,17 @@ void main() {
 
     await tester.tap(find.text('bob'));
     await tester.pumpAndSettle();
-    expect(find.descendant(of: field('Quota (GB)'), matching: find.text('2')), findsOneWidget);
-    await tester.enterText(field('Quota (GB)'), '-1');
+    expect(find.descendant(of: settingsField('Quota (GB)'), matching: find.text('2')), findsOneWidget);
+    await tester.enterText(settingsField('Quota (GB)'), '-1');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(find.text('Enter a number that is 0 or more.'), findsOneWidget);
-    await tester.enterText(field('Quota (GB)'), '1,5');
+    await tester.enterText(settingsField('Quota (GB)'), '1,5');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('bob'));
     await tester.pumpAndSettle();
-    await tester.enterText(field('Quota (GB)'), '');
+    await tester.enterText(settingsField('Quota (GB)'), '');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 
@@ -263,7 +299,7 @@ void main() {
     await openMenu(tester, bob);
     await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
-    await tester.enterText(field('Username'), 'admin');
+    await tester.enterText(settingsField('Username'), 'admin');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 

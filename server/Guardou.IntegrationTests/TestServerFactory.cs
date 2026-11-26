@@ -16,6 +16,8 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
     public const string AdminEmail = "admin@example.com";
     public const string AdminPassword = "Integration-pass1";
 
+    internal const string RateLimitKey = "Authentication:RateLimit";
+
     private readonly string _dataDir = Path.Combine(Path.GetTempPath(), "guardou-tests", Guid.NewGuid().ToString("N"));
 
     internal string FilesDirectory => Path.Combine(_dataDir, "files");
@@ -44,6 +46,7 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
         string webRoot = Directory.CreateDirectory(Path.Combine(_dataDir, "wwwroot")).FullName;
         File.WriteAllText(Path.Combine(webRoot, "index.html"), "<!doctype html>");
         builder.UseWebRoot(webRoot);
+        builder.UseSetting(RateLimitKey, "1000");
         foreach ((string key, string value) in Settings)
         {
             builder.UseSetting(key, value);

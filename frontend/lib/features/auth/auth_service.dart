@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/generated/models/current_user.dart';
 import '../../api/generated/models/login_request.dart';
+import '../../api/generated/models/password_change_request.dart';
 import '../../api/generated/models/register_request.dart';
 import '../../api/generated/api_client.dart';
 import '../../core/api/antiforgery_interceptor.dart';
@@ -50,6 +51,26 @@ class AuthService {
       body: RegisterRequest(username: username, displayName: displayName, email: email, password: password),
     );
     _antiforgery.reset();
+    return _api.auth.getCurrentUser();
+  }
+
+  Future<CurrentUser> signUp({
+    required String username,
+    required String displayName,
+    required String email,
+    required String password,
+  }) async {
+    await _api.auth.signUp(
+      body: RegisterRequest(username: username, displayName: displayName, email: email, password: password),
+    );
+    _antiforgery.reset();
+    return _api.auth.getCurrentUser();
+  }
+
+  Future<CurrentUser> changePassword({required String currentPassword, required String newPassword}) async {
+    await _api.password.changePassword(
+      body: PasswordChangeRequest(currentPassword: currentPassword, newPassword: newPassword),
+    );
     return _api.auth.getCurrentUser();
   }
 

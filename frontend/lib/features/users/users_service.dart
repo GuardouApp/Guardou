@@ -22,5 +22,7 @@ class UsersService {
 
   Future<void> delete(String id) => _api.users.deleteUser(id: id);
 
+  Future<UserAccount> unlock(String id) => _api.users.unlockUser(id: id);
+
   Future<UserAccount> removeOidcLogin(String id) => _api.users.removeUserLogin(id: id, provider: oidcProvider);
 }

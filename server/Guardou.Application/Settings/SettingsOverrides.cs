@@ -12,6 +12,8 @@ public sealed class SettingsOverrides
 
     public int? UploadChunkSizeMb { get; set; }
 
+    public bool? SignupEnabled { get; set; }
+
     public string? OidcIssuer { get; set; }
 
     public string? OidcClientId { get; set; }

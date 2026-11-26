@@ -25,5 +25,14 @@ These variables override the settings under **Admin → Settings**. A field that
 | `TRASH_RETENTION_DAYS` | `30`    | Items in the trash are deleted after this number of days. 1 to 3650.     |
 | `UPLOAD_CONCURRENCY`   | `3`     | Files that each client uploads at the same time. 1 to 6.                 |
 | `UPLOAD_CHUNK_SIZE_MB` | `64`    | The size of each upload request. 1 to 90. See [Reverse Proxy](./reverse-proxy). |
+| `SIGNUP_ENABLED`       | `false` | `true` lets visitors create user accounts. See [Users](./users#sign-up). |
+
+## Authentication
+
+| Variable               | Default | Description                                                                                  |
+| ---------------------- | ------- | -------------------------------------------------------------------------------------------- |
+| `AUTH_RATE_LIMIT`      | `10`    | Requests per minute from one client address to login, token, refresh, registration, sign-up and password change. 1 to 1000. |
+| `LOCKOUT_MAX_ATTEMPTS` | `5`     | Failed logins that lock an account. 1 to 100.                                                |
+| `LOCKOUT_MINUTES`      | `15`    | How long a locked account stays locked. 1 to 1440.                                           |
 
 For the `OIDC_*` variables, see [Single Sign-On](./oidc).

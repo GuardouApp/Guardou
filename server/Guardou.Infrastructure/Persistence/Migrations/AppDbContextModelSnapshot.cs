@@ -302,6 +302,9 @@ namespace Guardou.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("PasswordChangeRequired")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
 

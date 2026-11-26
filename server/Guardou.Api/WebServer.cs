@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Guardou.Api.Authentication;
 using Guardou.Api.Authorization;
 using Guardou.Api.Configuration;
 using Guardou.Api.Endpoints;
@@ -10,6 +11,8 @@ using Guardou.Api.OpenApi;
 using Guardou.Application;
 using Guardou.Domain;
 using Guardou.Infrastructure;
+using Guardou.Infrastructure.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -52,6 +55,9 @@ public static class WebServer
             .AddJsonOptions(options => ConfigureJson(options.JsonSerializerOptions));
         services.ConfigureHttpJsonOptions(options => ConfigureJson(options.SerializerOptions));
         Policies.Add(services.AddAuthorizationBuilder());
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, PasswordChangeResultHandler>();
+        services.AddSingleton<ProblemResponses>();
+        AuthenticationRateLimit.Add(services);
         services.AddAntiforgery(options =>
         {
             options.HeaderName = AntiforgeryHeaderName;
@@ -89,6 +95,8 @@ public static class WebServer
         StaticFileOptions staticFiles = new() { OnPrepareResponse = RevalidateStaticFile };
         app.UseStaticFiles(staticFiles);
         app.UseAuthentication();
+        app.UseTokenSessionValidation();
+        app.UseRateLimiter();
         app.UseAuthorization();
 
         app.MapControllers();

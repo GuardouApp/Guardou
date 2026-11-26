@@ -1,5 +1,6 @@
 using System.Net;
 using Guardou.Api.Authentication;
+using Guardou.Api.Filters;
 using Guardou.Application.Uploads;
 using Guardou.Domain.Files;
 using Microsoft.AspNetCore.Antiforgery;
@@ -52,7 +53,8 @@ internal static class UploadContentEndpoint
         }
 
         HttpContext http = context.HttpContext;
-        if (!await http.RequestServices.GetRequiredService<IAntiforgery>().IsRequestValidAsync(http))
+        if (AntiforgeryValidationFilter.RequiresValidation(http)
+            && !await http.RequestServices.GetRequiredService<IAntiforgery>().IsRequestValidAsync(http))
         {
             context.FailRequest(HttpStatusCode.BadRequest, "The antiforgery token is missing or invalid.");
             return;

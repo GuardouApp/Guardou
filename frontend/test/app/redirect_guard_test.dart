@@ -26,10 +26,14 @@ void main() {
       AsyncValue<Object?> configuration = loaded,
       AsyncValue<Object?> session = signedIn,
       bool registrationOpen = false,
+      bool signUpOpen = false,
+      bool passwordChangeRequired = false,
     }) => resolveRedirect(
       configuration: configuration,
       session: session,
       registrationOpen: registrationOpen,
+      signUpOpen: signUpOpen,
+      passwordChangeRequired: passwordChangeRequired,
       location: Uri.parse(location),
     );
 
@@ -54,6 +58,19 @@ void main() {
       expect(resolve('/login', session: signedOut, registrationOpen: true), '/register');
       expect(resolve('/register', session: signedOut, registrationOpen: true), isNull);
       expect(resolve('/register', session: signedOut), '/login');
+    });
+
+    test('opens the sign-up page only while the sign-up is open', () {
+      expect(resolve('/signup', session: signedOut, signUpOpen: true), isNull);
+      expect(resolve('/signup', session: signedOut), '/login');
+      expect(resolve('/signup?redirect=%2Fstarred'), '/starred');
+    });
+
+    test('sends a user with a required password change to the password page', () {
+      expect(resolve('/trash', passwordChangeRequired: true), '/password?redirect=%2Ftrash');
+      expect(resolve('/password', passwordChangeRequired: true), isNull);
+      expect(resolve('/password?redirect=%2Ftrash'), '/trash');
+      expect(resolve('/password', session: signedOut), '/login');
     });
 
     test('sends a signed in user to the target after login', () {

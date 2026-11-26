@@ -63,7 +63,9 @@ public sealed class AuthTests(TestServerFactory factory) : IClassFixture<TestSer
             TestServerFactory.AdminDisplayName,
             TestServerFactory.AdminEmail,
             IsAdmin: true,
-            HasPicture: false), me);
+            HasPicture: false,
+            HasPassword: true,
+            PasswordChangeRequired: false), me);
         Assert.NotEmpty(me?.Id ?? string.Empty);
     }
 

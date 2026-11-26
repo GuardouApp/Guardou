@@ -38,6 +38,7 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
   final _password = TextEditingController();
   late final _quota = TextEditingController(text: QuotaInput.format(widget.account?.quotaBytes));
   late var _isAdmin = widget.account?.isAdmin ?? false;
+  late var _passwordChangeRequired = widget.account?.passwordChangeRequired ?? false;
   late var _account = widget.account;
 
   bool get _isNew => widget.account == null;
@@ -65,10 +66,18 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
       password: _password.text.isEmpty ? null : _password.text,
       isAdmin: _isAdmin,
       quotaBytes: QuotaInput.bytesOf(_quota.text),
+      passwordChangeRequired: _passwordChangeRequired,
     );
     final saved = await ref.read(userEditorControllerProvider.notifier).save(widget.account?.id, request);
     if (saved != null && mounted) {
       Navigator.of(context).pop(saved);
+    }
+  }
+
+  Future<void> _unlock(String id) async {
+    final updated = await ref.read(userEditorControllerProvider.notifier).unlock(id);
+    if (updated != null && mounted) {
+      setState(() => _account = updated);
     }
   }
 
@@ -157,6 +166,25 @@ class _UserEditorDialogState extends ConsumerState<_UserEditorDialog> {
                   onSelectionChanged: (selection) => setState(() => _isAdmin = selection.single),
                 ),
               ),
+              SettingsSwitch(
+                label: l10n.userPasswordChangeRequired,
+                value: _passwordChangeRequired,
+                onChanged: (value) => setState(() => _passwordChangeRequired = value),
+              ),
+              if (_account case final account? when account.lockedOut) ...[
+                SizedBox(height: spacing),
+                Row(
+                  children: [
+                    Icon(FluentIcons.lock_closed_24_regular, size: 18, color: theme.colorScheme.error),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(l10n.userLockedOut, style: theme.textTheme.bodyMedium)),
+                    TextButton(
+                      onPressed: submission.isLoading ? null : () => _unlock(account.id),
+                      child: Text(l10n.userUnlock),
+                    ),
+                  ],
+                ),
+              ],
               if (_account case final account? when _oidcLinked) ...[
                 SizedBox(height: spacing),
                 Row(

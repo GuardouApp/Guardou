@@ -24,6 +24,10 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
             nameof(ServerSettings.UploadChunkSizeMb),
             settings => settings.UploadChunkSizeMb.ToString(CultureInfo.InvariantCulture),
             new(SettingsVariables.UploadChunkSizeMb, overrides => overrides.UploadChunkSizeMb is not null, (target, source) => target with { UploadChunkSizeMb = source.UploadChunkSizeMb })),
+        new(
+            nameof(ServerSettings.Signup),
+            settings => settings.Signup ? bool.TrueString : bool.FalseString,
+            new(SettingsVariables.SignupEnabled, overrides => overrides.SignupEnabled is not null, (target, source) => target with { Signup = source.Signup })),
     ];
 
     public static ServerSettings Normalize(ServerSettings settings)
@@ -55,6 +59,7 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
             overrides.ExternalUrl,
             overrides.TrashRetentionDays ?? ServerSettings.Initial.TrashRetentionDays,
             overrides.UploadConcurrency ?? ServerSettings.Initial.UploadConcurrency,
-            overrides.UploadChunkSizeMb ?? ServerSettings.Initial.UploadChunkSizeMb));
+            overrides.UploadChunkSizeMb ?? ServerSettings.Initial.UploadChunkSizeMb,
+            overrides.SignupEnabled ?? ServerSettings.Initial.Signup));
     }
 }

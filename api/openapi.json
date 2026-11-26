@@ -74,6 +74,206 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "CreateToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "RefreshToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -120,6 +320,94 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "SignUp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -1804,6 +2092,79 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/password": {
+      "put": {
+        "tags": [
+          "Password"
+        ],
+        "operationId": "ChangePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -5264,6 +5625,86 @@
         }
       }
     },
+    "/api/users/{id}/unlock": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "UnlockUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccount"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccount"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/{id}/logins/{provider}": {
       "delete": {
         "tags": [
@@ -5410,6 +5851,30 @@
   },
   "components": {
     "schemas": {
+      "AccessTokenResponse": {
+        "required": [
+          "accessToken",
+          "expiresIn",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "tokenType": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
       "AntiforgeryToken": {
         "required": [
           "token"
@@ -5468,7 +5933,9 @@
           "displayName",
           "email",
           "isAdmin",
-          "hasPicture"
+          "hasPicture",
+          "hasPassword",
+          "passwordChangeRequired"
         ],
         "type": "object",
         "properties": {
@@ -5488,6 +5955,12 @@
             "type": "boolean"
           },
           "hasPicture": {
+            "type": "boolean"
+          },
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "passwordChangeRequired": {
             "type": "boolean"
           }
         }
@@ -5874,6 +6347,21 @@
           }
         }
       },
+      "PasswordChangeRequest": {
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      },
       "PasswordPolicy": {
         "required": [
           "minimumLength",
@@ -5935,6 +6423,17 @@
           }
         }
       },
+      "RefreshRequest": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
       "RegisterRequest": {
         "required": [
           "username",
@@ -5963,6 +6462,7 @@
           "applicationName",
           "authenticationMethods",
           "registrationOpen",
+          "signupOpen",
           "passwordPolicy",
           "trashRetentionDays",
           "uploadConcurrency",
@@ -5980,6 +6480,9 @@
             }
           },
           "registrationOpen": {
+            "type": "boolean"
+          },
+          "signupOpen": {
             "type": "boolean"
           },
           "passwordPolicy": {
@@ -6023,6 +6526,10 @@
             "type": "integer",
             "format": "int32",
             "default": 64
+          },
+          "signup": {
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -6032,6 +6539,7 @@
           "trashRetentionDays",
           "uploadConcurrency",
           "uploadChunkSizeMb",
+          "signup",
           "locked"
         ],
         "type": "object",
@@ -6051,6 +6559,9 @@
           "uploadChunkSizeMb": {
             "type": "integer",
             "format": "int32"
+          },
+          "signup": {
+            "type": "boolean"
           },
           "locked": {
             "type": "array",
@@ -6288,6 +6799,21 @@
         ],
         "type": "string"
       },
+      "TokenRequest": {
+        "required": [
+          "username",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
       "TransferRequest": {
         "required": [
           "destinationId"
@@ -6352,7 +6878,10 @@
           "isAdmin",
           "hasPicture",
           "externalLogins",
-          "quotaBytes"
+          "quotaBytes",
+          "hasPassword",
+          "passwordChangeRequired",
+          "lockedOut"
         ],
         "type": "object",
         "properties": {
@@ -6384,6 +6913,15 @@
             "type": "integer",
             "format": "int64",
             "nullable": true
+          },
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "passwordChangeRequired": {
+            "type": "boolean"
+          },
+          "lockedOut": {
+            "type": "boolean"
           }
         }
       },
@@ -6440,6 +6978,10 @@
             "type": "integer",
             "format": "int64",
             "nullable": true
+          },
+          "passwordChangeRequired": {
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -6528,6 +7070,9 @@
     },
     {
       "name": "ItemStars"
+    },
+    {
+      "name": "Password"
     },
     {
       "name": "Preferences"

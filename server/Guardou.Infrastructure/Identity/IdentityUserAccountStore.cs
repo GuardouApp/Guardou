@@ -103,6 +103,43 @@ internal sealed class IdentityUserAccountStore(
         }
     }
 
+    public async Task SetPasswordChangeRequiredAsync(string id, bool required)
+    {
+        if (await userManager.FindByIdAsync(id) is { } user && user.PasswordChangeRequired != required)
+        {
+            user.PasswordChangeRequired = required;
+            await userManager.UpdateAsync(user);
+        }
+    }
+
+    public async Task<UserAccountResult> ChangePasswordAsync(string id, string currentPassword, string newPassword)
+    {
+        ApplicationUser? user = await userManager.FindByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound(id);
+        }
+
+        bool required = user.PasswordChangeRequired;
+        user.PasswordChangeRequired = false;
+        IdentityResult result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            user.PasswordChangeRequired = required;
+        }
+
+        return ToResult(result);
+    }
+
+    public async Task UnlockAsync(string id)
+    {
+        if (await userManager.FindByIdAsync(id) is { } user)
+        {
+            await userManager.SetLockoutEndDateAsync(user, lockoutEnd: null);
+            await userManager.ResetAccessFailedCountAsync(user);
+        }
+    }
+
     public async Task RemoveLoginAsync(string id, string provider)
     {
         if (await userManager.FindByIdAsync(id) is not { } user)
@@ -217,7 +254,10 @@ internal sealed class IdentityUserAccountStore(
             administrator,
             pictures.Contains(user.Id),
             logins.Distinct().ToList(),
-            user.QuotaBytes);
+            user.QuotaBytes,
+            user.PasswordHash is not null,
+            user.PasswordChangeRequired,
+            user.LockoutEnd > time.GetUtcNow());
     }
 
     private static UserLoginInfo LoginOf(string provider, string key)

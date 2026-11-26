@@ -36,6 +36,7 @@ void main() {
     trashRetentionDays: 30,
     uploadConcurrency: 3,
     uploadChunkSizeMb: 64,
+    signup: false,
     locked: [],
   );
   const concurrencyLabel = 'Generate previews: tasks at the same time';

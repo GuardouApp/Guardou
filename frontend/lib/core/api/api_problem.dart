@@ -21,12 +21,21 @@ class ApiProblem implements Exception {
 
   static const quotaExceededCode = 'quotaExceeded';
   static const copyPendingCode = 'copyPending';
+  static const lockedOutCode = 'lockedOut';
+  static const rateLimitedCode = 'rateLimited';
+  static const passwordChangeRequiredCode = 'passwordChangeRequired';
 
   bool get isUnauthorized => status == 401;
 
   bool get isQuotaExceeded => codes.contains(quotaExceededCode);
 
   bool get isCopyPending => codes.contains(copyPendingCode);
+
+  bool get isLockedOut => codes.contains(lockedOutCode);
+
+  bool get isRateLimited => status == 429;
+
+  bool get isPasswordChangeRequired => codes.contains(passwordChangeRequiredCode);
 
   @override
   String toString() => 'ApiProblem($status, $title)';

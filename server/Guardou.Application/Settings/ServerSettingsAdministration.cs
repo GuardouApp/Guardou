@@ -32,6 +32,7 @@ public sealed class ServerSettingsAdministration(EffectiveSettings<ServerSetting
             effective.TrashRetentionDays,
             effective.UploadConcurrency,
             effective.UploadChunkSizeMb,
+            effective.Signup,
             settings.Locked);
     }
 }

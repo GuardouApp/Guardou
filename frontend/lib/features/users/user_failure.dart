@@ -11,6 +11,7 @@ enum UserFailure {
   emailTaken,
   emailInvalid,
   passwordRejected,
+  passwordChangeWithoutPassword,
   lastAdministrator,
   selfDeletion,
   notFound,
@@ -30,6 +31,7 @@ enum UserFailure {
     'InvalidEmail' => emailInvalid,
     'LastAdministrator' => lastAdministrator,
     'SelfDeletion' => selfDeletion,
+    'PasswordChangeWithoutPassword' => passwordChangeWithoutPassword,
     _ when code.startsWith('Password') => passwordRejected,
     _ => unknown,
   };
@@ -41,6 +43,7 @@ enum UserFailure {
     emailTaken => l10n.userEmailTaken,
     emailInvalid => l10n.registerEmailInvalid,
     passwordRejected => l10n.userPasswordRejected,
+    passwordChangeWithoutPassword => l10n.userPasswordChangeWithoutPassword,
     lastAdministrator => l10n.userLastAdministrator,
     selfDeletion => l10n.userSelfDeletion,
     notFound => l10n.userNotFoundMessage,

@@ -2,7 +2,9 @@ namespace Guardou.Application.Authentication;
 
 public interface ISessionService
 {
-    Task<bool> SignInAsync(string username, string password, bool persistent);
+    Task<PasswordLoginStatus> SignInAsync(string username, string password, SessionType type, bool persistent);
+
+    Task<bool> RefreshTokenAsync(string refreshToken);
 
     Task<ExternalLogin?> ReadExternalLoginAsync();
 

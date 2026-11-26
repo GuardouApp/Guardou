@@ -15,8 +15,6 @@ internal sealed partial class ProblemDetailsExceptionHandler(
     IProblemDetailsService problemDetailsService,
     ILogger<ProblemDetailsExceptionHandler> logger) : IExceptionHandler
 {
-    private const string CodesExtension = "codes";
-
     public ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         int statusCode = StatusCodeOf(exception);
@@ -40,27 +38,27 @@ internal sealed partial class ProblemDetailsExceptionHandler(
         ProblemDetails problem = new() { Status = statusCode, Detail = isServerError ? null : exception.Message };
         if (exception is UserAccountRejectedException rejected)
         {
-            problem.Extensions[CodesExtension] = rejected.Errors.Select(error => error.Code).ToList();
+            problem.Extensions[ProblemResponses.CodesExtension] = rejected.Errors.Select(error => error.Code).ToList();
         }
 
         if (exception is UploadInProgressException)
         {
-            problem.Extensions[CodesExtension] = new[] { UploadInProgressException.Code };
+            problem.Extensions[ProblemResponses.CodesExtension] = new[] { UploadInProgressException.Code };
         }
 
         if (exception is ItemChangedException)
         {
-            problem.Extensions[CodesExtension] = new[] { ItemChangedException.Code };
+            problem.Extensions[ProblemResponses.CodesExtension] = new[] { ItemChangedException.Code };
         }
 
         if (exception is CopyPendingException)
         {
-            problem.Extensions[CodesExtension] = new[] { CopyPendingException.Code };
+            problem.Extensions[ProblemResponses.CodesExtension] = new[] { CopyPendingException.Code };
         }
 
         if (exception is QuotaExceededException)
         {
-            problem.Extensions[CodesExtension] = new[] { QuotaExceededException.Code };
+            problem.Extensions[ProblemResponses.CodesExtension] = new[] { QuotaExceededException.Code };
         }
 
         return problem;

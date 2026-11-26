@@ -42,6 +42,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<UserPreferencesService>();
         services.AddScoped<UserSearch>();
         services.AddScoped<Registration>();
+        services.AddScoped<SignUp>();
+        services.AddScoped<PasswordChanges>();
         services.AddScoped<PasswordLogin>();
         services.AddScoped<ExternalSignIn>();
         services.AddScoped<OidcSettingsAdministration>();

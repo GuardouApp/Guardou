@@ -69,9 +69,50 @@ void main() {
       expect(find.byType(PreferencesPage), findsOneWidget);
       expect(find.text('General'), findsOneWidget);
       expect(find.text('Uploads'), findsOneWidget);
+      expect(find.text('Password'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('hides the password section from users without a password', (tester) async {
+    await pumpRoutedApp(
+      tester,
+      location: '/settings',
+      overrides: serviceOverrides(
+        auth: MockAuthService(),
+        preferences: preferences,
+        user: testUser.copyWith(hasPassword: false),
+      ),
+    );
+
+    expect(find.text('General'), findsOneWidget);
+    expect(find.text('Password'), findsNothing);
+  });
+
+  testWidgets('changes the password from the account settings', (tester) async {
+    final auth = MockAuthService();
+    when(
+      () => auth.changePassword(currentPassword: 'old-password', newPassword: 'new-long-password'),
+    ).thenAnswer((_) async => testUser);
+    await pumpRoutedApp(
+      tester,
+      location: '/settings',
+      overrides: serviceOverrides(auth: auth, preferences: preferences),
+    );
+
+    await tester.tap(find.text('Password'));
+    await tester.pumpAndSettle();
+    await tester.enterText(settingsField('Current password'), 'old-password');
+    await tester.enterText(settingsField('New password'), 'new-long-password');
+    await tester.enterText(settingsField('Confirm the password'), 'new-long-password');
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Change password'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Change password'));
+    await tester.pumpAndSettle();
+
+    verify(() => auth.changePassword(currentPassword: 'old-password', newPassword: 'new-long-password')).called(1);
+    expect(find.text('The password is changed.'), findsOneWidget);
+  });
 
   testWidgets('applies the saved theme and language', (tester) async {
     await pumpPreferences(tester);
