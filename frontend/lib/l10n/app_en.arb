@@ -710,5 +710,52 @@
   "userPasswordChangeRequired": "Require a password change at the next sign-in",
   "userPasswordChangeWithoutPassword": "This user has no password. Set a password to require a change.",
   "userLockedOut": "Locked after too many failed sign-ins",
-  "userUnlock": "Unlock"
+  "userUnlock": "Unlock",
+  "notifications": "Notifications",
+  "notificationsUnread": "Notifications ({count} unread)",
+  "@notificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsClear": "Clear all",
+  "notificationsEmpty": "You have no notifications.",
+  "notificationsLoadError": "The notifications did not load.",
+  "notificationUnread": "Unread",
+  "notificationOpen": "Open",
+  "notificationShareReceived": "{sender} shared “{name}” with you",
+  "@notificationShareReceived": {
+    "placeholders": {
+      "sender": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationUnknownUser": "A deleted user",
+  "notificationUnknownItem": "an item",
+  "notificationQuotaWarning": "You used 80% of your storage.",
+  "notificationUpdateAvailable": "Guardou {version} is available.",
+  "@notificationUpdateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationUnknown": "You have a new notification.",
+  "notificationSettings": "Notifications",
+  "notificationSettingsDescription": "Get notifications on this device.",
+  "browserNotifications": "Browser notifications",
+  "browserNotificationsDescription": "Show a browser notification when this tab is not visible.",
+  "browserNotificationsDenied": "The browser blocks notifications for this site. Allow them in the site settings of the browser.",
+  "browserNotificationsUnsupported": "This browser does not support notifications.",
+  "realtimeReconnecting": "The connection to the server is lost. Connecting again…",
+  "realtimeReconnected": "The connection to the server is available again.",
+  "updateCheckSetting": "Update check",
+  "updateCheckSettingDescription": "Check each day for a new release on GitHub. Admins get a notification for a new release."
 }

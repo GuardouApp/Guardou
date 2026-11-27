@@ -37,6 +37,7 @@ void main() {
     uploadConcurrency: 3,
     uploadChunkSizeMb: 64,
     signup: false,
+    updateCheck: true,
     locked: [],
   );
   const concurrencyLabel = 'Generate previews: tasks at the same time';
@@ -200,6 +201,27 @@ void main() {
     verify(
       () => settings.changeServerSettings(
         const ServerSettings(externalUrl: null, trashRetentionDays: 30, uploadConcurrency: 5, uploadChunkSizeMb: 16),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('turns off the update check', (tester) async {
+    when(() => settings.changeServerSettings(any())).thenAnswer((_) async => server);
+    await pumpSettings(tester);
+    await expand(tester, 'Server');
+
+    await tapVisible(tester, find.byType(Switch).last);
+    await tapVisible(tester, button('Save').hitTestable());
+
+    verify(
+      () => settings.changeServerSettings(
+        const ServerSettings(
+          externalUrl: null,
+          trashRetentionDays: 30,
+          uploadConcurrency: 3,
+          uploadChunkSizeMb: 64,
+          updateCheck: false,
+        ),
       ),
     ).called(1);
   });

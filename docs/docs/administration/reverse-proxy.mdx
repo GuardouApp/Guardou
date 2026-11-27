@@ -11,4 +11,5 @@ Guardou listens on HTTP port `2286`. Use a reverse proxy for HTTPS.
 
 - Set **External URL** under **Admin → Settings → Server**, or `EXTERNAL_URL`.
 - Permit request bodies at least as large as the upload chunk size (`UPLOAD_CHUNK_SIZE_MB`, default 64 MB).
+- Forward WebSocket connections (`Upgrade` and `Connection` headers) for `/api/events`. Realtime updates use them. Without WebSockets, the client uses server-sent events or long polling.
 - The authentication rate limit (`AUTH_RATE_LIMIT`) counts requests for each connection address. Guardou does not read `X-Forwarded-For`, so behind a reverse proxy all clients share one limit. Increase `AUTH_RATE_LIMIT` for many users.

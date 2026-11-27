@@ -1,4 +1,6 @@
 using Guardou.Application.Files;
+using Guardou.Application.Notifications;
+using Guardou.Application.Realtime;
 using Guardou.Application.Users;
 using Guardou.Domain.Files;
 using Guardou.Domain.Shares;
@@ -14,6 +16,9 @@ public sealed class DirectSharing
     private readonly SharedItems _links;
     private readonly ItemEntryFactory _entries;
     private readonly TimeProvider _time;
+    private readonly NotificationCenter _notifications;
+    private readonly IRealtimeEvents _events;
+    private readonly IItemChangeObserver _changes;
 
     internal DirectSharing(
         IDirectShareStore shares,
@@ -22,7 +27,10 @@ public sealed class DirectSharing
         IUserDirectory users,
         SharedItems links,
         ItemEntryFactory entries,
-        TimeProvider time)
+        TimeProvider time,
+        NotificationCenter notifications,
+        IRealtimeEvents events,
+        IItemChangeObserver changes)
     {
         _shares = shares;
         _store = store;
@@ -31,6 +39,9 @@ public sealed class DirectSharing
         _links = links;
         _entries = entries;
         _time = time;
+        _notifications = notifications;
+        _events = events;
+        _changes = changes;
     }
 
     public async Task<IReadOnlyList<UserSummary>> ListRecipientsAsync(string ownerId, string id, CancellationToken cancellationToken)
@@ -56,7 +67,11 @@ public sealed class DirectSharing
             throw new UserNotFoundException(userId);
         }
 
-        await EnsureShareAsync(item, userId, cancellationToken);
+        if (await EnsureShareAsync(item, userId, cancellationToken))
+        {
+            await _notifications.ShareReceivedAsync(userId, ownerId, item, cancellationToken);
+        }
+
         return await RecipientsAsync(item, cancellationToken);
     }
 
@@ -79,6 +94,7 @@ public sealed class DirectSharing
         {
             _shares.Remove(share);
             await _shares.SaveAsync(cancellationToken);
+            await PublishAsync(item, userId, cancellationToken);
         }
     }
 
@@ -97,13 +113,23 @@ public sealed class DirectSharing
         return await _entries.CreateSharedRootsAsync(items, userId, cancellationToken);
     }
 
-    private async Task EnsureShareAsync(Item item, string userId, CancellationToken cancellationToken)
+    private async Task<bool> EnsureShareAsync(Item item, string userId, CancellationToken cancellationToken)
     {
-        if (await _shares.FindAsync(item.Id, userId, cancellationToken) is null)
+        if (await _shares.FindAsync(item.Id, userId, cancellationToken) is not null)
         {
-            _shares.Add(DirectShare.Create(item.Id, userId, _time.GetUtcNow()));
-            await _shares.SaveAsync(cancellationToken);
+            return false;
         }
+
+        _shares.Add(DirectShare.Create(item.Id, userId, _time.GetUtcNow()));
+        await _shares.SaveAsync(cancellationToken);
+        await PublishAsync(item, userId, cancellationToken);
+        return true;
+    }
+
+    private async Task PublishAsync(Item item, string recipientId, CancellationToken cancellationToken)
+    {
+        await _events.SharesChangedAsync(recipientId, cancellationToken);
+        await _changes.ChangedAsync(ItemChanges.Of(item.OwnerId, item.ParentId), cancellationToken);
     }
 
     private async Task<IReadOnlyList<UserSummary>> RecipientsAsync(Item item, CancellationToken cancellationToken)

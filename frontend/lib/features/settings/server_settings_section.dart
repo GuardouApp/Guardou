@@ -49,6 +49,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
   final _uploadConcurrency = TextEditingController();
   final _uploadChunkSize = TextEditingController();
   late bool _signup;
+  late bool _updateCheck;
 
   @override
   ServerSettingsView get saved => widget.settings;
@@ -66,6 +67,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
     _uploadConcurrency.text = '${value.uploadConcurrency}';
     _uploadChunkSize.text = '${value.uploadChunkSizeMb}';
     _signup = value.signup;
+    _updateCheck = value.updateCheck;
   }
 
   @override
@@ -81,6 +83,7 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
           uploadConcurrency: int.parse(_uploadConcurrency.text),
           uploadChunkSizeMb: int.parse(_uploadChunkSize.text),
           signup: _signup,
+          updateCheck: _updateCheck,
         ),
       );
 
@@ -117,17 +120,21 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
     validator: (value) => _validateRange(AppLocalizations.of(context), value, minimum, maximum),
   );
 
-  Widget _signupSwitch(AppLocalizations l10n) {
-    final variable = lockedVariable(widget.settings.locked, 'signup');
+  Widget _switchField({
+    required AppLocalizations l10n,
+    required String label,
+    required String description,
+    required String field,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final variable = lockedVariable(widget.settings.locked, field);
     return SettingsField(
-      label: l10n.signUpSetting,
-      description: variable == null ? l10n.signUpSettingDescription : l10n.settingsLocked(variable),
+      label: label,
+      description: variable == null ? description : l10n.settingsLocked(variable),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
-        child: Switch(
-          value: _signup,
-          onChanged: variable == null ? (value) => setState(() => _signup = value) : null,
-        ),
+        child: Switch(value: value, onChanged: variable == null ? (value) => setState(() => onChanged(value)) : null),
       ),
     );
   }
@@ -173,7 +180,22 @@ class _ServerSettingsFormState extends ConsumerState<_ServerSettingsForm>
             minimum: _minimumChunkSize,
             maximum: _maximumChunkSize,
           ),
-          _signupSwitch(l10n),
+          _switchField(
+            l10n: l10n,
+            label: l10n.signUpSetting,
+            description: l10n.signUpSettingDescription,
+            field: 'signup',
+            value: _signup,
+            onChanged: (value) => _signup = value,
+          ),
+          _switchField(
+            l10n: l10n,
+            label: l10n.updateCheckSetting,
+            description: l10n.updateCheckSettingDescription,
+            field: 'updateCheck',
+            value: _updateCheck,
+            onChanged: (value) => _updateCheck = value,
+          ),
           settingsActions(),
         ],
       ),

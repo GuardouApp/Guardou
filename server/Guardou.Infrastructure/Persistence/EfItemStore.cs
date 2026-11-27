@@ -3,11 +3,16 @@ using Guardou.Domain.Files;
 using Guardou.Infrastructure.Indexing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Guardou.Infrastructure.Persistence;
 
-internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, StorageUsageCounter usage) : IItemStore
+internal sealed class EfItemStore(
+    AppDbContext context,
+    ItemIndexWriter index,
+    StorageUsageCounter usage,
+    ItemChangeOutbox outbox) : IItemStore
 {
     private const int UniqueConstraintFailed = 2067;
 
@@ -149,9 +154,45 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, S
 
     public async Task SaveAsync(CancellationToken cancellationToken)
     {
+        IReadOnlyList<ChangedFolder> folders = ChangedFolders();
+        IReadOnlyDictionary<string, long> changes = usage.PendingChanges();
+        await SaveChangesAsync(changes, cancellationToken);
+        await outbox.AddAsync(new ItemChanges(folders, changes), cancellationToken);
+    }
+
+    private List<ChangedFolder> ChangedFolders()
+    {
+        return context.ChangeTracker.Entries<Item>()
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .SelectMany(FoldersOf)
+            .Distinct()
+            .ToList();
+    }
+
+    private static IEnumerable<ChangedFolder> FoldersOf(EntityEntry<Item> entry)
+    {
+        Item item = entry.Entity;
+        if (item.IsFolder)
+        {
+            yield return new ChangedFolder(item.OwnerId, item.Id);
+        }
+
+        if (item.ParentId is { } parentId)
+        {
+            yield return new ChangedFolder(item.OwnerId, parentId);
+        }
+
+        if (entry.State == EntityState.Modified && entry.Property(changed => changed.ParentId).OriginalValue is { } originalParentId)
+        {
+            yield return new ChangedFolder(item.OwnerId, originalParentId);
+        }
+    }
+
+    private async Task SaveChangesAsync(IReadOnlyDictionary<string, long> changes, CancellationToken cancellationToken)
+    {
         try
         {
-            await SaveChangesAsync(cancellationToken);
+            await SaveTrackedChangesAsync(changes, cancellationToken);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -163,9 +204,8 @@ internal sealed class EfItemStore(AppDbContext context, ItemIndexWriter index, S
         }
     }
 
-    private async Task SaveChangesAsync(CancellationToken cancellationToken)
+    private async Task SaveTrackedChangesAsync(IReadOnlyDictionary<string, long> changes, CancellationToken cancellationToken)
     {
-        IReadOnlyDictionary<string, long> changes = usage.PendingChanges();
         if (changes.Count == 0)
         {
             await index.SaveAsync(cancellationToken);

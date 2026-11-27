@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../auth/session_controller.dart';
+import '../notifications/notifications_section.dart';
 import '../settings/settings_layout.dart';
 import 'general_section.dart';
 import 'password_section.dart';
@@ -16,7 +17,12 @@ class PreferencesPage extends ConsumerWidget {
     final hasPassword = ref.watch(sessionControllerProvider).value?.hasPassword ?? false;
     return SettingsLayout(
       title: AppLocalizations.of(context).accountSettings,
-      sections: [const GeneralSection(), const UploadSection(), if (hasPassword) const PasswordSection()],
+      sections: [
+        const GeneralSection(),
+        const UploadSection(),
+        const NotificationsSection(),
+        if (hasPassword) const PasswordSection(),
+      ],
     );
   }
 }

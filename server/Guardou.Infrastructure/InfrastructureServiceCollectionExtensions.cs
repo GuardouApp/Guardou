@@ -1,5 +1,7 @@
 using Guardou.Application.Authentication;
+using System.Net.Http.Headers;
 using Guardou.Application.Files;
+using Guardou.Application.Notifications;
 using Guardou.Application.Persistence;
 using Guardou.Application.Preferences;
 using Guardou.Application.Previews;
@@ -8,6 +10,7 @@ using Guardou.Application.Settings;
 using Guardou.Application.Shares;
 using Guardou.Application.Tasks;
 using Guardou.Application.Quotas;
+using Guardou.Application.Updates;
 using Guardou.Application.Uploads;
 using Guardou.Application.Users;
 using Guardou.Domain;
@@ -21,6 +24,7 @@ using Guardou.Infrastructure.Persistence;
 using Guardou.Infrastructure.Previews;
 using Guardou.Infrastructure.Profiles;
 using Guardou.Infrastructure.Storage;
+using Guardou.Infrastructure.Updates;
 using Guardou.Infrastructure.Uploads;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -64,7 +68,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IUserAccountStore, IdentityUserAccountStore>();
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<ItemNameNormalizer>();
+        services.AddScoped<ItemChangeOutbox>();
         services.AddScoped<IItemStore, EfItemStore>();
+        services.AddScoped<INotificationStore, EfNotificationStore>();
         services.AddScoped<IWriteTransactions, EfWriteTransactions>();
         services.AddScoped<StorageUsageCounter>();
         services.AddScoped<IStorageQuotaStore, EfStorageQuotaStore>();
@@ -101,6 +107,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHttpClient<ProfilePictureDownloader>(client => client.Timeout = ProfilePictureDownloader.Timeout)
             .ConfigurePrimaryHttpMessageHandler(PublicAddressConnector.CreateHandler);
         services.AddSingleton<IProfilePictureStore, FileProfilePictureStore>();
+        services.AddHttpClient<IReleaseFeed, GitHubReleaseFeed>(ConfigureReleaseFeed);
         return services;
     }
 
@@ -121,6 +128,14 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHealthChecks().AddDbContextCheck<AppDbContext>().AddDbContextCheck<IndexDbContext>();
         services.AddScoped<ISessionService, IdentitySessionService>();
         return services;
+    }
+
+    private static void ConfigureReleaseFeed(HttpClient client)
+    {
+        client.BaseAddress = GitHubReleaseFeed.BaseAddress;
+        client.Timeout = GitHubReleaseFeed.Timeout;
+        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Product.Name, Product.Version));
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(GitHubReleaseFeed.MediaType));
     }
 
     private static string ConnectionString(string databaseFile)

@@ -7,7 +7,8 @@ public sealed record ServerSettings(
     int TrashRetentionDays = TrashPolicy.DefaultRetentionDays,
     int UploadConcurrency = UploadPolicy.DefaultConcurrency,
     int UploadChunkSizeMb = UploadPolicy.DefaultChunkSizeMb,
-    bool Signup = false) : ISettings<ServerSettings>
+    bool Signup = false,
+    bool UpdateCheck = true) : ISettings<ServerSettings>
 {
     public static string Key => "server";
 

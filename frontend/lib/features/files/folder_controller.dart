@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/models/item_details.dart';
 import '../../api/generated/models/item_entry.dart';
 import '../../core/providers/retry.dart';
+import '../realtime/item_changes.dart';
 import 'files_service.dart';
 
 final folderControllerProvider = AsyncNotifierProvider.autoDispose.family<FolderController, ItemDetails, String>(
@@ -24,7 +25,10 @@ class FolderController extends AsyncNotifier<ItemDetails> {
   final String folderId;
 
   @override
-  Future<ItemDetails> build() => ref.read(filesServiceProvider).item(folderId);
+  Future<ItemDetails> build() {
+    refreshOnItemChanges(ref, () => [folderId, state.value?.entry.id]);
+    return ref.read(filesServiceProvider).item(folderId);
+  }
 }
 
 class ChildrenController extends AsyncNotifier<List<ItemEntry>> {
@@ -33,5 +37,8 @@ class ChildrenController extends AsyncNotifier<List<ItemEntry>> {
   final String folderId;
 
   @override
-  Future<List<ItemEntry>> build() => ref.read(filesServiceProvider).children(folderId);
+  Future<List<ItemEntry>> build() {
+    refreshOnItemChanges(ref, () => [folderId, state.value?.firstOrNull?.parentId]);
+    return ref.read(filesServiceProvider).children(folderId);
+  }
 }

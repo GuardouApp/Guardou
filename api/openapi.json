@@ -2108,6 +2108,106 @@
         }
       }
     },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "ListNotifications",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationEntry"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "ClearNotifications",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "MarkNotificationsRead",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/me/password": {
       "put": {
         "tags": [
@@ -6251,6 +6351,95 @@
           }
         }
       },
+      "NotificationEntry": {
+        "required": [
+          "id",
+          "kind",
+          "created",
+          "read",
+          "item",
+          "sender",
+          "version",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/NotificationKind"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "item": {
+            "oneOf": [
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              },
+              {
+                "$ref": "#/components/schemas/NotificationItem"
+              }
+            ]
+          },
+          "sender": {
+            "oneOf": [
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              },
+              {
+                "$ref": "#/components/schemas/UserSummary"
+              }
+            ]
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NotificationItem": {
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ItemKind"
+          }
+        }
+      },
+      "NotificationKind": {
+        "enum": [
+          "shareReceived",
+          "quotaWarning",
+          "updateAvailable"
+        ],
+        "type": "string"
+      },
       "OidcSettingsChange": {
         "required": [
           "issuer",
@@ -6530,6 +6719,10 @@
           "signup": {
             "type": "boolean",
             "default": false
+          },
+          "updateCheck": {
+            "type": "boolean",
+            "default": true
           }
         }
       },
@@ -6540,6 +6733,7 @@
           "uploadConcurrency",
           "uploadChunkSizeMb",
           "signup",
+          "updateCheck",
           "locked"
         ],
         "type": "object",
@@ -6561,6 +6755,9 @@
             "format": "int32"
           },
           "signup": {
+            "type": "boolean"
+          },
+          "updateCheck": {
             "type": "boolean"
           },
           "locked": {
@@ -7070,6 +7267,9 @@
     },
     {
       "name": "ItemStars"
+    },
+    {
+      "name": "Notifications"
     },
     {
       "name": "Password"

@@ -6,4 +6,5 @@ public sealed record ServerSettingsView(
     int UploadConcurrency,
     int UploadChunkSizeMb,
     bool Signup,
+    bool UpdateCheck,
     IReadOnlyList<LockedSetting> Locked);

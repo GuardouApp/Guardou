@@ -13,13 +13,20 @@ public sealed class ItemSharing
     private readonly OwnedItems _items;
     private readonly ServerSettingsAdministration _server;
     private readonly TimeProvider _time;
+    private readonly IItemChangeObserver _changes;
 
-    internal ItemSharing(IShareStore shares, OwnedItems items, ServerSettingsAdministration server, TimeProvider time)
+    internal ItemSharing(
+        IShareStore shares,
+        OwnedItems items,
+        ServerSettingsAdministration server,
+        TimeProvider time,
+        IItemChangeObserver changes)
     {
         _shares = shares;
         _items = items;
         _server = server;
         _time = time;
+        _changes = changes;
     }
 
     public async Task<ShareLink> GetAsync(string ownerId, string id, string requestOrigin, CancellationToken cancellationToken)
@@ -39,6 +46,7 @@ public sealed class ItemSharing
             share = Share.Create(item.Id, _time.GetUtcNow());
             _shares.Add(share);
             await _shares.SaveAsync(cancellationToken);
+            await _changes.ChangedAsync(ItemChanges.Of(item.OwnerId, item.ParentId), cancellationToken);
         }
 
         return await LinkOfAsync(share, requestOrigin, cancellationToken);
@@ -71,6 +79,7 @@ public sealed class ItemSharing
         {
             _shares.Remove(share);
             await _shares.SaveAsync(cancellationToken);
+            await _changes.ChangedAsync(ItemChanges.Of(item.OwnerId, item.ParentId), cancellationToken);
         }
     }
 

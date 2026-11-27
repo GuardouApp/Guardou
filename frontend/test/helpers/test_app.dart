@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +14,7 @@ import 'package:guardou/api/generated/models/item_entry.dart';
 import 'package:guardou/api/generated/models/item_kind.dart';
 import 'package:guardou/api/generated/models/item_type.dart';
 import 'package:guardou/api/generated/models/language.dart';
+import 'package:guardou/api/generated/models/notification_entry.dart';
 import 'package:guardou/api/generated/models/item_permissions.dart';
 import 'package:guardou/api/generated/models/password_policy.dart';
 import 'package:guardou/api/generated/models/runtime_configuration.dart';
@@ -28,10 +31,14 @@ import 'package:guardou/core/api/api_problem.dart';
 import 'package:guardou/core/browser/browser_embeds.dart';
 import 'package:guardou/core/browser/browser_files.dart';
 import 'package:guardou/core/browser/browser_location.dart';
+import 'package:guardou/core/browser/browser_notifications.dart';
+import 'package:guardou/core/realtime/realtime_connection.dart';
+import 'package:guardou/core/realtime/realtime_event.dart';
 import 'package:guardou/features/settings/settings_section.dart';
 import 'package:guardou/features/auth/auth_service.dart';
 import 'package:guardou/features/configuration/configuration_service.dart';
 import 'package:guardou/features/files/files_service.dart';
+import 'package:guardou/features/notifications/notifications_service.dart';
 import 'package:guardou/features/preferences/preferences_service.dart';
 import 'package:guardou/features/profile/profile_picture_service.dart';
 import 'package:guardou/features/settings/settings_service.dart';
@@ -65,6 +72,59 @@ class MockSharesService extends Mock implements SharesService {}
 class MockProfilePictureService extends Mock implements ProfilePictureService {}
 
 class MockPreferencesService extends Mock implements PreferencesService {}
+
+class MockNotificationsService extends Mock implements NotificationsService {}
+
+class FakeRealtimeConnection implements RealtimeConnection {
+  final eventController = StreamController<RealtimeEvent>.broadcast();
+  final statusController = StreamController<RealtimeStatus>.broadcast();
+  bool started = false;
+  bool stopped = false;
+
+  @override
+  Stream<RealtimeEvent> get events => eventController.stream;
+
+  @override
+  Stream<RealtimeStatus> get statuses => statusController.stream;
+
+  @override
+  Future<void> start() async => started = true;
+
+  @override
+  Future<void> stop() async => stopped = true;
+
+  void emit(RealtimeEvent event) => eventController.add(event);
+
+  void status(RealtimeStatus status) => statusController.add(status);
+}
+
+class FakeBrowserNotifications implements BrowserNotifications {
+  FakeBrowserNotifications({this.permission = BrowserNotificationPermission.prompt, this.answer});
+
+  @override
+  BrowserNotificationPermission permission;
+
+  final BrowserNotificationPermission? answer;
+
+  @override
+  bool pageVisible = true;
+
+  final shown = <String>[];
+
+  @override
+  Future<BrowserNotificationPermission> requestPermission() async => permission = answer ?? permission;
+
+  @override
+  void show({required String title, required String body, required VoidCallback onClick}) => shown.add(body);
+}
+
+MockNotificationsService stubNotifications({List<NotificationEntry> notifications = const []}) {
+  final service = MockNotificationsService();
+  when(service.list).thenAnswer((_) async => notifications);
+  when(service.markAllRead).thenAnswer((_) async {});
+  when(service.clear).thenAnswer((_) async {});
+  return service;
+}
 
 class FakeBrowserEmbeds implements BrowserEmbeds {
   @override
@@ -226,6 +286,9 @@ List<Override> serviceOverrides({
   BrowserFiles? browser,
   BrowserEmbeds? embeds,
   BrowserLocation? location,
+  NotificationsService? notifications,
+  RealtimeConnection? realtime,
+  BrowserNotifications? browserNotifications,
 }) {
   final configurationService = MockConfigurationService();
   when(configurationService.load).thenAnswer((_) async => configuration);
@@ -244,6 +307,9 @@ List<Override> serviceOverrides({
     browserFilesProvider.overrideWithValue(browser ?? stubBrowser()),
     browserEmbedsProvider.overrideWithValue(embeds ?? FakeBrowserEmbeds()),
     browserLocationProvider.overrideWithValue(location ?? MockBrowserLocation()),
+    notificationsServiceProvider.overrideWithValue(notifications ?? stubNotifications()),
+    realtimeConnectionFactoryProvider.overrideWithValue(() => realtime ?? FakeRealtimeConnection()),
+    browserNotificationsProvider.overrideWithValue(browserNotifications ?? FakeBrowserNotifications()),
   ];
 }
 
