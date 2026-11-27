@@ -12,6 +12,7 @@ internal static class EnvironmentVariableMap
         [SettingsVariables.UploadConcurrency] = Override(nameof(SettingsOverrides.UploadConcurrency)),
         [SettingsVariables.UploadChunkSizeMb] = Override(nameof(SettingsOverrides.UploadChunkSizeMb)),
         [SettingsVariables.SignupEnabled] = Override(nameof(SettingsOverrides.SignupEnabled)),
+        [SettingsVariables.UpdateCheckEnabled] = Override(nameof(SettingsOverrides.UpdateCheckEnabled)),
         [SettingsVariables.OidcIssuer] = Override(nameof(SettingsOverrides.OidcIssuer)),
         [SettingsVariables.OidcClientId] = Override(nameof(SettingsOverrides.OidcClientId)),
         [SettingsVariables.OidcClientSecret] = Override(nameof(SettingsOverrides.OidcClientSecret)),

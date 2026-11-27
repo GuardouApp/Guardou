@@ -1,4 +1,5 @@
 using Guardou.Api.Hosting;
+using Guardou.Application.Updates;
 using Guardou.Infrastructure.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -28,6 +29,8 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
 
     internal TestTimeProvider Time { get; } = new();
 
+    internal FakeReleaseFeed Releases { get; } = new();
+
     internal Action<IServiceCollection> TestServices { get; init; } = _ => { };
 
     internal IReadOnlyDictionary<string, string> Settings { get; init; } = new Dictionary<string, string>();
@@ -56,6 +59,7 @@ public sealed class TestServerFactory : WebApplicationFactory<Program>
         {
             services.Replace(ServiceDescriptor.Singleton(new StoragePaths(_dataDir)));
             services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Time));
+            services.Replace(ServiceDescriptor.Singleton<IReleaseFeed>(Releases));
             TestServices(services);
         });
     }

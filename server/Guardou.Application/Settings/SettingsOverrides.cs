@@ -14,6 +14,8 @@ public sealed class SettingsOverrides
 
     public bool? SignupEnabled { get; set; }
 
+    public bool? UpdateCheckEnabled { get; set; }
+
     public string? OidcIssuer { get; set; }
 
     public string? OidcClientId { get; set; }

@@ -5,7 +5,12 @@ using Guardou.Domain.Tasks;
 
 namespace Guardou.Application.Files;
 
-internal sealed class CopyTaskHandler(IItemStore items, IBlobStore blobs, PreviewTasks previews, TrashService trash) : ITaskHandler
+internal sealed class CopyTaskHandler(
+    IItemStore items,
+    IBlobStore blobs,
+    PreviewTasks previews,
+    TrashService trash,
+    IItemChangeObserver changes) : ITaskHandler
 {
     public TaskKind Kind => TaskKind.Copy;
 
@@ -29,6 +34,7 @@ internal sealed class CopyTaskHandler(IItemStore items, IBlobStore blobs, Previe
             return;
         }
 
+        await changes.ChangedAsync(ItemChanges.Of(copy.OwnerId, copy.ParentId), cancellationToken);
         await previews.EnqueueAsync([copy], TaskPriority.Normal, cancellationToken);
     }
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/configuration/configuration_controller.dart';
 import '../features/preferences/preference_choices.dart';
 import '../features/preferences/preferences_controller.dart';
+import '../features/realtime/realtime_listener.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'browser_chrome.dart';
 import 'router/app_router.dart';
@@ -28,7 +29,7 @@ class App extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(appRouterProvider),
-      builder: (context, child) => BrowserChrome(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => RealtimeListener(child: BrowserChrome(child: child ?? const SizedBox.shrink())),
     );
   }
 }

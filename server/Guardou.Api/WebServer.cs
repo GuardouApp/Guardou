@@ -8,7 +8,9 @@ using Guardou.Api.Errors;
 using Guardou.Api.Filters;
 using Guardou.Api.Hosting;
 using Guardou.Api.OpenApi;
+using Guardou.Api.Realtime;
 using Guardou.Application;
+using Guardou.Application.Realtime;
 using Guardou.Domain;
 using Guardou.Infrastructure;
 using Guardou.Infrastructure.Identity;
@@ -54,6 +56,8 @@ public static class WebServer
             .AddApplicationPart(typeof(WebServer).Assembly)
             .AddJsonOptions(options => ConfigureJson(options.JsonSerializerOptions));
         services.ConfigureHttpJsonOptions(options => ConfigureJson(options.SerializerOptions));
+        services.AddSignalR().AddJsonProtocol(options => ConfigureJson(options.PayloadSerializerOptions));
+        services.AddSingleton<IRealtimeEvents, HubRealtimeEvents>();
         Policies.Add(services.AddAuthorizationBuilder());
         services.AddSingleton<IAuthorizationMiddlewareResultHandler, PasswordChangeResultHandler>();
         services.AddSingleton<ProblemResponses>();
@@ -74,6 +78,7 @@ public static class WebServer
         services.AddHostedService<TrashPurgeWorker>();
         services.AddHostedService<TaskWorkerPool>();
         services.AddHostedService<UploadCleanupWorker>();
+        services.AddHostedService<UpdateCheckWorker>();
     }
 
     private static void RevalidateStaticFile(StaticFileResponseContext context)
@@ -101,6 +106,7 @@ public static class WebServer
 
         app.MapControllers();
         app.MapUploadContent();
+        app.MapHub<EventsHub>(EventsHub.Path);
         app.MapHealthChecks("/health");
         app.MapFallback("/api/{**path}", () => Results.NotFound());
         app.MapFallbackToFile("index.html", staticFiles);

@@ -1,5 +1,6 @@
 using Guardou.Application.Files;
 using Guardou.Application.Previews;
+using Guardou.Application.Quotas;
 
 namespace Guardou.Application.Users;
 
@@ -8,7 +9,8 @@ public sealed class UserAccounts(
     IItemStore items,
     IBlobStore blobs,
     IPreviewCache previews,
-    IProfilePictureStore pictures)
+    IProfilePictureStore pictures,
+    QuotaWarnings quotas)
 {
     public async Task<IReadOnlyList<UserAccount>> ListAsync()
     {
@@ -50,6 +52,7 @@ public sealed class UserAccounts(
 
         Ensure(await store.UpdateAsync(id, profile, security.Password));
         await ApplyAsync(id, security);
+        await quotas.LimitChangedAsync(id, account.QuotaBytes, CancellationToken.None);
         return await GetAsync(id);
     }
 

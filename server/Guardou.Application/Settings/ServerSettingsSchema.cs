@@ -28,6 +28,10 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
             nameof(ServerSettings.Signup),
             settings => settings.Signup ? bool.TrueString : bool.FalseString,
             new(SettingsVariables.SignupEnabled, overrides => overrides.SignupEnabled is not null, (target, source) => target with { Signup = source.Signup })),
+        new(
+            nameof(ServerSettings.UpdateCheck),
+            settings => settings.UpdateCheck ? bool.TrueString : bool.FalseString,
+            new(SettingsVariables.UpdateCheckEnabled, overrides => overrides.UpdateCheckEnabled is not null, (target, source) => target with { UpdateCheck = source.UpdateCheck })),
     ];
 
     public static ServerSettings Normalize(ServerSettings settings)
@@ -60,6 +64,7 @@ internal sealed class ServerSettingsSchema : ISettingsSchema<ServerSettings>
             overrides.TrashRetentionDays ?? ServerSettings.Initial.TrashRetentionDays,
             overrides.UploadConcurrency ?? ServerSettings.Initial.UploadConcurrency,
             overrides.UploadChunkSizeMb ?? ServerSettings.Initial.UploadChunkSizeMb,
-            overrides.SignupEnabled ?? ServerSettings.Initial.Signup));
+            overrides.SignupEnabled ?? ServerSettings.Initial.Signup,
+            overrides.UpdateCheckEnabled ?? ServerSettings.Initial.UpdateCheck));
     }
 }

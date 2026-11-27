@@ -33,6 +33,7 @@ public sealed class ServerSettingsAdministration(EffectiveSettings<ServerSetting
             effective.UploadConcurrency,
             effective.UploadChunkSizeMb,
             effective.Signup,
+            effective.UpdateCheck,
             settings.Locked);
     }
 }

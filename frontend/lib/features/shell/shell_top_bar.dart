@@ -7,6 +7,7 @@ import '../../core/layout/window_size_class.dart';
 import '../../core/widgets/brand_mark.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../configuration/configuration_controller.dart';
+import '../notifications/notifications_button.dart';
 import '../search/shell_search.dart';
 import 'account_menu.dart';
 
@@ -74,6 +75,7 @@ class ShellTopBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       actions: [
         if (showMenuButton) ShellSearch(fullScreen: true, folderId: currentFolderId),
+        const NotificationsButton(),
         const AccountMenu(),
         const SizedBox(width: 8),
       ],
